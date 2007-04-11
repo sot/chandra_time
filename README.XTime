@@ -1,0 +1,92 @@
+XTime Useage Examples
+---------------------
+
+Required:
+
+#include <XTime.h>
+Either $ASC_DATA (preferred) or $TIMING_DIR should be defined and
+point to a directory that contains the USNO leap seconds file,
+tai-utc.dat.
+
+
+As of version 6.3:
+
+For ASCII output, we fixed inadvertant rounding of 59.999 s to 60.0 s.
+
+
+As of version 6.1:
+
+Time is kept internally as a combination of long and double,
+representing MJD.
+
+The XTime constructors, set and get methods allow:
+-  time to be provided and retrieved as an integer (long) and
+fractional (double) part, especially intended for use with MJD.
+-  the reference MJD to be specified, either as a double or a long
+(integer part) and a double (fractional part).
+
+Time scale TAI is included.
+
+Leap seconds are being used back to 1972.
+
+Representation and recognition of UTC leap seconds ("60") is improved.
+
+
+As of version 5.9:
+
+The leap second automatic refresh was introduced, for applications
+that run for more than three months.  In addition, a method is
+provided to force a leap second refresh.
+
+Methods are provided to inspect the leap seconds that are in use in
+the class and to learn the number of XTime objects in existence.
+
+
+A simple command-line interface to XTime is provided in the tool axTime3.
+
+
+1. MET time t:
+         XTime T(t)
+            36000000.0
+   Convert to TT FITS string, integer seconds:
+         strcpy (mystring, T.getDate(XTime::TT, XTime::FITS, 0))
+            1999-02-21T16:00:00
+   Convert to UTC day of year with 6 decimals in second field:
+         strcpy (mystring, T.getDate(XTime::UTC, XTime::DATE, 6))
+            1999:052:15:58:55.816000
+   Convert to TT Calendar date, 3 decimals:
+         strcpy (mystring, T.getDate(XTime::TT, XTime::CALDATE, 3))
+            1999Feb21 at 16:00:0.000
+
+2. UTC day of year dstr:
+         XTime T(dstr, XTime::UTC, XTime::DATE)
+            1999:052:15:58:55.816000
+   Convert to TT FITS string, integer seconds:
+         strcpy (mystring, T.getDate(XTime::TT, XTime::FITS, 0))
+            1999-02-21T16:00:00
+   Convert to MET:
+         T.getMET()
+            36000000.0
+
+3. FITS Date/Time string fstr (TT):
+         XTime T(fstr, XTime::TT, XTime::FITS)
+            1999-02-21T16:00:00
+   Convert to MET:
+         T.getMET()
+            36000000.0
+   Convert to UTC day of year with 6 decimals in second field:
+         strcpy (mystring, T.getDate(XTime::UTC, XTime::DATE, 6))
+            1999:052:15:58:55.816000
+   Convert to UTC Calendar date, 3 decimals:
+         strcpy (mystring, T.getDate(XTime::TT, XTime::CALDATE, 3))
+            1999Feb21 at 15:58:55.816
+
+4. MET time t with MJDREFI, MJDREFF:
+         XTime T(t, XTime::TT, XTime::SECS, MJDREFI, MJDREFF)
+            36000000.0, TT, SECS, 50814, 0.0
+   Convert to TT FITS string, integer seconds:
+         strcpy (mystring, T.getDate(XTime::TT, XTime::FITS, 0))
+            1999-02-21T16:00:00
+   Convert to long MJDint, double MJDfrac:
+         T.mjd (&MJDint, &MJDfrac)
+            51161 0.222222222219

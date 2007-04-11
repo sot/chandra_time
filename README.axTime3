@@ -1,0 +1,59 @@
+axTime3
+
+Arnold Rots, ASC
+1999-06-07
+
+A command line interface to XTime, suitable for use in scripts:
+
+axTime3 <T> <ts_in> <tf_in> [[<MJDrefint>] MJDreffrac>] <ts_out> <tf_out>
+
+  T           String containing the time in time system ts_in, format tf_in
+  ts_in       Time system of input time
+  tf_in       Time format of input time
+  MJDrefint   Optional integer part of optional reference MJD
+  MJDreffrac  Fractional part of optional reference MJD
+  ts_out      Time system of output time
+  tf_out      Time format of output time
+
+Time systems (minimum matches in parentheses):
+  MET     Mission Elapsed Time ("m")
+  TT      Terrestrial Time ("t")
+  TAI     International Atomic Time ("ta" or "a")
+  UTC     Coordinated Universal Time ("u")
+
+Time formats (minimum matches in parentheses):
+  SECS    Elapsed seconds since 1998-01-01T00:00:00 ("s")
+  HEXSECS Elapsed seconds in hexadecimal notation ("h")
+  NUMDAY  DDDD:hh:mm:ss.ss... Elapsed days and time ("n")
+  JD      Julian Day ("j")
+  MJD     Modified Julian Day = JD - 2400000.5 ("m")
+  DATE    YYYY:DDD:hh:mm:ss.ss... ("d")
+  CALDATE YYYYMonDD at hh:mm:ss.ss... ("c")
+  FITS    FITS date/time format YYYY-MM-DD or YYYY-MM-DDThh:mm:ss.ss... ("f")
+
+One may append a number to the formats n, d, c, and f  to indicate the
+number of decimals required in the seconds field (e.g., f6).
+
+The output time string is put out to stdout, *without a line feed*.
+It is advisable to have $ASC_DATA (preferred) or $TIMING_DIR point to
+the directory that contains the USNO leap seconds file "tai-utc.dat".
+
+Note that one may optionally provide a reference MJD, either as a
+double, or as a long (integere part) and a double (fractional part).
+One should be aware, however, that the time system of that reference
+MJD will be taken to be the same as specified for the input time.
+The default value is 50814.0 TT (1998-01-01T00:00:00.0 TT).
+
+Compile with:
+  gcc axTime3.C XTime.C -o axTime3 -lstdc++
+
+Examples:
+
+echo `axTime3 30000000 m s u f3`
+1998-12-14T05:18:56.816
+
+echo `axTime3 1998-12-14T05:18:56.816 u f m s`
+30000000
+
+echo `axTime3 1998-12-14T05:18:56.816 u f 50814.0 m s`
+29999936.8159999996
