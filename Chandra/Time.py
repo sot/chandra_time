@@ -67,48 +67,132 @@ specified.
 import re
 import axTime3
 
-T1998 = 883612736.816  # Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)
-FloatRE = r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?'
-time_style = {'fits' : { 'match' : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
-                         'ax3_fmt' : 'f3',
-                         'ax3_sys' : 't',
-                         },
-		 'caldate' : {'match' : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
-			       'ax3_fmt' : 'c3',
-			       'ax3_sys' : 'u'
-			      },
-		 'date' : { 'match' : r'^\d{4}:\d{1,3}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?',
-			     'ax3_fmt' : 'd3',
-			     'ax3_sys' : 'u',
-			   },
-		 'secs' : { 'match' : r'^' + FloatRE + '$',
-			    'ax3_fmt' : 's',
-			    'ax3_sys' : 'm',
-                            'typecast' : float,
-			   },
-		 'unix' : { 'match' : r'^' + FloatRE + '$',
-			    'ax3_fmt' : 's',
-			    'ax3_sys' : 'u',
-                            'typecast' : float,
-			   },
-		 'jd'   : { 'match' : r'^' + FloatRE + '$',
-                            'ax3_fmt' : 'j',
-                            'ax3_sys' : 'u',
-                            'typecast' : float,
-			   },
-		 'mjd'   : { 'match' : r'^' + FloatRE + '$',
-                             'ax3_fmt' : 'm',
-                             'ax3_sys' : 'u',
-                             'typecast' : float,
-			   },
-		 'numday' : { 'match' : r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',  # DDDD:hh:mm:ss.ss.
-			     'ax3_fmt' : 'n3',
-			     'ax3_sys' : 'u',
-                              },
-		}
+# Import mx.DateTime if possible
+try: import mx.DateTime
+except ImportError: pass
 
-_keys_time_style = ['fits', 'caldate', 'date', 'secs',
-                   'unix', 'jd', 'mjd', 'numday'] # correct priority order
+class TimeStyle(object):
+    def __init__(self,
+                 name,
+                 ax3_fmt,
+                 ax3_sys,
+                 match_expr = None,
+                 match_func = lambda x,y: re.match(x,y).group(),
+                 match_err  = AttributeError,
+                 postprocess= None,
+                 preprocess= None,
+                 ):
+        self.name = name
+        self.match_expr = match_expr
+        self.match_func = match_func
+        self.match_err  = match_err
+        self.ax3_fmt = ax3_fmt
+        self.ax3_sys = ax3_sys
+        self.postprocess = postprocess
+        self.preprocess = preprocess
+        
+    def match(self, time):
+        try:
+            self.time_in = self.match_func(self.match_expr, time)
+            return True
+        except self.match_err:
+            pass
+        return False
+
+T1998 = 883612736.816  # Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)
+RE = {'float'   : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?',
+      'date'    : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?',
+      'caldate' : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'greta'   : r'^(\d{4})(\d{3})\.(\d{2})(\d{2})(\d{2})(\d+)?$',
+      'fits'    : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      }
+
+def greta_to_date(date_in):
+    m = re.match(RE['greta'], date_in)
+    out = '%s:%s:%s:%s:%s' % m.groups()[0:5]
+    if m.group(6) != None:
+        out += '.%s' % m.group(6)
+    return out
+
+def date_to_greta(date_in):
+    m = re.match(RE['date'], date_in)
+    out = '%s%s.%s%s%s' % m.groups()[0:5]
+    if m.group(6) != None:
+        frac = m.group(6).replace('.', '')
+        out += frac
+    return out
+
+time_styles = [ TimeStyle(name       = 'fits',
+                          match_expr = RE['fits'],
+                          ax3_fmt    = 'f3',
+                          ax3_sys    = 't',
+                          ),
+                TimeStyle(name       = 'greta',
+                          match_expr = RE['greta'],
+                          match_func = lambda f,t: float(t) < 2099001.000000 and re.match(f,t).group(),
+                          match_err  = (AttributeError, ValueError),
+                          ax3_fmt    = 'd3',
+                          ax3_sys    = 'u',
+                          preprocess = greta_to_date,
+                          postprocess= date_to_greta,
+                          ),
+                TimeStyle(name       = 'secs',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 's',
+                          ax3_sys    = 'm',
+                          postprocess= float ,
+                          ),
+                TimeStyle(name       = 'unix',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 's',
+                          ax3_sys    = 'u',
+                          preprocess = lambda x: str(float(x) - T1998),
+                          postprocess= lambda x: float(x) + T1998,
+                          ),
+                TimeStyle(name       = 'iso',
+                          match_func = lambda f,t: mx.DateTime.ISO.ParseDateTime(t),
+                          match_err  = ValueError,
+                          ax3_fmt    = 'f3', 
+                          ax3_sys    = 'u',
+                          preprocess = lambda t: t.date + 'T' + t.time,
+                          postprocess= lambda t: t.replace('T', ' '),
+                          ),
+                TimeStyle(name       = 'mxDateTime',
+                          match_func = lambda f,t: mx.DateTime.ISO.ParseDateTime(t),
+                          match_err  = ValueError,
+                          ax3_fmt    = 'f3', 
+                          ax3_sys    = 'u',
+                          preprocess = lambda t: t.date + 'T' + t.time,
+                          postprocess= lambda t: mx.DateTime.ISO.ParseDateTime(t),
+                          ),
+                TimeStyle(name       = 'caldate',
+                          match_expr = RE['caldate'],
+                          ax3_fmt    = 'c3',
+                          ax3_sys    = 'u',
+                          ),
+                TimeStyle(name       = 'date',
+                          match_expr = RE['date'],
+                          ax3_fmt    = 'd3',
+                          ax3_sys    = 'u',
+                          ),
+                TimeStyle(name       = 'jd',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 'j',
+                          ax3_sys    = 'u',
+                          postprocess= float,
+                          ),
+                TimeStyle(name       = 'mjd',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 'm',
+                          ax3_sys    = 'u',
+                          postprocess= float,
+                          ),
+                TimeStyle(name       = 'numday',
+                          match_expr = r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',  # DDDD:hh:mm:ss.ss.
+                          ax3_fmt    = 'n3',
+                          ax3_sys    = 'u',
+                          ),
+                ]
 
 time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")		  
                'tt'  : 't',  #  TT      Terrestrial Time ("t")		  
@@ -121,30 +205,20 @@ time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
 class ChandraTimeError(ValueError):
     """Exception class for bad input values to Chandra.Time"""
 
-def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out=None):
+def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
     """Base routine to convert from/to any format."""
 
     time_in = str(time_in)
-    if fmt_in:
-        if fmt_in in time_style:
-            ax3_fmt_in = time_style[fmt_in]['ax3_fmt']
-            ax3_sys_in = time_style[fmt_in]['ax3_sys']
-            if not re.match(time_style[fmt_in]['match'], time_in):
-                raise ChandraTimeError, \
-                      'Time %s does not match expected format for %s' % (time_in, fmt_in)
-        else:
-            raise ChandraTimeError, "Invalid input format '%s'" % fmt_in
+    for time_style in time_styles:
+        if fmt_in and time_style.name != fmt_in: continue 
+        if time_style.match(time_in):
+            time_in = time_style.time_in
+            ax3_fmt_in = time_style.ax3_fmt
+            ax3_sys_in = time_style.ax3_sys
+            preprocess = time_style.preprocess
+            break
     else:
-        match_style = None
-        for ts_name in _keys_time_style:
-            if re.match(time_style[ts_name]['match'], time_in):
-                match_style = time_style[ts_name]
-                break
-        if match_style:
-            ax3_fmt_in = match_style['ax3_fmt']
-            ax3_sys_in = match_style['ax3_sys']
-        else:
-            raise ChandraTimeError, "Unknown format for input time '%s'" % time_in
+        raise ChandraTimeError, "Invalid input format '%s'" % fmt_in
 
     if sys_in:
         if sys_in in time_system:
@@ -152,10 +226,12 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out=None):
         else:
             raise ChandraTimeError, "Invalid input system '%s'" % sys_in
         
-    fmt_out = fmt_out or 'secs'
-    if fmt_out in time_style:
-        ax3_fmt_out = time_style[fmt_out]['ax3_fmt']
-        ax3_sys_out = time_style[fmt_out]['ax3_sys']
+    for time_style in time_styles:
+        if time_style.name == fmt_out:
+            ax3_fmt_out = time_style.ax3_fmt
+            ax3_sys_out = time_style.ax3_sys
+            postprocess = time_style.postprocess
+            break
     else:
         raise ChandraTimeError, "Invalid output format '%s'" % fmt_out
 
@@ -165,8 +241,8 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out=None):
         else:
             raise ChandraTimeError, "Invalid output system '%s'" % sys_out
 
-    if fmt_in == 'unix': time_in = str(float(time_in) - T1998)
-
+    if preprocess: time_in = preprocess(time_in)
+        
     time_out = axTime3.convert_time(time_in,
                                     ax3_sys_in,
                                     ax3_fmt_in,
@@ -174,7 +250,8 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out=None):
                                     ax3_fmt_out,
                                     )
 
-    if fmt_out == 'unix': time_out = str(float(time_out) + T1998)
+    if postprocess: time_out = postprocess(time_out)
+
     return time_out
 
 class DateTime(object):
@@ -186,65 +263,7 @@ class DateTime(object):
         self.format  = format
 
     def __getattr__(self, fmt_out):
-        if fmt_out not in time_style:
-            raise ChandraTimeError, "Unknown output format '%s'" % fmt_out
-            
-        for sys_out, ax3_sys_out in time_system.items():
-            if  time_style[fmt_out]['ax3_sys'] == ax3_sys_out: break
-
-        time_out = convert(self.time_in,
-                           fmt_in=self.format,
-                           fmt_out=fmt_out,
-                           sys_out=sys_out)
-        try:
-            time_out = time_style[fmt_out]['typecast'](time_out)
-        except KeyError:
-            pass
-
-        return time_out
-        
-# 
-# 1;
-# 
-# __END__
-# 
-# =head1 NAME
-# 
-# 
-# 
-# =head1 SYNOPSIS
-# 
-#   use Chandra::Time;
-# 
-#   # Create a Chandra::Time object
-#   $t      = Chandra::Time->new('2002-05-28T01:02:03');
-# 
-#   # Do some converting
-#   $date = $t->date;  # Convert 2002-05-28T01:02:03 to YYYY:DDD:HH:MM:SS
-#   $secs = $t->secs;  # Time in CXC seconds (since 1998-01-01T00:00:00)
-#   $unix = $t->unix;  # Unix time (since 1970 Jan 1, 0 UTC)
-#   $unix = $t->unix('1998:241:02:14:12.233');  # Convert a different time
-# 
-#   # Make a Julian Date time object which only accepts JD as inputs
-#   $t_jd  = Chandra::Time->new('2451161.5', {format => 'jd'});
-#   $fits  = $t_jd->fits('1998:241:02:14:12.2');  # NOPE!
-# 
-# =head1 SEE ALSO
-# 
-# README.axTime3 and README.XTime
-# 
-# =head1 AUTHOR
-# 
-# Tom Aldcroft, E<lt>aldcroft@localdomainE<gt>
-# 
-# =head1 COPYRIGHT AND LICENSE
-# 
-# Copyright (C) 2005 by Tom Aldcroft
-# 
-# This library is free software; you can redistribute it and/or modify
-# it under the same terms as Perl itself, either Perl version 5.8.3 or,
-# at your option, any later version of Perl 5 you may have available.
-# 
-# 
-# =cut
-# 
+        return convert(self.time_in,
+                       fmt_in=self.format,
+                       fmt_out=fmt_out,
+                       )
