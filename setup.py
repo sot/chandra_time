@@ -5,7 +5,7 @@ setup(name='Chandra.Time',
       description='Convert between various time formats relevant to Chandra',
       author_email = 'taldcroft@cfa.harvard.edu',
       py_modules = ['Chandra.axTime3', 'Chandra.Time'],
-      version='1.0',
+      version='1.1',
 
       test_suite = "Chandra.test_Time",
 
