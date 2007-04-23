@@ -7,7 +7,7 @@ setup(name='Chandra.Time',
       py_modules = ['Chandra.axTime3', 'Chandra.Time'],
       version='1.0',
 
-      test_suite = "Chandra.Time.test.unittest",
+      test_suite = "Chandra.test_Time",
 
       packages=['Chandra'],
       package_dir={'Chandra' : 'Chandra'},
