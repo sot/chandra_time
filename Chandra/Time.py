@@ -1,8 +1,8 @@
 """Convert between various time formats relevant to Chandra.
 
-Chandra::Time provides a simple interface to the C++ time conversion
+Chandra.Time provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
-Rots.  
+Rots.  Chandra.Time also supports some useful additional time formats.
 
 The supported time formats are:
 
@@ -16,6 +16,8 @@ The supported time formats are:
   caldate YYYYMonDD at hh:mm:ss.ss..                      utc
   fits    FITS date/time format YYYY-MM-DDThh:mm:ss.ss..  tt
   unix    Unix time (since 1970.0)                        utc
+  greta   YYYYDDD.hhmmss[sss]                             utc
+  mxDateTime mx.DateTime object                           utc
 
 Each of these formats has an associated time system, which are be one of:
 
@@ -47,6 +49,15 @@ specifically select a format use the 'format' option.
 >>> u = DateTime(1125538824.0, format='unix')
 >>> u.date
 '2005:244:01:40:24.000'
+>>> mxd = mx.DateTime.Parser.DateTimeFromString('1999-01-01 12:13:14')
+>>> DateTime(mxd).fits
+'1999-01-01T12:14:18.184'
+>>> DateTime(mxd).date
+'1999:001:12:13:14.000'
+>>> DateTime(mxd).mxDateTime.strftime('%c')
+'Fri Jan  1 12:13:14 1999'
+>>> DateTime('2007122.01020340').date
+'2007:122:01:02:03.400'
 
 Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
