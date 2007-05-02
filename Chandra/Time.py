@@ -278,3 +278,13 @@ class DateTime(object):
                        fmt_in=self.format,
                        fmt_out=fmt_out,
                        )
+
+    def day_start(self):
+        date = self.date.split(':')
+        return DateTime('%s:%s:00:00:00' % (date[0], date[1]))
+    
+    def day_end(self):
+        date = self.date.split(':')
+        return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
+    
+        
