@@ -48,5 +48,13 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime('1996365.010203').day_start().iso, '1996-12-30 00:00:00.000')
         self.assertEqual(DateTime('1996367.010203').day_start().iso, '1997-01-01 00:00:00.000')
 
+    def test_year_doy(self):
+        self.assertEqual(DateTime(20483020.0).year_doy, '1998:238')
+        self.assertEqual(DateTime('2004:121').date, '2004:121:12:00:00.000')
+        
+    def test_year_mon_day(self):
+        self.assertEqual(DateTime('2004:121').year_mon_day, '2004-04-30')
+        self.assertEqual(DateTime('2007-01-01').date, '2007:001:12:00:00.000')
+
 if __name__ == '__main__':
     unittest.main()

@@ -111,11 +111,13 @@ class TimeStyle(object):
         return False
 
 T1998 = 883612736.816  # Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)
-RE = {'float'   : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?',
-      'date'    : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?',
-      'caldate' : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
-      'greta'   : r'^(\d{4})(\d{3})\.(\d{2})(\d{2})(\d{2})(\d+)?$',
-      'fits'    : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
+      'date'        : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?$',
+      'year_doy'    : r'^(\d{4}):(\d{3})$',
+      'caldate'     : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'greta'       : r'^(\d{4})(\d{3})\.(\d{2})(\d{2})(\d{2})(\d+)?$',
+      'fits'        : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
       }
 
 def greta_to_date(date_in):
@@ -140,6 +142,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['fits'],
                           ax3_fmt    = 'f3',
                           ax3_sys    = 't',
+                          ),
+                TimeStyle(name       = 'year_mon_day',
+                          match_expr = RE['year_mon_day'],
+                          ax3_fmt    = 'f3',
+                          ax3_sys    = 'u',
+                          preprocess = lambda t: t + 'T12:00:00',
+                          postprocess= lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                           ),
                 TimeStyle(name       = 'greta',
                           match_expr = RE['greta'],
@@ -188,6 +197,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['date'],
                           ax3_fmt    = 'd3',
                           ax3_sys    = 'u',
+                          ),
+                TimeStyle(name       = 'year_doy',
+                          match_expr = RE['year_doy'],
+                          ax3_fmt    = 'd3',
+                          ax3_sys    = 'u',
+                          preprocess = lambda t: t + ':12:00:00',
+                          postprocess= lambda t: re.sub(r':\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                           ),
                 TimeStyle(name       = 'jd',
                           match_expr = '^' + RE['float'] + '$',
@@ -293,4 +309,9 @@ class DateTime(object):
     
 if __name__ == '__main__':
     pass
-#    print DateTime(20483020.0).date
+    print DateTime(20483020.0).year_doy
+    print DateTime('2004:121').date
+    print DateTime('2004:121').year_mon_day
+    print DateTime('2004-12-22').year_mon_day
+    print DateTime('2007-01-01').date
+    
