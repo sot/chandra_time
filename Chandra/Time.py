@@ -133,6 +133,9 @@ def date_to_greta(date_in):
         out += frac
     return out
 
+def raise_(r):
+    raise r
+
 time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['fits'],
                           ax3_fmt    = 'f3',
@@ -140,7 +143,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 TimeStyle(name       = 'greta',
                           match_expr = RE['greta'],
-                          match_func = lambda f,t: float(t) < 2099001.000000 and re.match(f,t).group(),
+                          match_func = lambda f,t: (float(t) < 2099001.000000 or raise_(ValueError)) and re.match(f,t).group(),
                           match_err  = (AttributeError, ValueError),
                           ax3_fmt    = 'd3',
                           ax3_sys    = 'u',
@@ -286,5 +289,8 @@ class DateTime(object):
     def day_end(self):
         date = self.date.split(':')
         return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
+
     
-        
+if __name__ == '__main__':
+    pass
+#    print DateTime(20483020.0).date
