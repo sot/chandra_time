@@ -11,6 +11,8 @@
 #include <iomanip.h>
 #include <limits.h>
 #include "XTime.h"
+
+char *convert_time(char *,char *,char *,char *,char *);
 %}
 
 %newobject convert_time;
