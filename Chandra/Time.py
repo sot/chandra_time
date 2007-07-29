@@ -10,6 +10,7 @@ The supported time formats are:
 -------   ------------------------------------------      -------
   secs    Elapsed seconds since 1998-01-01T00:00:00       tt
   numday  DDDD:hh:mm:ss.ss... Elapsed days and time       utc
+  relday  [+-]<float> Relative number of days from now    utc
   jd      Julian Day                                      utc
   mjd     Modified Julian Day = JD - 2400000.5            utc
   date    YYYY:DDD:hh:mm:ss.ss..                          utc
@@ -77,6 +78,7 @@ specified.
 
 import re
 import axTime3
+import time
 
 # Import mx.DateTime if possible
 try: import mx.DateTime
@@ -149,6 +151,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t + 'T12:00:00',
                           postprocess= lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
+                          ),
+                TimeStyle(name       = 'relday',
+                          match_expr = r'^[+-]' + RE['float'] + '$',  # DDDD:hh:mm:ss.ss.
+                          ax3_fmt    = 's',
+                          ax3_sys    = 'u',
+                          preprocess = lambda x: str(time.time() + float(x)*86400.0 - T1998),
+                          postprocess= lambda x: (float(x) + T1998 - time.time()) / 86400.0,
                           ),
                 TimeStyle(name       = 'greta',
                           match_expr = RE['greta'],

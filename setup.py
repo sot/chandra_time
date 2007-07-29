@@ -1,5 +1,5 @@
 # from distutils.core import setup, Extension
-cvs_version= '$Id: setup.py,v 1.6 2007-07-17 17:34:04 aldcroft Exp $'; 
+cvs_version= '$Id: setup.py,v 1.7 2007-07-29 21:48:01 aldcroft Exp $'; 
 
 from setuptools import setup, Extension
 setup(name='Chandra.Time',
@@ -7,7 +7,7 @@ setup(name='Chandra.Time',
       description='Convert between various time formats relevant to Chandra',
       author_email = 'taldcroft@cfa.harvard.edu',
       py_modules = ['Chandra.axTime3', 'Chandra.Time'],
-      version='1.4',
+      version='1.5',
 
       test_suite = "Chandra.test_Time",
 
