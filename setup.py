@@ -1,5 +1,12 @@
 # from distutils.core import setup, Extension
-cvs_version= '$Id: setup.py,v 1.7 2007-07-29 21:48:01 aldcroft Exp $'; 
+cvs_version= '$Id: setup.py,v 1.8 2007-07-30 19:47:06 aldcroft Exp $'; 
+
+from subprocess import Popen, PIPE
+machine = Popen(['uname','--machine'], stdout=PIPE).communicate()[0]
+if machine.startswith('x86_64'):
+    compile_args_hack = ['-fno-stack-protector']
+else:
+    compile_args_hack = []
 
 from setuptools import setup, Extension
 setup(name='Chandra.Time',
@@ -20,6 +27,7 @@ setup(name='Chandra.Time',
                                  ],
                                swig_opts = ['-c++'],
                                language = 'c++',
+                               extra_compile_args = compile_args_hack,
                                )
                      ]
       )
