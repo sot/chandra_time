@@ -19,6 +19,7 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime('1998-01-01 00:00:30').secs, 93.184)
 
     def test_secs(self):
+        self.assertEqual('%.3f' % DateTime(20483020.).secs, '20483020.000')
         self.assertEqual(DateTime(20483020.).date, '1998:238:01:42:36.816')
 
     def test_fits2secs(self):
