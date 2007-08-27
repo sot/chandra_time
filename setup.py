@@ -1,12 +1,13 @@
 # from distutils.core import setup, Extension
 import os
-cvs_version= '$Id: setup.py,v 1.10 2007-08-27 15:08:43 aldcroft Exp $'; 
+cvs_version= '$Id: setup.py,v 1.11 2007-08-27 21:30:51 aldcroft Exp $'; 
 
-compile_args = ['-O0']
-(gcc_stdin, gcc_stdouterr) = os.popen4(['gcc','-v', '--help'])
-gcc_opt = gcc_stdouterr.read()
-if gcc_opt.find('fstack-protector') != -1:
-    compile_args.append('-fno-stack-protector')
+compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
+                '-Wno-deprecated', '-Wno-parentheses']
+# (gcc_stdin, gcc_stdouterr) = os.popen4(['gcc','-v', '--help'])
+# gcc_opt = gcc_stdouterr.read()
+# if gcc_opt.find('fstack-protector') != -1:
+#    compile_args.append('-fno-stack-protector')
 
 # machine = Popen(['uname','--machine'], stdout=PIPE).communicate()[0]
 # if machine.startswith('x86_64'):
@@ -17,7 +18,7 @@ setup(name='Chandra.Time',
       description='Convert between various time formats relevant to Chandra',
       author_email = 'taldcroft@cfa.harvard.edu',
       py_modules = ['Chandra.axTime3', 'Chandra.Time'],
-      version='1.5',
+      version='1.6',
 
       test_suite = "Chandra.test_Time",
 

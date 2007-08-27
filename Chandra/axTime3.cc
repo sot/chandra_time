@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 //
-//  RCS: $Id: axTime3.cc,v 1.1.1.1 2007-04-11 20:59:21 aldcroft Exp $
+//  RCS: $Id: axTime3.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $
 //
 //  File:        axTime3.C
 //  Programmer:  Arnold Rots  -  ASC
@@ -53,7 +53,7 @@
 // .VERSION $Revision $
 //----------------------------------------------------------------------
 //
-static const char* const rcsid = "axTime $Id: axTime3.cc,v 1.1.1.1 2007-04-11 20:59:21 aldcroft Exp $" ;
+static const char* const rcsid = "axTime $Id: axTime3.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $" ;
 
 #include <stdio.h>
 #include <string.h>
@@ -137,7 +137,7 @@ void axTime3 (char *time_in,
       case XTime::SECS : case XTime::JD : case XTime::MJD : {
 	double t = T->get(tSys, tForm) ;
 	if ( hexfmt ) {
-	  unsigned long jt = (unsigned long) t ;
+	  unsigned int jt = (unsigned long) t ;
 	  sprintf(time_out, "0x%7x", jt);
 	  //	  cout << "0x" << setw(7) << hex << jt ;
 	}
@@ -195,7 +195,7 @@ XTime *getinput (int argc, char *argv[])
   XTime *tt = NULL ;
   char str[256] ;
   double t ;
-  unsigned long jt = 0 ;
+  unsigned int jt = 0 ;
   XTime::TimeSys tSys = XTime::MET ;
   XTime::TimeFormat tForm = XTime::SECS ;
   int hexfmt = 0 ;
@@ -378,7 +378,7 @@ int getform (XTime::TimeFormat *tForm, int *hex, int *nmday, int *dec)
 
   while ( cont > 0 ) {
     cout << "Print in Format SECS, HEXSECS, NUMDAY, JD, MJD, DATE, CALDATE, FITS, Dn, Cn, Fn, or Quit: " ;
-    fgets (tform, 10, stdin) ;
+    char* fgets_value = fgets (tform, 10, stdin) ;
     cont = readform (tform, tForm, hex, nmday, dec) ;
   }
   return cont ;

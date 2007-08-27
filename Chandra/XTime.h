@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 //
-//RCS: $Id: XTime.h,v 1.1 2007-04-11 21:04:01 aldcroft Exp $
+//RCS: $Id: XTime.h,v 1.2 2007-08-27 21:30:59 aldcroft Exp $
 // File Name   : XTime.h
 // Subsystem   : XFF 
 // Programmer  : Arnold Rots, SAO
@@ -59,7 +59,7 @@
 // Included leap seconds: 1972 through 1999 (leap seconds 10
 // through 32).
 //
-// .VERSION $Revision: 1.1 $
+// .VERSION $Revision: 1.2 $
 //
 //----------------------------------------------------------------------
 //
@@ -184,11 +184,20 @@ class XTime {
 } ;
 
 // Description:
+//  long   MJDint      ;               // Integer part of time
+//  double MJDfr       ;               // Fractional part of time
+//  double timeZero    ;               // Time correction term in d
+//  char   tdate[32]   ;               // Date string
+//  long   MJDrefint   ;               // MJDref (integer part)
+//  double MJDreffr    ;               // MJDref (fractional part)
+//  int    leapflag    ;               // Indicator whether we are in a leap second
+//  double myLeaps     ;               // Leap seconds at this time
+//  double refLeaps    ;               // Leap seconds at reference epoch
 // Constructor: default constructor; set time to zero.
 inline XTime::XTime (void)
   : MJDint (MJDREFint), MJDfr (MJDREFfr), timeZero (0.0),
     MJDrefint (MJDREFint), MJDreffr (MJDREFfr),
-    refLeaps (REFLEAPS), myLeaps (REFLEAPS), leapflag (0)
+    leapflag (0), myLeaps (REFLEAPS), refLeaps (REFLEAPS)
 { setleaps() ; }
 
 // Description:
@@ -196,7 +205,7 @@ inline XTime::XTime (void)
 inline XTime::XTime (double tt)
   : MJDint (MJDREFint), MJDfr (MJDREFfr+tt*SEC2DAY), timeZero (0.0),
     MJDrefint (MJDREFint), MJDreffr (MJDREFfr),
-    refLeaps (REFLEAPS), leapflag (0)
+    leapflag (0), refLeaps (REFLEAPS)
 {
   setleaps() ;
   leapflag = setmyleaps (&myLeaps, MJDint, MJDfr) ;
@@ -209,8 +218,8 @@ inline XTime::XTime (double tt)
 // mjdi is 0 (i.e., default value); default for mjdf is 0.0.
 inline XTime::XTime (double tt, TimeSys ts, TimeFormat tf,
 		     long mjdi, double mjdf)
-  : timeZero (0.0), MJDrefint (MJDREFint), MJDreffr (MJDREFfr),
-    refLeaps (REFLEAPS), leapflag (0)
+  : timeZero (0.0), MJDrefint (MJDREFint), MJDreffr (MJDREFfr), 
+    leapflag (0), refLeaps (REFLEAPS)
 {
   setleaps() ;
   set (tt, ts, tf, mjdi, mjdf) ;
@@ -225,7 +234,7 @@ inline XTime::XTime (double tt, TimeSys ts, TimeFormat tf,
 inline XTime::XTime (long tti, double ttf, TimeSys ts, TimeFormat tf,
 		     long mjdi, double mjdf)
   : timeZero (0.0), MJDrefint (MJDREFint), MJDreffr (MJDREFfr),
-    refLeaps (REFLEAPS), leapflag (0)
+    leapflag (0), refLeaps (REFLEAPS) 
 {
   setleaps() ;
   set (tti, ttf, ts, tf, mjdi, mjdf) ;
@@ -239,7 +248,7 @@ inline XTime::XTime (long tti, double ttf, TimeSys ts, TimeFormat tf,
 // (i.e., default value); default for mjdf is 0.0.
 inline XTime::XTime (const char* date, TimeSys ts, TimeFormat tf,
 		     long mjdi, double mjdf)
-  : timeZero (0.0), leapflag (0), MJDrefint (MJDREFint), MJDreffr (MJDREFfr), refLeaps (31.0)
+  : timeZero (0.0), MJDrefint (MJDREFint), MJDreffr (MJDREFfr), leapflag (0), refLeaps (31.0)
 {
   setleaps() ;
   set (date, ts, tf, mjdi, mjdf) ;
@@ -686,7 +695,7 @@ class XTRList {
 // Description:
 // Default constructor for a single XTimeRange List
 inline XTRList::XTRList (void)
-  : empty(1), numXTRs (1) {
+  : numXTRs (1), empty(1) {
   tr = new XTimeRange () ;
   listRange =* tr ;
 }

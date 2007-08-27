@@ -1,6 +1,6 @@
 //----------------------------------------------------------------------
 //
-//  RCS: $Id: XTime.cc,v 1.1.1.1 2007-04-11 20:59:21 aldcroft Exp $
+//  RCS: $Id: XTime.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $
 //
 //  File:        XTime.C
 //  Programmer:  Arnold Rots  -  USRA/SAO
@@ -11,7 +11,7 @@
 //
 //----------------------------------------------------------------------
 //
-static const char*  const rcsID = "$Id: XTime.cc,v 1.1.1.1 2007-04-11 20:59:21 aldcroft Exp $" ;
+static const char*  const rcsID = "$Id: XTime.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $" ;
 
 #include <string.h>
 #include <ctype.h>
@@ -88,7 +88,7 @@ void XTime::setleaps (double dt)
     int nums = 0 ;
 
     // Did the user provide his/her own?
-    if ( filepath = getenv ("TIMING_DIR") ) {
+    if ( filepath = getenv("TIMING_DIR") ) {
       sprintf (lsfile, "%s/%s", filepath, TAIUTC) ;
       FF = fopen (lsfile, "r") ;
     }
@@ -105,7 +105,7 @@ void XTime::setleaps (double dt)
       long leapsMD ;
       double leapsecs ;
       int i ;
-      while ( fscanf (FF, "%d %*s  1 =JD 24%d.5 %*s %lg S + (MJD - %*lg) X %*lg %*s",
+      while ( fscanf (FF, "%d %*s  1 =JD 24%ld.5 %*s %lg S + (MJD - %*lg) X %*lg %*s",
 		      &i, &leapsMD, &leapsecs) == 3 ) {
 	if ( i > 1970 ) {
 	  // Only overwrite existing values when forced to do so
@@ -212,7 +212,7 @@ void XTime::set (long tti, double ttf, TimeSys ts, TimeFormat tf,
 		 long mjdi, double mjdf)
 {
   double total, x ;
-  long j, k ;
+  long j=0, k ;
   int i ;
   leapflag = 0 ;
 
@@ -342,7 +342,7 @@ void XTime::set (long tti, double ttf, TimeSys ts, TimeFormat tf,
 void XTime::set (const char* date, TimeSys ts, TimeFormat tf,
 		 long mjdi, double mjdf)
 {
-  long year, day, hour=0, minute=0 ;
+  long year=0, day=0, hour=0, minute=0 ;
   double second=0.0 ;
   int n ;
   int m = 0 ;
@@ -350,12 +350,12 @@ void XTime::set (const char* date, TimeSys ts, TimeFormat tf,
 
   switch (tf) {
   case DATE:
-    n = sscanf (date, "%d:%d:%d:%d:%lg", &year, &day, &hour, &minute, &second) ;
+    n = sscanf (date, "%ld:%ld:%ld:%ld:%lg", &year, &day, &hour, &minute, &second) ;
     if ( n != 5 )
       return ;
     break ;
   case CALDATE:
-    n = sscanf (date, "%d%c%c%c%d at %d:%d:%lg",
+    n = sscanf (date, "%ld%c%c%c%ld at %ld:%ld:%lg",
     &year, mn, mn+1, mn+2, &day, &hour, &minute, &second) ;
     if ( n != 8 )
       return ;
@@ -374,7 +374,7 @@ void XTime::set (const char* date, TimeSys ts, TimeFormat tf,
     }
     break ;
   case FITS: {
-    n = sscanf (date, "%d-%d-%dT%d:%d:%lg",
+    n = sscanf (date, "%ld-%d-%ldT%ld:%ld:%lg",
 		&year, &m, &day, &hour, &minute, &second) ;
     if ( ( n != 6 ) && ( n != 3 ) )
       return ;
@@ -505,6 +505,7 @@ double XTime::mjd (long *mjdi, double *mjdf, TimeSys ts) const {
   case UTC:
     return UTmjd (mjdi, mjdf) ;
   }
+  return 0.0;
 }
 
 //
@@ -778,7 +779,7 @@ XTRList& XTRList::operator= (const XTRList &trl)
 // Description:
 // Construct a new TR list by "AND"ing two existing lists
 XTRList::XTRList (const XTRList &trl1, const XTRList &trl2)
-  : numXTRs (1), empty (1), tr (0) {
+  : numXTRs (1), tr (0), empty (1) {
 
 //  Trivial cases: if one of them is empty, the result is empty
 
