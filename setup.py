@@ -1,10 +1,10 @@
 # from distutils.core import setup, Extension
-cvs_version= '$Id: setup.py,v 1.9 2007-07-31 01:09:08 aldcroft Exp $'; 
-
-from subprocess import Popen, PIPE, STDOUT
+import os
+cvs_version= '$Id: setup.py,v 1.10 2007-08-27 15:08:43 aldcroft Exp $'; 
 
 compile_args = ['-O0']
-gcc_opt = Popen(['gcc','-v', '--help'], stdout=PIPE, stderr=STDOUT).communicate()[0]
+(gcc_stdin, gcc_stdouterr) = os.popen4(['gcc','-v', '--help'])
+gcc_opt = gcc_stdouterr.read()
 if gcc_opt.find('fstack-protector') != -1:
     compile_args.append('-fno-stack-protector')
 
