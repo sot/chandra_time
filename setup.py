@@ -18,10 +18,11 @@ setup(name='Chandra.Time',
       description='Convert between various time formats relevant to Chandra',
       author_email = 'taldcroft@cfa.harvard.edu',
       py_modules = ['Chandra.axTime3', 'Chandra.Time'],
-      version='1.6',
-
+      version='1.7',
+      zip_safe=False,
       test_suite = "Chandra.test_Time",
 
+      namespace_packages=['Chandra'],
       packages=['Chandra'],
       package_dir={'Chandra' : 'Chandra'},
       ext_modules = [Extension('Chandra._axTime3',
