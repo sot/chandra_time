@@ -1,4 +1,5 @@
-"""Convert between various time formats relevant to Chandra.
+"""
+Convert between various time formats relevant to Chandra.
 
 Chandra.Time provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
@@ -6,71 +7,75 @@ Rots.  Chandra.Time also supports some useful additional time formats.
 
 The supported time formats are:
 
- Format   Description                                     System
--------   ------------------------------------------      -------
-  secs    Elapsed seconds since 1998-01-01T00:00:00       tt
-  numday  DDDD:hh:mm:ss.ss... Elapsed days and time       utc
-  relday  [+-]<float> Relative number of days from now    utc
-  jd      Julian Day                                      utc
-  mjd     Modified Julian Day = JD - 2400000.5            utc
-  date    YYYY:DDD:hh:mm:ss.ss..                          utc
-  caldate YYYYMonDD at hh:mm:ss.ss..                      utc
-  fits    FITS date/time format YYYY-MM-DDThh:mm:ss.ss..  tt
-  unix    Unix time (since 1970.0)                        utc
-  greta   YYYYDDD.hhmmss[sss]                             utc
-  mxDateTime mx.DateTime object                           utc
+============ ==============================================  =======
+ Format      Description                                     System
+============ ==============================================  =======
+  secs       Elapsed seconds since 1998-01-01T00:00:00       tt
+  numday     DDDD:hh:mm:ss.ss... Elapsed days and time       utc
+  relday     [+-]<float> Relative number of days from now    utc
+  jd         Julian Day                                      utc
+  mjd        Modified Julian Day = JD - 2400000.5            utc
+  date       YYYY:DDD:hh:mm:ss.ss..                          utc
+  caldate    YYYYMonDD at hh:mm:ss.ss..                      utc
+  fits       FITS date/time format YYYY-MM-DDThh:mm:ss.ss..  tt
+  unix       Unix time (since 1970.0)                        utc
+  greta      YYYYDDD.hhmmss[sss]                             utc
+  mxDateTime mx.DateTime object                              utc
+============ ==============================================  =======
 
-Each of these formats has an associated time system, which are be one of:
+Each of these formats has an associated time system, which must be one of:
 
+=======  ============================
   met     Mission Elapsed Time 
   tt      Terrestrial Time 
   tai     International Atomic Time 
   utc     Coordinated Universal Time 
+=======  ============================
 
 The normal usage is to create an object that allows conversion from one time
 format to another.  Conversion takes place by examining the appropriate
 attribute.  Unless the time format is specified or it is ambiguous (i.e. secs,
 jd, mjd, and unix), the time format is automatically determined.  To
-specifically select a format use the 'format' option.
+specifically select a format use the 'format' option.::
 
->>> from Chandra.Time import DateTime
->>> t = DateTime('1999-07-23T23:56:00')
->>> print t.date
-1999:204:23:54:55.816
->>> t.date
-'1999:204:23:54:55.816'
->>> t.secs
-49161360.0
->>> t.jd
-2451383.496479352
->>> DateTime(t.jd + 1, format='jd').fits
-'1999-07-24T23:56:00.056'
->>> DateTime(t.mjd + 1, format='mjd').caldate
-'1999Jul24 at 23:54:55.820'
->>> u = DateTime(1125538824.0, format='unix')
->>> u.date
-'2005:244:01:40:24.000'
->>> mxd = mx.DateTime.Parser.DateTimeFromString('1999-01-01 12:13:14')
->>> DateTime(mxd).fits
-'1999-01-01T12:14:18.184'
->>> DateTime(mxd).date
-'1999:001:12:13:14.000'
->>> DateTime(mxd).mxDateTime.strftime('%c')
-'Fri Jan  1 12:13:14 1999'
->>> DateTime('2007122.01020340').date
-'2007:122:01:02:03.400'
+  >>> from Chandra.Time import DateTime
+  >>> t = DateTime('1999-07-23T23:56:00')
+  >>> print t.date
+  1999:204:23:54:55.816
+  >>> t.date
+  '1999:204:23:54:55.816'
+  >>> t.secs
+  49161360.0
+  >>> t.jd
+  2451383.496479352
+  >>> DateTime(t.jd + 1, format='jd').fits
+  '1999-07-24T23:56:00.056'
+  >>> DateTime(t.mjd + 1, format='mjd').caldate
+  '1999Jul24 at 23:54:55.820'
+  >>> u = DateTime(1125538824.0, format='unix')
+  >>> u.date
+  '2005:244:01:40:24.000'
+  >>> mxd = mx.DateTime.Parser.DateTimeFromString('1999-01-01 12:13:14')
+  >>> DateTime(mxd).fits
+  '1999-01-01T12:14:18.184'
+  >>> DateTime(mxd).date
+  '1999:001:12:13:14.000'
+  >>> DateTime(mxd).mxDateTime.strftime('%c')
+  'Fri Jan  1 12:13:14 1999'
+  >>> DateTime('2007122.01020340').date
+  '2007:122:01:02:03.400'
 
 Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
-function convert():
+function convert()::
 
->>> import Chandra.Time
->>> Chandra.Time.convert(53614.0,
-...                      fmt_in='mjd',
-...                      sys_in='tt',
-...                      fmt_out='caldate',
-...                      sys_out='tai')
-'2005Aug31 at 23:59:27.816'
+  >>> import Chandra.Time
+  >>> Chandra.Time.convert(53614.0,
+  ...                      fmt_in='mjd',
+  ...                      sys_in='tt',
+  ...                      fmt_out='caldate',
+  ...                      sys_out='tai')
+  '2005Aug31 at 23:59:27.816'
 
 The convert() routine will guess fmt_in and supply a default for sys_in if not
 specified.
@@ -308,10 +313,12 @@ class DateTime(object):
                        )
 
     def day_start(self):
+        """Return a new DateTime object corresponding to the start of the day."""
         date = self.date.split(':')
         return DateTime('%s:%s:00:00:00' % (date[0], date[1]))
     
     def day_end(self):
+        """Return a new DateTime object corresponding to the end of the day."""
         date = self.date.split(':')
         return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
 
