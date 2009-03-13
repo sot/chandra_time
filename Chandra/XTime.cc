@@ -1,6 +1,5 @@
 //----------------------------------------------------------------------
 //
-//  RCS: $Id: XTime.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $
 //
 //  File:        XTime.C
 //  Programmer:  Arnold Rots  -  USRA/SAO
@@ -11,7 +10,6 @@
 //
 //----------------------------------------------------------------------
 //
-static const char*  const rcsID = "$Id: XTime.cc,v 1.2 2007-08-27 21:30:59 aldcroft Exp $" ;
 
 #include <string.h>
 #include <ctype.h>
@@ -19,9 +17,11 @@ static const char*  const rcsID = "$Id: XTime.cc,v 1.2 2007-08-27 21:30:59 aldcr
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include <iostream.h>
+#include <iostream>
 #include "XTime.h"
 #define TAIUTC "tai-utc.dat"
+
+using namespace std;
 
 int          XTime::NUMOBJECTS  =       0       ; // Number of instantiated XTime objects
 const double XTime::MJD0        = 2400000.5     ; // JD - MJD
@@ -32,12 +32,12 @@ const long   XTime::MJDREFint   =   50814       ; // MJD at 1998.0
 const double XTime::MJDREFfr    =       0.0     ; // MJD at 1998.0
 const double XTime::REFLEAPS    =      31.0     ;  // Leap seconds at default MJDREF (1998.0 TT)
 const double XTime::TAI2TT      =      32.184   ; // TT - TAI
-int    XTime::NUMLEAPSECS = 0 ;      // Leap seconds: 1972 through 1999
+int    XTime::NUMLEAPSECS = 0 ;      // Leap seconds: 1972 through 2009
 long   XTime::LEAPSMJD[]  = {41317, 41499, 41683, 42048, 42413, 42778, 43144, 43509, 43874,
 			     44239, 44786, 45151, 45516, 46247, 47161, 47892, 48257, 48804,
-			     49169, 49534, 50083, 50630, 51179} ;
+			     49169, 49534, 50083, 50630, 51179, 53736, 54832} ;
 double XTime::LEAPSECS[]  = {10, 11, 12,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-			     26, 27, 28, 29, 30, 31, 32} ;
+			     26, 27, 28, 29, 30, 31, 32, 33, 34} ;
 time_t XTime::WALLCLOCK0      ;      // Wallclock time when leap seconds were read
 
 static int daymonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31} ;
@@ -127,7 +127,7 @@ void XTime::setleaps (double dt)
 
     // File could not be found; use the ones we know about when coding
     else if ( !NUMLEAPSECS ) {
-      nums = 23 ;                 // Leap seconds: 1972.0 through 1999.0
+      nums = 25 ;                 // Leap seconds: 1972.0 through 2009.0
       NUMLEAPSECS = nums ;
     }
 
@@ -779,7 +779,7 @@ XTRList& XTRList::operator= (const XTRList &trl)
 // Description:
 // Construct a new TR list by "AND"ing two existing lists
 XTRList::XTRList (const XTRList &trl1, const XTRList &trl2)
-  : numXTRs (1), tr (0), empty (1) {
+  : numXTRs (1), empty (1), tr (0) {
 
 //  Trivial cases: if one of them is empty, the result is empty
 

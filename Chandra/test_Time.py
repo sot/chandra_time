@@ -27,14 +27,14 @@ class TestConvert(unittest.TestCase):
 
     def test_fits2unix(self):
         self.assertEqual(convert('1998-01-01T00:00:30', fmt_out='unix'), 883612766.816)
-        self.assertEqual(convert('2007-01-01T00:00:00', fmt_out='unix'), 1167609535.816)
-        self.assertEqual(DateTime('2007-01-01T00:00:00').unix, 1167609535.816)
+        self.assertEqual(convert('2007-01-01T00:00:00', fmt_out='unix'), 1167609534.816)
+        self.assertEqual(DateTime('2007-01-01T00:00:00').unix, 1167609534.816)
 
     def test_jd(self):
-        self.assertEqual(DateTime('2007-01-01T00:00:00').jd, 2454101.499257130)
+        self.assertEqual(DateTime('2007-01-01T00:00:00').jd, 2454101.4992455561)
 
     def test_mjd(self):
-        self.assertEqual(DateTime('2007-01-01T00:00:00').mjd, 54100.999257130)
+        self.assertEqual(DateTime('2007-01-01T00:00:00').mjd, 54100.999245555999)
 
     def test_greta(self):
         self.assertEqual(DateTime('2007001.010203').date, '2007:001:01:02:03.000')
