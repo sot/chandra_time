@@ -65,6 +65,17 @@ specifically select a format use the 'format' option.::
   >>> DateTime('2007122.01020340').date
   '2007:122:01:02:03.400'
 
+The input time can also be an iterable sequence (returns a list) or
+a numpy array (returns a numpy array with the same shape)::
+
+  >>> import numpy
+  >>> DateTime([1,'2001:255',3]).date
+  ['1997:365:23:58:57.816', '2001:255:12:00:00.000', '1997:365:23:58:59.816']
+  >>> DateTime(numpy.array([[1,2],[3,4]])).fits
+  array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
+         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
+        dtype='|S23')
+
 Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
 function convert()::
@@ -78,7 +89,7 @@ function convert()::
   '2005Aug31 at 23:59:27.816'
 
 The convert() routine will guess fmt_in and supply a default for sys_in if not
-specified.
+specified.  As for DateTime() the input time can be a sequence or numpy array.
 """
 
 import re
@@ -250,6 +261,23 @@ class ChandraTimeError(ValueError):
     """Exception class for bad input values to Chandra.Time"""
 
 def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
+    """Base routine to convert from/to any format."""
+
+    # Does is behave like a numpy ndarray?
+    if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten'):
+        import numpy
+        time_out = [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in.flatten()]
+        return numpy.array(time_out).reshape(time_in.shape)
+    else:
+        # If time_in is not string-like then try iterating over it
+        try:
+            if str(time_in) == time_in:
+                raise TypeError
+            return [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in]
+        except TypeError:
+            return _convert(time_in, sys_in, fmt_in, sys_out, fmt_out)
+
+def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
 
     time_in = str(time_in)
