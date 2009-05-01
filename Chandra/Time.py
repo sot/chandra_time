@@ -263,8 +263,8 @@ class ChandraTimeError(ValueError):
 def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
     """Base routine to convert from/to any format."""
 
-    # Does is behave like a numpy ndarray?
-    if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten'):
+    # Does is behave like a numpy ndarray with non-zero dimension?
+    if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten') and time_in.shape:
         import numpy
         time_out = [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in.flatten()]
         return numpy.array(time_out).reshape(time_in.shape)
