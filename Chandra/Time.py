@@ -65,6 +65,11 @@ specifically select a format use the 'format' option.::
   >>> DateTime('2007122.01020340').date
   '2007:122:01:02:03.400'
 
+If no input time is supplied when creating the object then the current time is used.::
+
+  >>> DateTime().fits
+  '2009-11-14T18:24:14.504'
+
 The input time can also be an iterable sequence (returns a list) or
 a numpy array (returns a numpy array with the same shape)::
 
@@ -91,9 +96,8 @@ function convert()::
 The convert() routine will guess fmt_in and supply a default for sys_in if not
 specified.  As for DateTime() the input time can be a sequence or numpy array.
 """
-
 import re
-import axTime3
+import Chandra.axTime3 as axTime3
 import time
 
 # Import mx.DateTime if possible
@@ -262,6 +266,10 @@ class ChandraTimeError(ValueError):
 
 def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
     """Base routine to convert from/to any format."""
+    if time_in is None:
+        time_in = time.time()
+        fmt_in = 'unix'
+        sys_in = None
 
     # Does is behave like a numpy ndarray with non-zero dimension?
     if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten') and time_in.shape:
@@ -329,8 +337,12 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 class DateTime(object):
     """DateTime - Convert between various time formats
 
+    :param time_in: input time (current time if not supplied)
+    :param format: format of input time ()
+
+    :returns: DateTime object
     """
-    def __init__(self, time_in, format=None):
+    def __init__(self, time_in=None, format=None):
         self.time_in = time_in
         self.format  = format
 
@@ -352,10 +364,19 @@ class DateTime(object):
 
     
 if __name__ == '__main__':
-    pass
-    print DateTime(20483020.0).year_doy
-    print DateTime('2004:121').date
-    print DateTime('2004:121').year_mon_day
-    print DateTime('2004-12-22').year_mon_day
-    print DateTime('2007-01-01').date
+    try:
+        time_in = sys.argv.pop(1)
+    except IndexError:
+        time_in = None
+
+    try:
+        format = sys.argv.pop(1)
+    except IndexError:
+        format = None
+
+    print DateTime(time_in, format).fits
+    print DateTime(time_in, format).caldate
+    print DateTime(time_in, format).date
+    print DateTime(time_in, format).secs
+    print DateTime(time_in, format).jd
     
