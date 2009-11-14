@@ -364,6 +364,7 @@ class DateTime(object):
 
     
 if __name__ == '__main__':
+    import sys
     try:
         time_in = sys.argv.pop(1)
     except IndexError:
