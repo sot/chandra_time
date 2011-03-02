@@ -23,6 +23,7 @@ The supported time formats are:
   greta      YYYYDDD.hhmmss[sss]                             utc
   year_doy   YYYY:DDD                                        utc
   mxDateTime mx.DateTime object                              utc
+  frac_year  YYYY.ffffff = date as a floating point year     utc
 ============ ==============================================  =======
 
 Each of these formats has an associated time system, which must be one of:
@@ -74,6 +75,11 @@ If no input time is supplied when creating the object then the current time is u
 
   >>> DateTime().fits
   '2009-11-14T18:24:14.504'
+
+For convenience a DateTime object can be initialized from another DateTime object.
+
+  >>> t = DateTime()
+  >>> u = DateTime(t)
 
 Sequences of dates
 ------------------
@@ -181,6 +187,7 @@ RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
       'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
       }
 
+# Conversions for greta format
 def greta_to_date(date_in):
     m = re.match(RE['greta'], date_in)
     out = '%s:%s:%s:%s:%s' % m.groups()[0:5]
@@ -195,6 +202,23 @@ def date_to_greta(date_in):
         frac = m.group(6).replace('.', '')
         out += frac
     return out
+
+# Conversions for frac_year format
+_year_secs = {}                 # Start and end secs for a year
+def year_start_end_secs(year):
+    return (DateTime('%04d:001:00:00:00' % year).secs,
+            DateTime('%04d:001:00:00:00' % (year + 1)).secs)
+
+def frac_year_to_secs(frac_year):
+    frac_year = float(frac_year)
+    year = int(frac_year)
+    s0, s1 = _year_secs.setdefault(year, year_start_end_secs(year))
+    return repr((frac_year - year) * (s1 - s0) + s0)
+
+def secs_to_frac_year(secs):
+    year = int(DateTime(secs).date[:4])
+    s0, s1 = _year_secs.setdefault(year, year_start_end_secs(year))
+    return (float(secs) - s0) / (s1 - s0) + year
 
 def raise_(r):
     raise r
@@ -220,7 +244,8 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 TimeStyle(name       = 'greta',
                           match_expr = RE['greta'],
-                          match_func = lambda f,t: (float(t) < 2099001.000000 or raise_(ValueError)) and re.match(f,t).group(),
+                          match_func = lambda f,t: ((float(t) < 2099001.000000 or raise_(ValueError))
+                                                    and re.match(f,t).group()),
                           match_err  = (AttributeError, ValueError),
                           ax3_fmt    = 'd3',
                           ax3_sys    = 'u',
@@ -232,6 +257,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ax3_fmt    = 's',
                           ax3_sys    = 'm',
                           postprocess= float ,
+                          ),
+                TimeStyle(name       = 'frac_year',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 's',
+                          ax3_sys    = 'm',
+                          preprocess = frac_year_to_secs,
+                          postprocess= secs_to_frac_year,
                           ),
                 TimeStyle(name       = 'unix',
                           match_expr = '^' + RE['float'] + '$',
@@ -327,9 +359,14 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
 def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
 
-    time_in = str(time_in)
+    try:
+        time_in = repr(float(time_in))
+    except ValueError:
+        pass
+
     for time_style in time_styles:
-        if fmt_in and time_style.name != fmt_in: continue 
+        if fmt_in and time_style.name != fmt_in:
+            continue 
         if time_style.match(time_in):
             time_in = time_style.time_in
             ax3_fmt_in = time_style.ax3_fmt
@@ -382,8 +419,12 @@ class DateTime(object):
     :returns: DateTime object
     """
     def __init__(self, time_in=None, format=None):
-        self.time_in = time_in
-        self.format  = format
+        try:
+            self.time_in = time_in.time_in
+            self.format = time_in.format
+        except AttributeError:
+            self.time_in = time_in
+            self.format  = format
 
     def __getattr__(self, fmt_out):
         return convert(self.time_in,

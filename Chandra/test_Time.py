@@ -87,9 +87,20 @@ class TestConvert(unittest.TestCase):
                                          '2008-01-08']))
             dates_2 = DateTime(np.array(['2007-01-01',
                                          '2008-01-02']))
-            
             delta_days = dates_1 - dates_2
             self.assertTrue(np.all(delta_days == np.array([7, 6])))
+
+    def test_init_from_DateTime(self):
+        date1 = DateTime('2001:001')
+        date2 = DateTime(date1)
+        self.assertEqual(date1.greta, date2.greta)
+
+    def test_frac_year(self):
+        date1 = DateTime('1999:170:01:02:03.232')
+        date2 = DateTime(date1.frac_year, format='frac_year')
+        self.assertEqual(date1.date, date2.date)
+        date1 = DateTime('2001:180:00:00:00')
+        self.assertAlmostEqual(date1.frac_year, 2001 + 179. / 365.)
 
 if __name__ == '__main__':
     unittest.main()
