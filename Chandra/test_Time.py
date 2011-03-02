@@ -2,6 +2,12 @@ import Chandra.Time
 from Chandra.Time import DateTime, convert
 import unittest
 
+try:
+    import numpy as np
+    HAS_NUMPY = True
+except ImportError:
+    HAS_NUMPY = False
+
 class TestConvert(unittest.TestCase):
     def test_mxDateTime_in(self):
         self.assertEqual(convert('1998-01-01 00:00:30'), 93.184)
@@ -56,6 +62,34 @@ class TestConvert(unittest.TestCase):
     def test_year_mon_day(self):
         self.assertEqual(DateTime('2004:121').year_mon_day, '2004-04-30')
         self.assertEqual(DateTime('2007-01-01').date, '2007:001:12:00:00.000')
+
+    def test_add(self):
+        self.assertEqual((DateTime('2007-01-01') + 7).date, DateTime('2007-01-08').date)
+
+    def test_add_array(self):
+        if HAS_NUMPY:
+            dates_in = DateTime(np.array(['2007-01-01',
+                                          '2008-02-01']))
+            dates_out = dates_in + np.array([3, 4])
+            dates_exp = DateTime(np.array(['2007-01-04',
+                                           '2008-02-05']))
+            self.assertTrue(np.all(dates_out.date == dates_exp.date))
+
+    def test_sub_days(self):
+        self.assertEqual((DateTime('2007-01-08') - 7).date, DateTime('2007-01-01').date)
+
+    def test_sub_datetimes(self):
+        self.assertEqual(DateTime('2007-01-08') - DateTime('2007-01-01'), 7)
+
+    def test_sub_datetimes_array(self):
+        if HAS_NUMPY:
+            dates_1 = DateTime(np.array(['2007-01-08',
+                                         '2008-01-08']))
+            dates_2 = DateTime(np.array(['2007-01-01',
+                                         '2008-01-02']))
+            
+            delta_days = dates_1 - dates_2
+            self.assertTrue(np.all(delta_days == np.array([7, 6])))
 
 if __name__ == '__main__':
     unittest.main()

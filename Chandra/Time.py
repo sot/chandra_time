@@ -10,16 +10,18 @@ The supported time formats are:
 ============ ==============================================  =======
  Format      Description                                     System
 ============ ==============================================  =======
-  secs       Elapsed seconds since 1998-01-01T00:00:00       tt
+  secs       Seconds since 1998-01-01T00:00:00 (float)       tt
   numday     DDDD:hh:mm:ss.ss... Elapsed days and time       utc
   relday     [+-]<float> Relative number of days from now    utc
   jd         Julian Day                                      utc
   mjd        Modified Julian Day = JD - 2400000.5            utc
   date       YYYY:DDD:hh:mm:ss.ss..                          utc
   caldate    YYYYMonDD at hh:mm:ss.ss..                      utc
-  fits       FITS date/time format YYYY-MM-DDThh:mm:ss.ss..  tt
+  fits       YYYY-MM-DDThh:mm:ss.ss..                        tt
+  iso        YYYY-MM-DD hh:mm:ss.ss..                        utc
   unix       Unix time (since 1970.0)                        utc
   greta      YYYYDDD.hhmmss[sss]                             utc
+  year_doy   YYYY:DDD                                        utc
   mxDateTime mx.DateTime object                              utc
 ============ ==============================================  =======
 
@@ -31,6 +33,9 @@ Each of these formats has an associated time system, which must be one of:
   tai     International Atomic Time 
   utc     Coordinated Universal Time 
 =======  ============================
+
+Usage
+-----
 
 The normal usage is to create an object that allows conversion from one time
 format to another.  Conversion takes place by examining the appropriate
@@ -70,6 +75,9 @@ If no input time is supplied when creating the object then the current time is u
   >>> DateTime().fits
   '2009-11-14T18:24:14.504'
 
+Sequences of dates
+------------------
+
 The input time can also be an iterable sequence (returns a list) or
 a numpy array (returns a numpy array with the same shape)::
 
@@ -80,6 +88,35 @@ a numpy array (returns a numpy array with the same shape)::
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
          ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
         dtype='|S23')
+
+Date arithmetic
+---------------
+
+DateTime objects support a limited arithmetic with a delta time expressed in days.
+One can add a delta time to a DateTime or subtract a delta time from a DateTime.
+It is also possible to subtract two DateTiem objects to get a delta time in days.
+If the DateTime holds a NumPy array or the delta times are NumPy arrays then the
+appropriate broadcasting will be done.
+::
+
+  >>> d1 = DateTime('2011:200:00:00:00')
+  >>> d2 = d1 + 4.25
+  >>> d2.date
+  '2011:204:06:00:00.000'
+  >>> d2 - d1
+  4.25
+  >>> import numpy as np
+  >>> d3 = d1 + np.array([1,2,3])
+  >>> d3.date
+  array(['2011:201:00:00:00.000', '2011:202:00:00:00.000',
+         '2011:203:00:00:00.000'], 
+        dtype='|S21')
+  >>> (d3 + 7).year_doy
+  array(['2011:208', '2011:209', '2011:210'], 
+        dtype='|S8')
+
+Input and output time system
+----------------------------
 
 Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
@@ -101,8 +138,10 @@ import Chandra.axTime3 as axTime3
 import time
 
 # Import mx.DateTime if possible
-try: import mx.DateTime
-except ImportError: pass
+try:
+    import mx.DateTime
+except ImportError:
+    pass
 
 class TimeStyle(object):
     def __init__(self,
@@ -351,6 +390,15 @@ class DateTime(object):
                        fmt_in=self.format,
                        fmt_out=fmt_out,
                        )
+
+    def __add__(self, days):
+        return DateTime(self.jd + days, format='jd')
+
+    def __sub__(self, other):
+        if isinstance(other, DateTime):
+            return self.jd - other.jd
+        else:
+            return DateTime(self.jd - other, format='jd')
 
     def day_start(self):
         """Return a new DateTime object corresponding to the start of the day."""
