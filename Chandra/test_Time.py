@@ -17,6 +17,12 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(d.date, '1998-01-01')
         self.assertEqual(d.time, '00:00:30.00')
 
+    def test_init_from_mxDateTime(self):
+        mxd = DateTime('1999-01-01 12:13:14').mxDateTime
+        self.assertEqual(DateTime(mxd).fits, '1999-01-01T12:14:18.184')
+        self.assertEqual(DateTime(mxd).mxDateTime.strftime('%c'),
+                         'Fri Jan  1 12:13:14 1999')
+
     def test_iso(self):
         self.assertEqual(convert(93.184, fmt_out='iso'), '1998-01-01 00:00:30.000')
         self.assertEqual(convert(93.184, fmt_out='iso'), '1998-01-01 00:00:30.000')

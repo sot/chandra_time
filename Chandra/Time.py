@@ -359,10 +359,14 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
 def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
 
+    # See if time_in works as a float after first getting the string version.
+    # For an actual float input this then gets the full-precision representation.
+    # For time_in = mx.DateTime object then the try will fail through.
     try:
+        float(str(time_in))
         time_in = repr(float(time_in))
     except ValueError:
-        pass
+        time_in = str(time_in)
 
     for time_style in time_styles:
         if fmt_in and time_style.name != fmt_in:
