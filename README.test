@@ -1,0 +1,28 @@
+TESTING
+=======
+
+python setup.py test
+
+ -- or --
+
+python setup.py nosetests
+
+ -- or --
+
+python setup.py build
+
+cd build/lib.linux-x86_64-2.6
+ipython
+import Chandra.Time
+from Chandra.Time import DateTime
+...
+
+reload(Chandra.Time)
+from Chandra.Time import DateTime
+# (Make sure it really got refreshed)
+
+...
+
+
+If you try to load Chandra.Time from the root project directory it will fail.  
+Don't do this.
