@@ -64,6 +64,7 @@ static const char* const rcsid = "axTime $Id: axTime3.cc,v 1.2 2007-08-27 21:30:
 #include <iomanip>
 #include <limits.h>
 #include "XTime.h"
+using namespace std;
 
 XTime *getinput (int, char **) ;
 int getsys (XTime::TimeSys *) ;
