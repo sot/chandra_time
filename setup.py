@@ -2,8 +2,11 @@
 import os
 cvs_version= '$Id: setup.py,v 1.11 2007-08-27 21:30:51 aldcroft Exp $'; 
 
-compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
-                '-Wno-deprecated', '-Wno-parentheses']
+if (os.name == "nt") :
+    compile_args = ['/EHs','/D_CRT_SECURE_NO_DEPRECATE']
+else:
+    compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
+                    '-Wno-deprecated', '-Wno-parentheses']
 
 # (gcc_stdin, gcc_stdouterr) = os.popen4(['gcc','-v', '--help'])
 # gcc_opt = gcc_stdouterr.read()
