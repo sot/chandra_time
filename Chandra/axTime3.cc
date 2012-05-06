@@ -59,9 +59,9 @@ static const char* const rcsid = "axTime $Id: axTime3.cc,v 1.2 2007-08-27 21:30:
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <iostream.h>
-#include <fstream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <limits.h>
 #include "XTime.h"
 

@@ -6,9 +6,9 @@
 #include <string.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <iostream.h>
-#include <fstream.h>
-#include <iomanip.h>
+#include <iostream>
+#include <fstream>
+#include <iomanip>
 #include <limits.h>
 #include "XTime.h"
 
