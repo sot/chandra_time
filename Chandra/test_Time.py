@@ -33,6 +33,8 @@ class TestConvert(unittest.TestCase):
     def test_secs(self):
         self.assertEqual('%.3f' % DateTime(20483020.).secs, '20483020.000')
         self.assertEqual(DateTime(20483020.).date, '1998:238:01:42:36.816')
+        self.assertEqual(DateTime('2012:001:00:00:00.000').secs, 441763266.18399996)
+        self.assertEqual(DateTime(473385667.18399996).date, '2013:001:00:00:00.000')
 
     def test_fits2secs(self):
         self.assertEqual(convert('1998-01-01T00:00:30'), 30)
@@ -47,6 +49,8 @@ class TestConvert(unittest.TestCase):
 
     def test_mjd(self):
         self.assertEqual(DateTime('2007-01-01T00:00:00').mjd, 54100.999245555999)
+        self.assertEqual(DateTime('2012-01-01T00:00:00').mjd, 55926.999233981)
+        self.assertEqual(DateTime('2013-01-01T00:00:00').mjd, 56292.999222407)
 
     def test_greta(self):
         self.assertEqual(DateTime('2007001.010203').date, '2007:001:01:02:03.000')

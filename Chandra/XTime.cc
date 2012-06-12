@@ -35,9 +35,9 @@ const double XTime::TAI2TT      =      32.184   ; // TT - TAI
 int    XTime::NUMLEAPSECS = 0 ;      // Leap seconds: 1972 through 2009
 long   XTime::LEAPSMJD[]  = {41317, 41499, 41683, 42048, 42413, 42778, 43144, 43509, 43874,
 			     44239, 44786, 45151, 45516, 46247, 47161, 47892, 48257, 48804,
-			     49169, 49534, 50083, 50630, 51179, 53736, 54832} ;
+			     49169, 49534, 50083, 50630, 51179, 53736, 54832, 56109} ;
 double XTime::LEAPSECS[]  = {10, 11, 12,13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25,
-			     26, 27, 28, 29, 30, 31, 32, 33, 34} ;
+			     26, 27, 28, 29, 30, 31, 32, 33, 34, 35} ;
 time_t XTime::WALLCLOCK0      ;      // Wallclock time when leap seconds were read
 
 static int daymonth[12] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31} ;
@@ -127,7 +127,7 @@ void XTime::setleaps (double dt)
 
     // File could not be found; use the ones we know about when coding
     else if ( !NUMLEAPSECS ) {
-      nums = 25 ;                 // Leap seconds: 1972.0 through 2009.0
+      nums = 26 ;                 // Leap seconds: 1972.0 through 2013.0
       NUMLEAPSECS = nums ;
     }
 
@@ -258,8 +258,8 @@ void XTime::set (long tti, double ttf, TimeSys ts, TimeFormat tf,
       while ( ( k < LEAPSMJD[i] ) && i ) {
 	i-- ;
       }
-      if ( ( i < NUMLEAPSECS-1 ) && ( j+1 == LEAPSMJD[i+1] ) &&
-	   ( (k + x + timeZero - LEAPSMJD[i+1]) < SEC2DAY  ) && i ) {
+      if ( ( i < NUMLEAPSECS-1 ) && ( k+1 == LEAPSMJD[i+1] ) &&
+          ( (LEAPSMJD[i+1] - k + x + timeZero) < SEC2DAY  ) && i ) {
 	i-- ;
 	leapflag = 1 ;
       }
