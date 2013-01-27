@@ -456,8 +456,7 @@ def date2secs(dates):
     results.
 
     The input ``dates`` can be a single (scalar) value, a Python list or a numpy
-    array.  The output data type is specified with ``dtype`` which must be a
-    valid numpy dtype.  The shape of the output matches the shape of the input.
+    array.  The shape of the output matches the shape of the input.
 
     :param dates: input dates (scalar, list, array of strings)
     :returns: converted times as either scalar or numpy array (float)
@@ -473,8 +472,7 @@ def secs2date(times):
     results.
 
     The input ``times`` can be a single (scalar) value, a Python list or a numpy
-    array.  The output data type is specified with ``dtype`` which must be a
-    valid numpy dtype.  The shape of the output matches the shape of the input.
+    array.  The shape of the output matches the shape of the input.
 
     :param times: input times (scalar, list, array of floats)
     :returns: converted dates as either scalar or numpy array (string)
