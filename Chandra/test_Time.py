@@ -1,5 +1,5 @@
 import Chandra.Time
-from Chandra.Time import DateTime, convert
+from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
 import unittest
 
 try:
@@ -7,6 +7,40 @@ try:
     HAS_NUMPY = True
 except ImportError:
     HAS_NUMPY = False
+
+
+class TestFastConvert(unittest.TestCase):
+    def test_convert_vals_scalar(self):
+        fmts = ['date', 'secs', 'jd', 'mjd', 'fits', 'caldate']
+        vals = {fmt: getattr(DateTime('2012:001'), fmt) for fmt in fmts}
+        for fmt_in in fmts:
+            val = vals[fmt_in]
+            for fmt_out in fmts:
+                if fmt_in != fmt_out:
+                    convert_val = convert_vals(val, fmt_in, fmt_out)
+                    convert_back = convert_vals(convert_val, fmt_out, fmt_in)
+                    self.assertEqual(convert_val, getattr(DateTime(val, format=fmt_in), fmt_out))
+                    self.assertEqual(val, convert_back)
+
+    def test_convert_vals_array(self):
+        fmts = ['date', 'secs', 'jd', 'mjd', 'fits', 'caldate']
+        vals = {fmt: getattr(DateTime(['2012:001', '2000:001']), fmt) for fmt in fmts}
+        for fmt_in in fmts:
+            val = vals[fmt_in]
+            for fmt_out in fmts:
+                if fmt_in != fmt_out:
+                    convert_val = convert_vals(val, fmt_in, fmt_out)
+                    convert_back = convert_vals(convert_val, fmt_out, fmt_in)
+                    self.assertTrue(np.all(val == convert_back))
+
+    def test_date2secs(self):
+        vals = DateTime(['2012:001', '2000:001'])
+        self.assertTrue(np.all(date2secs(vals.date) == vals.secs))
+
+    def test_secs2date(self):
+        vals = DateTime(['2012:001', '2000:001'])
+        self.assertTrue(np.all(secs2date(vals.secs) == vals.date))
+
 
 class TestConvert(unittest.TestCase):
     def test_mxDateTime_in(self):

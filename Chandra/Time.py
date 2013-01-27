@@ -35,6 +35,7 @@ Each of these formats has an associated time system, which must be one of:
   utc     Coordinated Universal Time 
 =======  ============================
 
+
 Usage
 -----
 
@@ -81,6 +82,7 @@ For convenience a DateTime object can be initialized from another DateTime objec
   >>> t = DateTime()
   >>> u = DateTime(t)
 
+
 Sequences of dates
 ------------------
 
@@ -94,6 +96,7 @@ a numpy array (returns a numpy array with the same shape)::
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
          ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
         dtype='|S23')
+
 
 Date arithmetic
 ---------------
@@ -121,6 +124,33 @@ appropriate broadcasting will be done.
   array(['2011:208', '2011:209', '2011:210'], 
         dtype='|S8')
 
+
+Fast conversion functions
+-------------------------
+
+The DateTime class does full validation and format-detection of input
+values.  In cases where this is not necessary a substantial improvement in
+speed (factor of 4 to 12) can be obtained using functions that skip the
+validation and format detection.  See the documentation for
+:func:`~Chandra.Time.date2secs`, :func:`~Chandra.Time.secs2date`, and
+:func:`~Chandra.Time.convert_vals`.
+::
+
+  >>> from Chandra.Time import date2secs, secs2date, convert_vals
+  >>> date2secs('2001:001:01:01:01')
+  94698125.18399999
+  >>> dates = secs2date([0, 1e8, 2e8])
+  >>> dates
+  array(['1997:365:23:58:56.816', '2001:062:09:45:35.816', '2004:124:19:32:15.816'],
+        dtype='|S21')
+  >>> date2secs(dates)
+  array([  0.00000000e+00,   1.00000000e+08,   2.00000000e+08])
+  >>> convert_vals(dates, 'date', 'mjd')
+  array([ 50813.9992687 ,  51971.40666454,  53128.81407194])
+  >>> convert_vals(dates, 'date', 'secs')
+  array([  0.00000000e+00,   1.00000000e+08,   2.00000000e+08])
+
+
 Input and output time system
 ----------------------------
 
@@ -142,6 +172,7 @@ specified.  As for DateTime() the input time can be a sequence or numpy array.
 import re
 import Chandra.axTime3 as axTime3
 import time
+import numpy as np
 
 # Import mx.DateTime if possible
 try:
@@ -159,6 +190,7 @@ class TimeStyle(object):
                  match_err  = AttributeError,
                  postprocess= None,
                  preprocess= None,
+                 dtype=None,
                  ):
         self.name = name
         self.match_expr = match_expr
@@ -168,6 +200,7 @@ class TimeStyle(object):
         self.ax3_sys = ax3_sys
         self.postprocess = postprocess
         self.preprocess = preprocess
+        self.dtype = dtype
         
     def match(self, time):
         try:
@@ -227,6 +260,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['fits'],
                           ax3_fmt    = 'f3',
                           ax3_sys    = 't',
+                          dtype      = 'S23',
                           ),
                 TimeStyle(name       = 'year_mon_day',
                           match_expr = RE['year_mon_day'],
@@ -256,7 +290,8 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = '^' + RE['float'] + '$',
                           ax3_fmt    = 's',
                           ax3_sys    = 'm',
-                          postprocess= float ,
+                          postprocess= float,
+                          dtype      = np.float64,
                           ),
                 TimeStyle(name       = 'frac_year',
                           match_expr = '^' + RE['float'] + '$',
@@ -292,11 +327,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['caldate'],
                           ax3_fmt    = 'c3',
                           ax3_sys    = 'u',
+                          dtype      = 'S25',
                           ),
                 TimeStyle(name       = 'date',
                           match_expr = RE['date'],
                           ax3_fmt    = 'd3',
                           ax3_sys    = 'u',
+                          dtype      = 'S21',
                           ),
                 TimeStyle(name       = 'year_doy',
                           match_expr = RE['year_doy'],
@@ -310,12 +347,14 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ax3_fmt    = 'j',
                           ax3_sys    = 'u',
                           postprocess= float,
+                          dtype      = np.float64,
                           ),
                 TimeStyle(name       = 'mjd',
                           match_expr = '^' + RE['float'] + '$',
                           ax3_fmt    = 'm',
                           ax3_sys    = 'u',
                           postprocess= float,
+                          dtype      = np.float64,
                           ),
                 TimeStyle(name       = 'numday',
                           match_expr = r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',  # DDDD:hh:mm:ss.ss.
@@ -334,6 +373,112 @@ time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
 
 class ChandraTimeError(ValueError):
     """Exception class for bad input values to Chandra.Time"""
+
+
+def _make_array(val):
+    """
+    Take ``val`` and convert/reshape to a 1-d array.  If ``copy`` is True
+    then copy input values.
+
+    Returns
+    -------
+    val, val_ndim: ndarray, int
+        Array version of ``val`` and the number of dims in original.
+    """
+    val = np.array(val)
+    val_ndim = val.ndim  # remember original ndim
+    if val.ndim == 0:
+        val = np.asarray([val])
+
+    # Allow only string or float arrays as input (XXX datetime later...)
+    if val.dtype.kind == 'i':
+        val = np.asarray(val, dtype=np.float64)
+
+    return val, val_ndim
+
+
+def convert_vals(vals, format_in, format_out):
+    """
+    Convert ``vals`` from the input ``format_in`` to the output format
+    ``format_out``.  This does **no input validation** and thus runs much faster
+    than the corresponding DateTime() conversion.  Be careful because invalid
+    inputs can give unpredictable results.
+
+    The input ``vals`` can be a single (scalar) value, a Python list or a numpy
+    array.  The output data type is specified with ``dtype`` which must be a
+    valid numpy dtype.
+
+    The input and output format should be one of the following DateTime
+    format names: 'secs', 'date', 'jd', 'mjd', 'fits', 'caldate'.
+
+    The function returns the converted time as either a scalar or a numpy
+    array, depending on the input ``vals``.
+
+    :param vals: input values (scalar, list, array)
+    :param fmt_in: input format (e.g. 'secs', 'date', 'jd', ..)
+    :param fmt_out: output format (e.g. 'secs', 'date', 'jd', ..)
+
+    :returns: converted values as either scalar or numpy array
+    """
+    def get_style(fmt):
+        # Only the styles with a dtype attribute can be converted using this function.
+        ok_styles = [x for x in time_styles if x.dtype]
+        for time_style in ok_styles:
+            if time_style.name == fmt:
+                return time_style.ax3_sys, time_style.ax3_fmt, time_style.dtype
+        else:
+            raise ValueError('Error - specified format {} is not an allowed value {}'
+                             .format(fmt, [x.name for x in ok_styles]))
+
+    sys_in, fmt_in, dtype_in = get_style(format_in)
+    sys_out, fmt_out, dtype_out = get_style(format_out)
+
+    vals, ndim = _make_array(vals)
+    # If the input is already string-like then pass straight to convert_time.
+    # Otherwise convert to string with repr().
+    if vals.dtype.char in 'SU':
+        outs = [axTime3.convert_time(val, sys_in, fmt_in, sys_out, fmt_out)
+                for val in vals.flatten()]
+    else:
+        outs = [axTime3.convert_time(repr(val), sys_in, fmt_in, sys_out, fmt_out)
+                for val in vals.flatten()]
+    outs = np.array(outs, dtype=dtype_out)
+    
+    return (outs[0].tolist() if ndim == 0 else outs.reshape(vals.shape))
+
+
+def date2secs(dates):
+    """
+    Convert ``dates`` from the ``date`` system (e.g. '2011:001:12:23:45.001') to
+    the ``secs`` system (CXC seconds).  This does **no input validation** and
+    thus runs much faster than the corresponding ``DateTime(dates).secs``
+    conversion.  Be careful because invalid inputs can give unpredictable
+    results.
+
+    The input ``dates`` can be a single (scalar) value, a Python list or a numpy
+    array.  The shape of the output matches the shape of the input.
+
+    :param dates: input dates (scalar, list, array of strings)
+    :returns: converted times as either scalar or numpy array (float)
+    """
+    return convert_vals(dates, 'date', 'secs')
+
+def secs2date(times):
+    """
+    Convert ``times`` from the ``secs`` system (CXC seconds) to the ``date``
+    system (e.g. '2011:001:12:23:45.001').  This does **no input validation**
+    and thus runs much faster than the corresponding ``DateTime(times).date``
+    conversion.  Be careful because invalid inputs can give unpredictable
+    results.
+
+    The input ``times`` can be a single (scalar) value, a Python list or a numpy
+    array.  The shape of the output matches the shape of the input.
+
+    :param times: input times (scalar, list, array of floats)
+    :returns: converted dates as either scalar or numpy array (string)
+    """
+    return convert_vals(times, 'secs', 'date')
+
 
 def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
     """Base routine to convert from/to any format."""
