@@ -182,6 +182,7 @@ RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
       'date'        : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?$',
       'year_doy'    : r'^(\d{4}):(\d{3})$',
       'caldate'     : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'greta_ok'    : r'^(\d{4})(\d{3})\.\d+$',
       'greta'       : r'^(\d{4})(\d{3})\.(\d{2})(\d{2})(\d{2})(\d+)?$',
       'fits'        : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
@@ -189,6 +190,7 @@ RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
 
 # Conversions for greta format
 def greta_to_date(date_in):
+    date_in = "%07.9f" % float(date_in)
     m = re.match(RE['greta'], date_in)
     out = '%s:%s:%s:%s:%s' % m.groups()[0:5]
     if m.group(6) != None:
@@ -243,7 +245,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           postprocess= lambda x: (float(x) + T1998 - time.time()) / 86400.0,
                           ),
                 TimeStyle(name       = 'greta',
-                          match_expr = RE['greta'],
+                          match_expr = RE['greta_ok'],
                           match_func = lambda f,t: ((float(t) < 2099001.000000 or raise_(ValueError))
                                                     and re.match(f,t).group()),
                           match_err  = (AttributeError, ValueError),
