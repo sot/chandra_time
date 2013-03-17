@@ -215,13 +215,16 @@ RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
       'date'        : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?$',
       'year_doy'    : r'^(\d{4}):(\d{3})$',
       'caldate'     : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
-      'greta'       : r'^(\d{4})(\d{3})\.(\d{2})(\d{2})(\d{2})(\d+)?$',
+      'greta'       : r'^(\d{4})(\d{3})\.(\d{2})?(\d{2})?(\d{2})?(\d+)?$',
       'fits'        : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
       }
 
 # Conversions for greta format
 def greta_to_date(date_in):
+    # Force date_in string to have 9 digits of precision to represent
+    # hhmmssfff (where fff is milliseconds within the second)
+    date_in = '{:.9f}'.format(float(date_in))
     m = re.match(RE['greta'], date_in)
     out = '%s:%s:%s:%s:%s' % m.groups()[0:5]
     if m.group(6) != None:
@@ -546,7 +549,8 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
         else:
             raise ChandraTimeError, "Invalid output system '%s'" % sys_out
 
-    if preprocess: time_in = preprocess(time_in)
+    if preprocess:
+        time_in = preprocess(time_in)
         
     time_out = axTime3.convert_time(time_in,
                                     ax3_sys_in,

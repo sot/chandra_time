@@ -87,9 +87,13 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime('2013-01-01T00:00:00').mjd, 56292.999222407)
 
     def test_greta(self):
+        self.assertEqual(DateTime('2007001.000000000').date, '2007:001:00:00:00.000')
+        self.assertEqual(DateTime('2007001.0').date, '2007:001:00:00:00.000')
+        self.assertEqual(DateTime(2007001.0).date, '2007:001:00:00:00.000')
         self.assertEqual(DateTime('2007001.010203').date, '2007:001:01:02:03.000')
         self.assertEqual(DateTime('2007001.01020304').date, '2007:001:01:02:03.040')
         self.assertEqual(DateTime('2007:001:01:02:03.40').greta, '2007001.010203400')
+        self.assertEqual(DateTime('2007:001:00:00:00.000').greta, '2007001.000000000')
 
     def test_stop_day(self):
         self.assertEqual(DateTime('1996365.010203').day_end().iso, '1996-12-31 00:00:00.000')
