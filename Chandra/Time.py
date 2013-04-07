@@ -182,6 +182,15 @@ try:
 except ImportError:
     pass
 
+
+def test(*args, **kwargs):
+    """Run self-tests"""
+    import os
+    import pytest
+    os.chdir(os.path.dirname(__file__))
+    pytest.main(*args, **kwargs)
+
+
 class TimeStyle(object):
     def __init__(self,
                  name,
