@@ -170,7 +170,9 @@ function convert()::
 The convert() routine will guess fmt_in and supply a default for sys_in if not
 specified.  As for DateTime() the input time can be a sequence or numpy array.
 """
+import sys
 import re
+from functools import wraps
 import Chandra.axTime3 as axTime3
 import time
 import numpy as np
@@ -190,6 +192,47 @@ def test(*args, **kwargs):
     import pytest
     os.chdir(os.path.dirname(__file__))
     pytest.main(*args, **kwargs)
+
+
+def override__dir__(f):
+    """
+    When overriding a __dir__ method on an object, you often want to
+    include the "standard" members on the object as well.  This
+    decorator takes care of that automatically, and all the wrapped
+    function needs to do is return a list of the "special" members
+    that wouldn't be found by the normal Python means.
+
+    Example
+    -------
+
+    @override__dir__
+    def __dir__(self):
+        return ['special_method1', 'special_method2']
+
+    This method is copied from astropy.utils.compat.misc, with a slight change to
+    remove the six dependency.
+    """
+    if sys.version_info[:2] < (3, 3):
+        # There was no straightforward way to do this until Python 3.3, so
+        # we have this complex monstrosity
+        @wraps(f)
+        def override__dir__wrapper(self):
+            members = set()
+            for cls in self.__class__.mro():
+                members.update(dir(cls))
+            members.update(self.__dict__)
+            members.update(f(self))
+            return sorted(members)
+    else:
+        # http://bugs.python.org/issue12166
+
+        @wraps(f)
+        def override__dir__wrapper(self):
+            members = set(object.__dir__(self))
+            members.update(f(self))
+            return sorted(members)
+
+    return override__dir__wrapper
 
 
 class TimeStyle(object):
@@ -645,6 +688,10 @@ class DateTime(object):
         else:
             return DateTime(self.jd - other, format='jd')
 
+    @override__dir__
+    def __dir__(self):
+        return [time_style.name for time_style in time_styles]
+
     def day_start(self):
         """Return a new DateTime object corresponding to the start of the day."""
         date = self.date.split(':')
@@ -654,23 +701,3 @@ class DateTime(object):
         """Return a new DateTime object corresponding to the end of the day."""
         date = self.date.split(':')
         return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
-
-    
-if __name__ == '__main__':
-    import sys
-    try:
-        time_in = sys.argv.pop(1)
-    except IndexError:
-        time_in = None
-
-    try:
-        format = sys.argv.pop(1)
-    except IndexError:
-        format = None
-
-    print DateTime(time_in, format).fits
-    print DateTime(time_in, format).caldate
-    print DateTime(time_in, format).date
-    print DateTime(time_in, format).secs
-    print DateTime(time_in, format).jd
-    
