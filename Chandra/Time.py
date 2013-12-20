@@ -175,7 +175,7 @@ import Chandra.axTime3 as axTime3
 import time
 import numpy as np
 
-__version__ = '1.15.1'
+__version__ = '1.16'
 
 # Import mx.DateTime if possible
 try:
