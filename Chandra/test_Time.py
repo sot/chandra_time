@@ -86,6 +86,16 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime('2012-01-01T00:00:00').mjd, 55926.999233981)
         self.assertEqual(DateTime('2013-01-01T00:00:00').mjd, 56292.999222407)
 
+    def test_plotdate(self):
+        """
+        Validate against cxctime2plotdate and round-trip
+        >>> cxctime2plotdate([DateTime('2010:001').secs])
+        array([ 733773.5])
+        """
+        pd = DateTime('2010:001').plotdate
+        self.assertEqual(pd, 733773.5)
+        self.assertEqual(DateTime(pd, format='plotdate').date, '2010:001:12:00:00.000')
+
     def test_greta(self):
         self.assertEqual(DateTime('2007001.000000000').date, '2007:001:00:00:00.000')
         self.assertEqual(DateTime('2007001.0').date, '2007:001:00:00:00.000')

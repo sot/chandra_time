@@ -24,6 +24,7 @@ The supported time formats are:
   year_doy   YYYY:DDD                                        utc
   mxDateTime mx.DateTime object                              utc
   frac_year  YYYY.ffffff = date as a floating point year     utc
+  plotdate   Matplotlib plotdate (days since year 0)         utc
 ============ ==============================================  =======
 
 Each of these formats has an associated time system, which must be one of:
@@ -318,7 +319,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = '^' + RE['float'] + '$',
                           ax3_fmt    = 's',
                           ax3_sys    = 'u',
-                          preprocess = lambda x: str(float(x) - T1998),
+                          preprocess = lambda x: repr(float(x) - T1998),
                           postprocess= lambda x: float(x) + T1998,
                           ),
                 TimeStyle(name       = 'iso',
@@ -374,6 +375,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',  # DDDD:hh:mm:ss.ss.
                           ax3_fmt    = 'n3',
                           ax3_sys    = 'u',
+                          ),
+                TimeStyle(name       = 'plotdate',
+                          match_expr = '^' + RE['float'] + '$',
+                          ax3_fmt    = 'j',
+                          ax3_sys    = 'u',
+                          preprocess = lambda x: repr(float(x) + 1721424.5),
+                          postprocess= lambda x: float(x) - 1721424.5,
                           ),
                 ]
 
@@ -575,7 +583,39 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     return time_out
 
 class DateTime(object):
-    """DateTime - Convert between various time formats
+    """
+    DateTime - Convert between various time formats
+
+    The supported time formats are:
+
+    ============ ==============================================  =======
+     Format      Description                                     System
+    ============ ==============================================  =======
+      secs       Seconds since 1998-01-01T00:00:00 (float)       tt
+      numday     DDDD:hh:mm:ss.ss... Elapsed days and time       utc
+      relday     [+-]<float> Relative number of days from now    utc
+      jd         Julian Day                                      utc
+      mjd        Modified Julian Day = JD - 2400000.5            utc
+      date       YYYY:DDD:hh:mm:ss.ss..                          utc
+      caldate    YYYYMonDD at hh:mm:ss.ss..                      utc
+      fits       YYYY-MM-DDThh:mm:ss.ss..                        tt
+      iso        YYYY-MM-DD hh:mm:ss.ss..                        utc
+      unix       Unix time (since 1970.0)                        utc
+      greta      YYYYDDD.hhmmss[sss]                             utc
+      year_doy   YYYY:DDD                                        utc
+      mxDateTime mx.DateTime object                              utc
+      frac_year  YYYY.ffffff = date as a floating point year     utc
+      plotdate   Matplotlib plotdate (days since 0001-01-01)     utc
+    ============ ==============================================  =======
+
+    Each of these formats has an associated time system, which must be one of:
+
+    =======  ============================
+      met     Mission Elapsed Time
+      tt      Terrestrial Time
+      tai     International Atomic Time
+      utc     Coordinated Universal Time
+    =======  ============================
 
     :param time_in: input time (current time if not supplied)
     :param format: format of input time ()

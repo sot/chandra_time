@@ -1,6 +1,5 @@
 # from distutils.core import setup, Extension
 import os
-cvs_version= '$Id: setup.py,v 1.11 2007-08-27 21:30:51 aldcroft Exp $'; 
 
 if (os.name == "nt") :
     compile_args = ['/EHs','/D_CRT_SECURE_NO_DEPRECATE']
