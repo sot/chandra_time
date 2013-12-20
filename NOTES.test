@@ -1,0 +1,5 @@
+For testing use:
+
+$ python setup.py test
+
+The normal py.test runs into problems with pytest and namespace packages.
