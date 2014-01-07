@@ -701,3 +701,35 @@ class DateTime(object):
         """Return a new DateTime object corresponding to the end of the day."""
         date = self.date.split(':')
         return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
+
+
+def command_line_convert_time():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Convert time to standard formats',
+                                     usage='convert_time [-h] [time] [format]')
+
+    parser.add_argument('time',
+                        type=str,
+                        nargs='?',
+                        default=None,
+                        help='Input time in any Chandra.Time format')
+
+    parser.add_argument('format',
+                        type=str,
+                        nargs='?',
+                        default=None,
+                        help='Input format')
+    args = parser.parse_args()
+
+    time_in = args.time
+    format = args.format
+
+    print(DateTime(time_in, format).fits)
+    print(DateTime(time_in, format).caldate)
+    print(DateTime(time_in, format).date)
+    print(DateTime(time_in, format).secs)
+    print(DateTime(time_in, format).jd)
+
+if __name__ == '__main__':
+    command_line_convert_time()
