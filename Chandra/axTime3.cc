@@ -170,16 +170,18 @@ void axTime3 (char *time_in,
   return ;
 }
 
-char *convert_time(char *time_in,
-		   char *ts_in,
-		   char *tf_in,
-		   char *ts_out,
-		   char *tf_out) {
+void *_convert_time(char *time_in,
+                    char *ts_in,
+                    char *tf_in,
+                    char *ts_out,
+                    char *tf_out,
+                    char *time_out  // passed in as a long blank string
+    ) {
   // Alloc some memory for result.  This gets returned by python via the
   // %newobject directive in SWIG.  http://www.swig.org/Doc1.3/Library.html#Library_nn8
-  char *time_out = (char *) malloc(80);
+  // char *time_out = (char *) malloc(80);
   axTime3(time_in, ts_in, tf_in, ts_out, tf_out, time_out);
-  return time_out;
+  // return time_out;
 }
 
 

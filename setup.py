@@ -1,5 +1,8 @@
 # from distutils.core import setup, Extension
+from setuptools import setup, Extension
+
 import os
+from Cython.Build import cythonize
 
 if (os.name == "nt") :
     compile_args = ['/EHs','/D_CRT_SECURE_NO_DEPRECATE']
@@ -15,31 +18,32 @@ else:
 # machine = Popen(['uname','--machine'], stdout=PIPE).communicate()[0]
 # if machine.startswith('x86_64'):
 
-library_dirs = os.environ.get('LD_LIBRARY_PATH', '').split(':')
+# extensions = [Extension('Chandra._axTime3.pyx',
+#                         sources=['Chandra/axTime3.cc',
+#                                  'Chandra/XTime.cc']
+#                         language='c++',
+#                         extra_compile_args=compile_args),
+#               ]
 
-from setuptools import setup, Extension
-setup(name='Chandra.Time',
+# ext_modules = cythonize('Chandra/axTime3.pyx',
+#                         sources=['Chandra/axTime3.cc',
+#                                  'Chandra/XTime.cc'],
+#                         language='c++')
+
+setup(ext_modules = cythonize("Chandra/_axTime3.pyx"))
+# setup(ext_modules = cythonize("rect.pyx"))
+
+if 0:
+    setup(name='Chandra.Time',
       author = 'Tom Aldcroft',
       description='Convert between various time formats relevant to Chandra',
       author_email = 'taldcroft@cfa.harvard.edu',
-      py_modules = ['Chandra.axTime3', 'Chandra.Time'],
+      # py_modules = ['Chandra.axTime3', 'Chandra.Time'],
       version='1.16.1',
       zip_safe=False,
       test_suite = "Chandra.test_Time",
-
       namespace_packages=['Chandra'],
       packages=['Chandra'],
       package_dir={'Chandra' : 'Chandra'},
-      ext_modules = [Extension('Chandra._axTime3',
-                               ['Chandra/axTime3.cc',
-                                'Chandra/XTime.cc',
-                                'Chandra/axTime3.i',
-                                ],
-                               swig_opts=['-c++'],
-                               language='c++',
-                               # library_dirs=library_dirs,
-                               # extra_link_args=['-lXTime'],
-                               extra_compile_args=compile_args,
-                               )
-                     ]
+      ext_modules=ext_modules,
       )
