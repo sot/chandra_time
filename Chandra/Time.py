@@ -173,7 +173,7 @@ specified.  As for DateTime() the input time can be a sequence or numpy array.
 import sys
 import re
 from functools import wraps
-import Chandra.axTime3 as axTime3
+import Chandra._axTime3 as axTime3
 import time
 import numpy as np
 
@@ -588,13 +588,13 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
             preprocess = time_style.preprocess
             break
     else:
-        raise ChandraTimeError, "Invalid input format '%s'" % fmt_in
+        raise ChandraTimeError("Invalid input format '%s'" % fmt_in)
 
     if sys_in:
         if sys_in in time_system:
             ax3_sys_in = time_system[sys_in]
         else:
-            raise ChandraTimeError, "Invalid input system '%s'" % sys_in
+            raise ChandraTimeError("Invalid input system '%s'" % sys_in)
         
     for time_style in time_styles:
         if time_style.name == fmt_out:
@@ -603,13 +603,13 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
             postprocess = time_style.postprocess
             break
     else:
-        raise ChandraTimeError, "Invalid output format '%s'" % fmt_out
+        raise ChandraTimeError("Invalid output format '%s'" % fmt_out)
 
     if sys_out:
         if sys_out in time_system:
             ax3_sys_out = time_system[sys_out]
         else:
-            raise ChandraTimeError, "Invalid output system '%s'" % sys_out
+            raise ChandraTimeError("Invalid output system '%s'" % sys_out)
 
     if preprocess:
         time_in = preprocess(time_in)
