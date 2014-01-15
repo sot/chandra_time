@@ -1,0 +1,6 @@
+*.so
+*.cpp
+*.ipynb
+build/
+dist/
+*.egg-info/
