@@ -3,6 +3,7 @@ from setuptools import setup, Extension
 
 import os
 from Cython.Build import cythonize
+from Cython.Build.Dependencies import create_extension_list
 
 if (os.name == "nt") :
     compile_args = ['/EHs','/D_CRT_SECURE_NO_DEPRECATE']
@@ -18,32 +19,21 @@ else:
 # machine = Popen(['uname','--machine'], stdout=PIPE).communicate()[0]
 # if machine.startswith('x86_64'):
 
-# extensions = [Extension('Chandra._axTime3.pyx',
-#                         sources=['Chandra/axTime3.cc',
-#                                  'Chandra/XTime.cc']
-#                         language='c++',
-#                         extra_compile_args=compile_args),
-#               ]
+ext_modules = create_extension_list(["Chandra/*.pyx"])
 
-# ext_modules = cythonize('Chandra/axTime3.pyx',
-#                         sources=['Chandra/axTime3.cc',
-#                                  'Chandra/XTime.cc'],
-#                         language='c++')
+for module in ext_modules:
+    module.extra_compile_args = compile_args
 
-setup(ext_modules = cythonize("Chandra/_axTime3.pyx"))
-# setup(ext_modules = cythonize("rect.pyx"))
-
-if 0:
-    setup(name='Chandra.Time',
-      author = 'Tom Aldcroft',
+setup(name='Chandra.Time',
+      author='Tom Aldcroft',
       description='Convert between various time formats relevant to Chandra',
-      author_email = 'taldcroft@cfa.harvard.edu',
-      # py_modules = ['Chandra.axTime3', 'Chandra.Time'],
-      version='1.16.1',
+      author_email='taldcroft@cfa.harvard.edu',
+      py_modules=['Chandra.axTime3', 'Chandra.Time'],
+      version='3.17',
       zip_safe=False,
-      test_suite = "Chandra.test_Time",
+      test_suite="Chandra.test_Time",
       namespace_packages=['Chandra'],
       packages=['Chandra'],
       package_dir={'Chandra' : 'Chandra'},
-      ext_modules=ext_modules,
+      ext_modules=cythonize(ext_modules),
       )
