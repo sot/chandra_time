@@ -173,17 +173,16 @@ specified.  As for DateTime() the input time can be a sequence or numpy array.
 import sys
 import re
 from functools import wraps
-import Chandra._axTime3 as axTime3
+import warnings
 import time
+
+import six
 import numpy as np
+import astropy.time  # Use for ISO parsing, could probably do with Python std lib
 
-__version__ = '1.16.1'
+import Chandra._axTime3 as axTime3
 
-# Import mx.DateTime if possible
-try:
-    import mx.DateTime
-except ImportError:
-    pass
+__version__ = '3.17'
 
 
 def test(*args, **kwargs):
@@ -314,6 +313,15 @@ def secs_to_frac_year(secs):
 def raise_(r):
     raise r
 
+def mx_DateTime_ISO_ParseDateTime(t):
+    try:
+        import mx.DateTime
+        warnings.warn('mxDateTime format will be removed soon, ask TLA for migration options')
+        return mx.DateTime.ISO.ParseDateTime(t)
+    except ImportError:
+        raise ValueError('mxDateTime format is unavailable, ask TLA for migration options')
+
+
 time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['fits'],
                           ax3_fmt    = 'f3',
@@ -366,20 +374,20 @@ time_styles = [ TimeStyle(name       = 'fits',
                           postprocess= lambda x: float(x) + T1998,
                           ),
                 TimeStyle(name       = 'iso',
-                          match_func = lambda f,t: mx.DateTime.ISO.ParseDateTime(t),
+                          match_func = lambda f,t: astropy.time.Time(t, format='iso'),
                           match_err  = ValueError,
                           ax3_fmt    = 'f3', 
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t.date + 'T' + t.time,
+                          preprocess = lambda t: t.isot,
                           postprocess= lambda t: t.replace('T', ' '),
                           ),
                 TimeStyle(name       = 'mxDateTime',
-                          match_func = lambda f,t: mx.DateTime.ISO.ParseDateTime(t),
+                          match_func = lambda f,t: astropy.time.Time(t, format='iso'),
                           match_err  = ValueError,
                           ax3_fmt    = 'f3', 
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t.date + 'T' + t.time,
-                          postprocess= lambda t: mx.DateTime.ISO.ParseDateTime(t),
+                          preprocess = lambda t: t.isot,
+                          postprocess= mx_DateTime_ISO_ParseDateTime,
                           ),
                 TimeStyle(name       = 'caldate',
                           match_expr = RE['caldate'],
@@ -507,6 +515,11 @@ def convert_vals(vals, format_in, format_out):
     else:
         outs = [axTime3.convert_time(repr(val), sys_in, fmt_in, sys_out, fmt_out)
                 for val in vals.flatten()]
+
+    if (six.PY3
+            and isinstance(dtype_out, six.string_types)
+            and dtype_out.startswith('S')):
+        dtype_out = 'U' + dtype_out[1:]
     outs = np.array(outs, dtype=dtype_out)
     
     return (outs[0].tolist() if ndim == 0 else outs.reshape(vals.shape))
