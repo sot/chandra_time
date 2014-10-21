@@ -1,6 +1,7 @@
 import Chandra.Time
 from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
 import unittest
+import time
 
 try:
     import numpy as np
@@ -159,6 +160,16 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(date1.date, date2.date)
         date1 = DateTime('2001:180:00:00:00')
         self.assertAlmostEqual(date1.frac_year, 2001 + 179. / 365.)
+
+    def test_date_now(self):
+        """
+        Make sure that instantiating a DateTime object as NOW uses the
+        the time at creation, not the time at attribute access.
+        """
+        date1 = DateTime()
+        date1_date = date1.date
+        time.sleep(1)
+        self.assertEqual(date1.date, date1_date)
 
 if __name__ == '__main__':
     unittest.main()
