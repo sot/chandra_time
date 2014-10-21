@@ -1,6 +1,7 @@
 import Chandra.Time
 from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
 import unittest
+import time
 
 try:
     import mx.DateTime
@@ -177,6 +178,16 @@ class TestConvert(unittest.TestCase):
         t1 = DateTime('2015-06-30 23:59:59').secs
         t2 = DateTime('2015-07-01 00:00:02').secs
         self.assertAlmostEqual(t2 - t1, 4.0)
+
+    def test_date_now(self):
+        """
+        Make sure that instantiating a DateTime object as NOW uses the
+        the time at creation, not the time at attribute access.
+        """
+        date1 = DateTime()
+        date1_date = date1.date
+        time.sleep(1)
+        self.assertEqual(date1.date, date1_date)
 
 if __name__ == '__main__':
     unittest.main()
