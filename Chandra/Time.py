@@ -679,6 +679,13 @@ class DateTime(object):
     :returns: DateTime object
     """
     def __init__(self, time_in=None, format=None):
+        # If no time_in supplied this implies NOW.
+        if time_in is None:
+            if format is not None:
+                raise ValueError('Cannot supply `format` without `time_in`')
+            time_in = time.time()
+            format = 'unix'
+
         try:
             self.time_in = time_in.time_in
             self.format = time_in.format
