@@ -3,8 +3,8 @@ from setuptools import setup, Extension
 import os
 from Cython.Build import cythonize
 
-if (os.name == "nt") :
-    compile_args = ['/EHs','/D_CRT_SECURE_NO_DEPRECATE']
+if (os.name == "nt"):
+    compile_args = ['/EHs', '/D_CRT_SECURE_NO_DEPRECATE']
 else:
     compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
                     '-Wno-deprecated', '-Wno-parentheses']
