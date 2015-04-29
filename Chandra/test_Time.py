@@ -160,5 +160,13 @@ class TestConvert(unittest.TestCase):
         date1 = DateTime('2001:180:00:00:00')
         self.assertAlmostEqual(date1.frac_year, 2001 + 179. / 365.)
 
+    def test_leapsec_2015(self):
+        """
+        Test that there are 4 clock ticks where one usually expects 3 (PR #15).
+        """
+        t1 = DateTime('2015-06-30 23:59:59').secs
+        t2 = DateTime('2015-07-01 00:00:02').secs
+        self.assertAlmostEqual(t2 - t1, 4.0)
+
 if __name__ == '__main__':
     unittest.main()
