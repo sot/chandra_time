@@ -1,6 +1,13 @@
 import Chandra.Time
 from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
 import unittest
+import time
+
+try:
+    import mx.DateTime
+    HAS_MX_DATETIME = True
+except ImportError:
+    HAS_MX_DATETIME = False
 
 try:
     import numpy as np
@@ -19,6 +26,8 @@ class TestFastConvert(unittest.TestCase):
                 if fmt_in != fmt_out:
                     convert_val = convert_vals(val, fmt_in, fmt_out)
                     convert_back = convert_vals(convert_val, fmt_out, fmt_in)
+                    if val != convert_back:
+                        print(fmt_in, fmt_out, val, convert_back)
                     self.assertEqual(convert_val, getattr(DateTime(val, format=fmt_in), fmt_out))
                     self.assertEqual(val, convert_back)
 
@@ -47,15 +56,17 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(convert('1998-01-01 00:00:30'), 93.184)
 
     def test_mxDateTime_out(self):
-        d = convert(93.184, fmt_out='mxDateTime')
-        self.assertEqual(d.date, '1998-01-01')
-        self.assertEqual(d.time, '00:00:30.00')
+        if HAS_MX_DATETIME:
+            d = convert(93.184, fmt_out='mxDateTime')
+            self.assertEqual(d.date, '1998-01-01')
+            self.assertEqual(d.time, '00:00:30.00')
 
     def test_init_from_mxDateTime(self):
-        mxd = DateTime('1999-01-01 12:13:14').mxDateTime
-        self.assertEqual(DateTime(mxd).fits, '1999-01-01T12:14:18.184')
-        self.assertEqual(DateTime(mxd).mxDateTime.strftime('%c'),
-                         'Fri Jan  1 12:13:14 1999')
+        if HAS_MX_DATETIME:
+            mxd = DateTime('1999-01-01 12:13:14').mxDateTime
+            self.assertEqual(DateTime(mxd).fits, '1999-01-01T12:14:18.184')
+            self.assertEqual(DateTime(mxd).mxDateTime.strftime('%c'),
+                             'Fri Jan  1 12:13:14 1999')
 
     def test_iso(self):
         self.assertEqual(convert(93.184, fmt_out='iso'), '1998-01-01 00:00:30.000')
@@ -167,6 +178,16 @@ class TestConvert(unittest.TestCase):
         t1 = DateTime('2015-06-30 23:59:59').secs
         t2 = DateTime('2015-07-01 00:00:02').secs
         self.assertAlmostEqual(t2 - t1, 4.0)
+
+    def test_date_now(self):
+        """
+        Make sure that instantiating a DateTime object as NOW uses the
+        the time at creation, not the time at attribute access.
+        """
+        date1 = DateTime()
+        date1_date = date1.date
+        time.sleep(1)
+        self.assertEqual(date1.date, date1_date)
 
 if __name__ == '__main__':
     unittest.main()
