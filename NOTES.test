@@ -1,5 +1,6 @@
-For testing use:
+For testing use a dev ska and do:
 
+$ python setup.py install
 $ python setup.py test
 
 The normal py.test runs into problems with pytest and namespace packages.
