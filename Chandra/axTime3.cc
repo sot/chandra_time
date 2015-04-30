@@ -57,7 +57,6 @@ static const char* const rcsid = "axTime $Id: axTime3.cc,v 1.2 2007-08-27 21:30:
 
 #include <stdio.h>
 #include <string.h>
-#include <unistd.h>
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>
@@ -170,18 +169,14 @@ void axTime3 (char *time_in,
   return ;
 }
 
-void *_convert_time(char *time_in,
+void _convert_time(char *time_in,
                     char *ts_in,
                     char *tf_in,
                     char *ts_out,
                     char *tf_out,
                     char *time_out  // passed in as a long blank string
     ) {
-  // Alloc some memory for result.  This gets returned by python via the
-  // %newobject directive in SWIG.  http://www.swig.org/Doc1.3/Library.html#Library_nn8
-  // char *time_out = (char *) malloc(80);
   axTime3(time_in, ts_in, tf_in, ts_out, tf_out, time_out);
-  // return time_out;
 }
 
 
