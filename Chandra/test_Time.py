@@ -196,5 +196,30 @@ class TestConvert(unittest.TestCase):
         time.sleep(1)
         self.assertEqual(date1.date, date1_date)
 
+    def test_date_attributes(self):
+        t = DateTime(['2015:160:02:24:01.250',
+                      '2015:161:03:24:02.250',
+                      '2015:162:04:24:03.250'])
+        for attr, vals in (('year', np.array([2015, 2015, 2015])),
+                           ('yday', np.array([160, 161, 162])),
+                           ('hour', np.array([2, 3, 4])),
+                           ('min', np.array([24, 24, 24])),
+                           ('sec', np.array([1.25, 2.25, 3.25])),
+                           ('mon', np.array([6, 6, 6])),
+                           ('day', np.array([9, 10, 11])),
+                           ('wday', np.array([1, 2, 3]))):
+            self.assertTrue(np.all(getattr(t, attr) == vals))
+
+        t = DateTime('2015:160:02:24:00.250')
+        for attr, val in (('year', 2015),
+                          ('yday', 160),
+                          ('hour', 2),
+                          ('min',  24),
+                          ('sec',  0.25),
+                          ('mon',  6),
+                          ('day',  9),
+                          ('wday', 1)):
+            self.assertTrue(getattr(t, attr) == val)
+
 if __name__ == '__main__':
     unittest.main()

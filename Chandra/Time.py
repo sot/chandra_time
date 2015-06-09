@@ -169,6 +169,16 @@ function convert()::
 
 The convert() routine will guess fmt_in and supply a default for sys_in if not
 specified.  As for DateTime() the input time can be a sequence or numpy array.
+
+Time attributes
+---------------
+
+A ``DateTime`` object has additional attributes ``year``, ``mon``, ``day``,
+``hour``, ``min``, ``sec``, ``yday``, and ``wday``.  These provide the
+year, month (1-12), day of month (1-31), hour (0-23), minute (0-59), second (0-60),
+day of year (1-366), and day of week (0-6, where 0 is Monday).
+
+These are all referenced to UTC time.
 """
 import sys
 import re
@@ -181,7 +191,7 @@ import numpy as np
 
 import Chandra._axTime3 as axTime3
 
-__version__ = '3.18.1'
+__version__ = '3.19'
 
 
 def test(*args, **kwargs):
@@ -231,6 +241,14 @@ def override__dir__(f):
             return sorted(members)
 
     return override__dir__wrapper
+
+
+class TimeAttribute(object):
+    def __init__(self, attr):
+        self.attr = attr
+
+    def __get__(self, instance, owner):
+        return instance.time_attributes[self.attr]
 
 
 class TimeStyle(object):
@@ -714,11 +732,64 @@ class DateTime(object):
         """Return a new DateTime object corresponding to the start of the day."""
         date = self.date.split(':')
         return DateTime('%s:%s:00:00:00' % (date[0], date[1]))
-    
+
     def day_end(self):
         """Return a new DateTime object corresponding to the end of the day."""
         date = self.date.split(':')
         return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
+
+    @property
+    def time_attributes(self):
+        if hasattr(self, '_time_attributes'):
+            return self._time_attributes
+
+        if not hasattr(self, '_time_attributes'):
+            # date       YYYY:DDD:hh:mm:ss.ss..                          utc
+            # iso        YYYY-MM-DD hh:mm:ss.ss..                        utc
+            date = self.date
+            iso = self.iso
+            mjd = self.mjd
+
+            # Coerce list output into np.array
+            if isinstance(date, list):
+                date = np.array(date)
+                iso = np.array(iso)
+                mjd = np.array(mjd)
+
+            monday_mjd = DateTime('2015:159:00:00:00').mjd
+            is_array = hasattr(date, 'shape') and hasattr(date, 'flatten') and date.shape
+
+            def slice_string(val, i0, i1, out_type):
+                slc = slice(i0, i1)
+                if is_array:
+                    out = np.array([x[slc] for x in val]).astype(out_type)
+                else:
+                    out = out_type(val[slc])
+                return out
+
+            ta = {}
+            ta['year'] = slice_string(date, 0, 4, int)
+            ta['yday'] = slice_string(date, 5, 8, int)
+            ta['hour'] = slice_string(date, 9, 11, int)
+            ta['min'] = slice_string(date, 12, 14, int)
+            ta['sec'] = slice_string(date, 15, None, float)
+            ta['mon'] = slice_string(iso, 5, 7, int)
+            ta['day'] = slice_string(iso, 8, 10, int)
+            wday = np.mod(np.floor(mjd - monday_mjd), 7)
+            ta['wday'] = wday.astype(int) if is_array else int(wday)
+
+            self._time_attributes = ta
+
+        return self._time_attributes
+
+    year = TimeAttribute('year')
+    yday = TimeAttribute('yday')
+    hour = TimeAttribute('hour')
+    min = TimeAttribute('min')
+    sec = TimeAttribute('sec')
+    mon = TimeAttribute('mon')
+    day = TimeAttribute('day')
+    wday = TimeAttribute('wday')
 
 
 def command_line_convert_time():
