@@ -74,6 +74,7 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime(93.184).iso,           '1998-01-01 00:00:30.000')
         self.assertEqual(DateTime('1998-01-01 00:00:30.000').secs, 93.184)
         self.assertEqual(DateTime('1998-01-01 00:00:30').secs, 93.184)
+        self.assertEqual(DateTime('1998-1-1 0:0:1.111').secs, 64.295)
 
     def test_secs(self):
         self.assertEqual('%.3f' % DateTime(20483020.).secs, '20483020.000')
@@ -178,6 +179,12 @@ class TestConvert(unittest.TestCase):
         t1 = DateTime('2015-06-30 23:59:59').secs
         t2 = DateTime('2015-07-01 00:00:02').secs
         self.assertAlmostEqual(t2 - t1, 4.0)
+        t1 = DateTime('2015-06-30 23:59:59').secs
+        t2 = DateTime('2015-06-30 23:59:60.5').secs
+        self.assertAlmostEqual(t2 - t1, 1.5)
+        t1 = DateTime('2015-06-30 23:59:60.').secs
+        t2 = DateTime('2015-07-01 00:00:00').secs
+        self.assertAlmostEqual(t2 - t1, 1.0)
 
     def test_date_now(self):
         """

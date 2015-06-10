@@ -178,11 +178,10 @@ import time
 
 import six
 import numpy as np
-import astropy.time  # Use for ISO parsing, could probably do with Python std lib
 
 import Chandra._axTime3 as axTime3
 
-__version__ = '3.17'
+__version__ = '3.18.1'
 
 
 def test(*args, **kwargs):
@@ -272,6 +271,7 @@ RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
       'greta'       : r'^(\d{4})(\d{3})\.(\d{2})?(\d{2})?(\d{2})?(\d+)?$',
       'fits'        : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
+      'iso'         : r'^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       }
 
 # Conversions for greta format
@@ -374,19 +374,17 @@ time_styles = [ TimeStyle(name       = 'fits',
                           postprocess= lambda x: float(x) + T1998,
                           ),
                 TimeStyle(name       = 'iso',
-                          match_func = lambda f,t: astropy.time.Time(t, format='iso'),
-                          match_err  = ValueError,
+                          match_expr = RE['iso'],
                           ax3_fmt    = 'f3', 
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t.isot,
+                          preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= lambda t: t.replace('T', ' '),
                           ),
                 TimeStyle(name       = 'mxDateTime',
-                          match_func = lambda f,t: astropy.time.Time(t, format='iso'),
-                          match_err  = ValueError,
+                          match_expr = RE['iso'],
                           ax3_fmt    = 'f3', 
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t.isot,
+                          preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= mx_DateTime_ISO_ParseDateTime,
                           ),
                 TimeStyle(name       = 'caldate',
