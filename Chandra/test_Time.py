@@ -186,6 +186,20 @@ class TestConvert(unittest.TestCase):
         t2 = DateTime('2015-07-01 00:00:00').secs
         self.assertAlmostEqual(t2 - t1, 1.0)
 
+    def test_leapsec_2016(self):
+        """
+        Test that there are 4 clock ticks where one usually expects 3 (PR #15).
+        """
+        t1 = DateTime('2016-12-31 23:59:59').secs
+        t2 = DateTime('2017-01-01 00:00:02').secs
+        self.assertAlmostEqual(t2 - t1, 4.0)
+        t1 = DateTime('2016-12-31 23:59:59').secs
+        t2 = DateTime('2016-12-31 23:59:60.5').secs
+        self.assertAlmostEqual(t2 - t1, 1.5)
+        t1 = DateTime('2016-12-31 23:59:60.').secs
+        t2 = DateTime('2017-01-01 00:00:00').secs
+        self.assertAlmostEqual(t2 - t1, 1.0)
+
     def test_date_now(self):
         """
         Make sure that instantiating a DateTime object as NOW uses the
