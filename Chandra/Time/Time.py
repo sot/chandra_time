@@ -194,14 +194,6 @@ import Chandra._axTime3 as axTime3
 __version__ = '3.19.1'
 
 
-def test(*args, **kwargs):
-    """Run self-tests"""
-    import os
-    import pytest
-    os.chdir(os.path.dirname(__file__))
-    pytest.main(*args, **kwargs)
-
-
 def override__dir__(f):
     """
     When overriding a __dir__ method on an object, you often want to
