@@ -191,7 +191,7 @@ import numpy as np
 
 import Chandra._axTime3 as axTime3
 
-__version__ = '3.19.1'
+__version__ = '3.20'
 
 
 def override__dir__(f):
