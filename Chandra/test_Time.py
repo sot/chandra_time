@@ -174,16 +174,38 @@ class TestConvert(unittest.TestCase):
 
     def test_leapsec_2015(self):
         """
-        Test that there are 4 clock ticks where one usually expects 3 (PR #15).
+        Tests for end of June 2015 leap second (PR #15).
         """
+        # Test that there are 4 clock ticks where one usually expects 3
         t1 = DateTime('2015-06-30 23:59:59').secs
         t2 = DateTime('2015-07-01 00:00:02').secs
         self.assertAlmostEqual(t2 - t1, 4.0)
+        # Test that a diff from a time before to the middle of the leap second is consistent
         t1 = DateTime('2015-06-30 23:59:59').secs
         t2 = DateTime('2015-06-30 23:59:60.5').secs
         self.assertAlmostEqual(t2 - t1, 1.5)
+        # Test that a diff from the beginning of the leap second to the beginning of the next
+        # day is no longer than a second
         t1 = DateTime('2015-06-30 23:59:60.').secs
         t2 = DateTime('2015-07-01 00:00:00').secs
+        self.assertAlmostEqual(t2 - t1, 1.0)
+
+    def test_leapsec_2016(self):
+        """
+        Tests for end of 2016 leap second. (PR #23).
+        """
+        # Test that there are 4 clock ticks where one usually expects 3
+        t1 = DateTime('2016-12-31 23:59:59').secs
+        t2 = DateTime('2017-01-01 00:00:02').secs
+        self.assertAlmostEqual(t2 - t1, 4.0)
+        # Test that a diff from a time before to the middle of the leap second is consistent
+        t1 = DateTime('2016-12-31 23:59:59').secs
+        t2 = DateTime('2016-12-31 23:59:60.5').secs
+        self.assertAlmostEqual(t2 - t1, 1.5)
+        # Test that a diff from the beginning of the leap second to the beginning of the year
+        # is no longer than a second
+        t1 = DateTime('2016-12-31 23:59:60.').secs
+        t2 = DateTime('2017-01-01 00:00:00').secs
         self.assertAlmostEqual(t2 - t1, 1.0)
 
     def test_date_now(self):
