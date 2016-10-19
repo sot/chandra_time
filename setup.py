@@ -12,13 +12,19 @@ else:
 extensions = [Extension("*", ["Chandra/Time/_axTime3.pyx"],
                         extra_compile_args=compile_args)]
 
+try:
+    from testr.setup_helper import cmdclass
+except ImportError:
+    cmdclass = {}
+
 setup(name='Chandra.Time',
       author='Tom Aldcroft',
       description='Convert between various time formats relevant to Chandra',
       author_email='taldcroft@cfa.harvard.edu',
       version='3.20',
       zip_safe=False,
-      test_suite="Chandra.Time.test_Time",
-      packages=['Chandra', 'Chandra.Time'],
+      packages=['Chandra', 'Chandra.Time', 'Chandra.Time.tests'],
       ext_modules=cythonize(extensions),
+      tests_require=['pytest'],
+      cmdclass=cmdclass,
       )
