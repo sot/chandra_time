@@ -3,6 +3,8 @@ from setuptools import setup, Extension
 import os
 from Cython.Build import cythonize
 
+from Chandra.Time import __version__
+
 if (os.name == "nt"):
     compile_args = ['/EHs', '/D_CRT_SECURE_NO_DEPRECATE']
 else:
@@ -21,7 +23,7 @@ setup(name='Chandra.Time',
       author='Tom Aldcroft',
       description='Convert between various time formats relevant to Chandra',
       author_email='taldcroft@cfa.harvard.edu',
-      version='3.20',
+      version=__version__,
       zip_safe=False,
       packages=['Chandra', 'Chandra.Time', 'Chandra.Time.tests'],
       ext_modules=cythonize(extensions),
