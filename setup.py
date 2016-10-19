@@ -9,7 +9,7 @@ else:
     compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
                     '-Wno-deprecated', '-Wno-parentheses']
 
-extensions = [Extension("*", ["Chandra/_axTime3.pyx"],
+extensions = [Extension("*", ["Chandra/Time/_axTime3.pyx"],
                         extra_compile_args=compile_args)]
 
 setup(name='Chandra.Time',
