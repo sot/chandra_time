@@ -189,7 +189,7 @@ import time
 import six
 import numpy as np
 
-import Chandra._axTime3 as axTime3
+from . import _axTime3 as axTime3
 
 __version__ = '3.20'
 
