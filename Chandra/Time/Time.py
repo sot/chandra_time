@@ -189,18 +189,6 @@ import time
 import six
 import numpy as np
 
-import Chandra._axTime3 as axTime3
-
-__version__ = '3.19.1'
-
-
-def test(*args, **kwargs):
-    """Run self-tests"""
-    import os
-    import pytest
-    os.chdir(os.path.dirname(__file__))
-    pytest.main(*args, **kwargs)
-
 
 def override__dir__(f):
     """
@@ -509,6 +497,8 @@ def convert_vals(vals, format_in, format_out):
 
     :returns: converted values as either scalar or numpy array
     """
+    from . import _axTime3 as axTime3
+
     def get_style(fmt):
         # Only the styles with a dtype attribute can be converted using this function.
         ok_styles = [x for x in time_styles if x.dtype]
@@ -597,6 +587,8 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
 
 def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
+
+    from . import _axTime3 as axTime3
 
     # See if time_in works as a float after first getting the string version.
     # For an actual float input this then gets the full-precision representation.
