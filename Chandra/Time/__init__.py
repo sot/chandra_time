@@ -1,6 +1,6 @@
 from .Time import *
 
-__version__ = '3.20'
+__version__ = '3.20.1'
 
 
 def test(*args, **kwargs):
