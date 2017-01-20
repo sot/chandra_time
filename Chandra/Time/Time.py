@@ -702,6 +702,9 @@ class DateTime(object):
             self.format  = format
 
     def __getattr__(self, fmt_out):
+        if fmt_out.startswith('_'):
+            return self.__getattribute__(fmt_out)
+
         return convert(self.time_in,
                        fmt_in=self.format,
                        fmt_out=fmt_out,
