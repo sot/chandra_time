@@ -1,3 +1,4 @@
+# Licensed under a 3-clause BSD style license - see LICENSE.rst
 import Chandra.Time
 from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
 import unittest
