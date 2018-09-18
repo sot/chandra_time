@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from .Time import *
 
-__version__ = '3.20.1'
+__version__ = '3.20.2'
 
 
 def test(*args, **kwargs):
