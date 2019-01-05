@@ -164,6 +164,7 @@ void axTime3 (char *time_in,
       }
       }
     }
+    delete(T);
   }
 
   return ;
