@@ -1,14 +1,17 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 from setuptools import setup, Extension
 
-import os
+import platform
 from Cython.Build import cythonize
 
-if (os.name == "nt"):
+os_name = platform.system()
+if (os_name == "Windows"):
     compile_args = ['/EHs', '/D_CRT_SECURE_NO_DEPRECATE']
 else:
     compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
                     '-Wno-deprecated', '-Wno-parentheses']
+if os_name == 'Darwin':
+    compile_args += ['-stdlib=libc++']
 
 extensions = [Extension("*", ["Chandra/Time/_axTime3.pyx"],
                         extra_compile_args=compile_args)]
