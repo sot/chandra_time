@@ -1,9 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import ska_helpers
-
 from .Time import *
 
-__version__ = ska_helpers.get_version(__package__)
+__version__ = '3.20.3'
 
 
 def test(*args, **kwargs):
