@@ -4,11 +4,13 @@ from setuptools import setup, Extension
 import os
 from Cython.Build import cythonize
 
+from Chandra.Time import __version__
+
 if (os.name == "nt"):
     compile_args = ['/EHs', '/D_CRT_SECURE_NO_DEPRECATE']
 else:
     compile_args = ['-Wno-switch-enum', '-Wno-switch', '-Wno-switch-default',
-                    '-Wno-deprecated', '-Wno-parentheses', '-stdlib=libc++']
+                    '-Wno-deprecated', '-Wno-parentheses']
 
 extensions = [Extension("*", ["Chandra/Time/_axTime3.pyx"],
                         extra_compile_args=compile_args)]
@@ -22,8 +24,7 @@ setup(name='Chandra.Time',
       author='Tom Aldcroft',
       description='Convert between various time formats relevant to Chandra',
       author_email='taldcroft@cfa.harvard.edu',
-      use_scm_version=True,
-      setup_requires=['setuptools_scm', 'setuptools_scm_git_archive'],
+      version=__version__,
       zip_safe=False,
       packages=['Chandra', 'Chandra.Time', 'Chandra.Time.tests'],
       ext_modules=cythonize(extensions),
