@@ -13,7 +13,7 @@ else:
 if os_name == 'Darwin':
     compile_args += ['-stdlib=libc++']
 
-extensions = [Extension("*", ["Chandra/Time/_axTime3.pyx"],
+extensions = [Extension("Chandra.Time._axTime3", ["Chandra/Time/_axTime3.pyx"],
                         extra_compile_args=compile_args)]
 
 try:
