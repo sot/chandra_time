@@ -2,7 +2,10 @@
 from setuptools import setup, Extension
 
 import platform
-from Cython.Build import cythonize
+try:
+    from Cython.Build import cythonize
+except ImportError:
+    cythonize = lambda arg: None
 
 os_name = platform.system()
 if (os_name == "Windows"):
