@@ -1,8 +1,14 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
+import sys
 from setuptools import setup, Extension
 
 import platform
-from Cython.Build import cythonize
+# Special case here to allow `python setup.py --version` to run without
+# requiring cython and numpy to be installed.
+if '--version' in sys.argv[1:]:
+    cythonize = lambda arg: None
+else:
+    from Cython.Build import cythonize
 
 os_name = platform.system()
 if (os_name == "Windows"):
