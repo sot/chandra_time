@@ -1,6 +1,6 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import Chandra.Time
-from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
+from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date, use_noon_day_start
 import unittest
 import time
 
@@ -69,6 +69,17 @@ class TestConvert(unittest.TestCase):
             self.assertEqual(DateTime(mxd).mxDateTime.strftime('%c'),
                              'Fri Jan  1 12:13:14 1999')
 
+    def test_use_noon_day_start(self):
+        from Chandra.Time import Time
+        assert Time._DAY_START == '00:00:00'
+        use_noon_day_start()
+        assert Time._DAY_START == '12:00:00'
+        tm = DateTime('2020:001')
+        assert tm.date == '2020:001:12:00:00.000'
+
+        # Set it back for rest of testing
+        Time._DAY_START = '00:00:00'
+
     def test_iso(self):
         self.assertEqual(convert(93.184, fmt_out='iso'), '1998-01-01 00:00:30.000')
         self.assertEqual(convert(93.184, fmt_out='iso'), '1998-01-01 00:00:30.000')
@@ -107,8 +118,8 @@ class TestConvert(unittest.TestCase):
         array([ 733773.5])
         """
         pd = DateTime('2010:001').plotdate
-        self.assertEqual(pd, 733773.5)
-        self.assertEqual(DateTime(pd, format='plotdate').date, '2010:001:12:00:00.000')
+        self.assertEqual(pd, 733773.0)
+        self.assertEqual(DateTime(pd, format='plotdate').date, '2010:001:00:00:00.000')
 
     def test_greta(self):
         self.assertEqual(DateTime('2007001.000000000').date, '2007:001:00:00:00.000')
@@ -129,11 +140,11 @@ class TestConvert(unittest.TestCase):
 
     def test_year_doy(self):
         self.assertEqual(DateTime(20483020.0).year_doy, '1998:238')
-        self.assertEqual(DateTime('2004:121').date, '2004:121:12:00:00.000')
-        
+        self.assertEqual(DateTime('2004:121').date, '2004:121:00:00:00.000')
+
     def test_year_mon_day(self):
         self.assertEqual(DateTime('2004:121').year_mon_day, '2004-04-30')
-        self.assertEqual(DateTime('2007-01-01').date, '2007:001:12:00:00.000')
+        self.assertEqual(DateTime('2007-01-01').date, '2007:001:00:00:00.000')
 
     def test_add(self):
         self.assertEqual((DateTime('2007-01-01') + 7).date, DateTime('2007-01-08').date)

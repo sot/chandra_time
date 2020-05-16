@@ -31,10 +31,10 @@ The supported time formats are:
 Each of these formats has an associated time system, which must be one of:
 
 =======  ============================
-  met     Mission Elapsed Time 
-  tt      Terrestrial Time 
-  tai     International Atomic Time 
-  utc     Coordinated Universal Time 
+  met     Mission Elapsed Time
+  tt      Terrestrial Time
+  tai     International Atomic Time
+  utc     Coordinated Universal Time
 =======  ============================
 
 
@@ -96,7 +96,7 @@ a numpy array (returns a numpy array with the same shape)::
   ['1997:365:23:58:57.816', '2001:255:12:00:00.000', '1997:365:23:58:59.816']
   >>> DateTime(numpy.array([[1,2],[3,4]])).fits
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
-         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
+         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']],
         dtype='|S23')
 
 
@@ -120,10 +120,10 @@ appropriate broadcasting will be done.
   >>> d3 = d1 + np.array([1,2,3])
   >>> d3.date
   array(['2011:201:00:00:00.000', '2011:202:00:00:00.000',
-         '2011:203:00:00:00.000'], 
+         '2011:203:00:00:00.000'],
         dtype='|S21')
   >>> (d3 + 7).year_doy
-  array(['2011:208', '2011:209', '2011:210'], 
+  array(['2011:208', '2011:209', '2011:210'],
         dtype='|S8')
 
 
@@ -180,6 +180,25 @@ year, month (1-12), day of month (1-31), hour (0-23), minute (0-59), second (0-6
 day of year (1-366), and day of week (0-6, where 0 is Monday).
 
 These are all referenced to UTC time.
+
+Date when hour, minutes, seconds not provided
+---------------------------------------------
+
+A date like ``2020:001`` will be taken as ``2020:001:00:00:00`` since version 4.0.
+Before 4.0, ``2020:001`` was ``2020:001:12:00:00``. To get the pre-4.0 behavior
+use the following code::
+
+    from Chandra.Time import use_noon_day_start
+
+    # Set to use 12:00:00 globally from now on.
+    use_noon_day_start()
+
+.. note::
+
+   You should do this globally once in your code at the beginning. There
+   is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.
+   This impacts all code using ``DateTime``, not just the calls from your script.
+
 """
 import sys
 import re
@@ -189,6 +208,31 @@ import time
 
 import six
 import numpy as np
+
+# Time for dates specified without HMS. This was changed from '12:00:00' to
+# '00:00:00' in version 4.0 of Chandra.Time.  Call use_noon_day_start(True)
+# for compatibility with the pre-4.0 behavior.
+_DAY_START = '00:00:00'
+
+
+def use_noon_day_start():
+    """Set global default so date with no hours, min, sec uses 12:00:00.
+
+    A date like 2020:001 will be taken as 2020:001:00:00:00 since version 4.0.
+    Before 4.0, 2020:001 was 2020:001:12:00:00. To get the pre-4.0 behavior
+    use the following code.
+
+    NOTE: you should do this globally once in your code at the beginning. There
+    is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.
+    ::
+
+      from Chandra.Time import use_noon_day_start
+
+      # Set to use 12:00:00 globally from now on.
+      use_noon_day_start()
+    """
+    global _DAY_START
+    _DAY_START = '12:00:00'
 
 
 def override__dir__(f):
@@ -261,7 +305,7 @@ class TimeStyle(object):
         self.postprocess = postprocess
         self.preprocess = preprocess
         self.dtype = dtype
-        
+
     def match(self, time):
         try:
             self.time_in = self.match_func(self.match_expr, time)
@@ -339,7 +383,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['year_mon_day'],
                           ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t + 'T12:00:00',
+                          preprocess = lambda t: t + 'T' + _DAY_START,
                           postprocess= lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                           ),
                 TimeStyle(name       = 'relday',
@@ -382,14 +426,14 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 TimeStyle(name       = 'iso',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= lambda t: t.replace('T', ' '),
                           ),
                 TimeStyle(name       = 'mxDateTime',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= mx_DateTime_ISO_ParseDateTime,
@@ -410,7 +454,7 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['year_doy'],
                           ax3_fmt    = 'd3',
                           ax3_sys    = 'u',
-                          preprocess = lambda t: t + ':12:00:00',
+                          preprocess = lambda t: t + ':' + _DAY_START,
                           postprocess= lambda t: re.sub(r':\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                           ),
                 TimeStyle(name       = 'jd',
@@ -441,12 +485,12 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 ]
 
-time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")		  
-               'tt'  : 't',  #  TT      Terrestrial Time ("t")		  
+time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
+               'tt'  : 't',  #  TT      Terrestrial Time ("t")
                'tai' : 'a',  #  TAI     International Atomic Time ("ta" or "a")
-               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")       
+               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")
                }
- 
+
 # Preloaded methods go here.
 
 class ChandraTimeError(ValueError):
@@ -528,7 +572,7 @@ def convert_vals(vals, format_in, format_out):
             and dtype_out.startswith('S')):
         dtype_out = 'U' + dtype_out[1:]
     outs = np.array(outs, dtype=dtype_out)
-    
+
     return (outs[0].tolist() if ndim == 0 else outs.reshape(vals.shape))
 
 
@@ -602,7 +646,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     for time_style in time_styles:
         if fmt_in and time_style.name != fmt_in:
-            continue 
+            continue
         if time_style.match(time_in):
             time_in = time_style.time_in
             ax3_fmt_in = time_style.ax3_fmt
@@ -617,7 +661,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
             ax3_sys_in = time_system[sys_in]
         else:
             raise ChandraTimeError("Invalid input system '%s'" % sys_in)
-        
+
     for time_style in time_styles:
         if time_style.name == fmt_out:
             ax3_fmt_out = time_style.ax3_fmt
@@ -635,7 +679,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     if preprocess:
         time_in = preprocess(time_in)
-        
+
     time_out = axTime3.convert_time(time_in,
                                     ax3_sys_in,
                                     ax3_fmt_in,
