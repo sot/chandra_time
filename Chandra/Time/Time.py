@@ -31,10 +31,10 @@ The supported time formats are:
 Each of these formats has an associated time system, which must be one of:
 
 =======  ============================
-  met     Mission Elapsed Time 
-  tt      Terrestrial Time 
-  tai     International Atomic Time 
-  utc     Coordinated Universal Time 
+  met     Mission Elapsed Time
+  tt      Terrestrial Time
+  tai     International Atomic Time
+  utc     Coordinated Universal Time
 =======  ============================
 
 
@@ -96,7 +96,7 @@ a numpy array (returns a numpy array with the same shape)::
   ['1997:365:23:58:57.816', '2001:255:12:00:00.000', '1997:365:23:58:59.816']
   >>> DateTime(numpy.array([[1,2],[3,4]])).fits
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
-         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
+         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']],
         dtype='|S23')
 
 
@@ -120,10 +120,10 @@ appropriate broadcasting will be done.
   >>> d3 = d1 + np.array([1,2,3])
   >>> d3.date
   array(['2011:201:00:00:00.000', '2011:202:00:00:00.000',
-         '2011:203:00:00:00.000'], 
+         '2011:203:00:00:00.000'],
         dtype='|S21')
   >>> (d3 + 7).year_doy
-  array(['2011:208', '2011:209', '2011:210'], 
+  array(['2011:208', '2011:209', '2011:210'],
         dtype='|S8')
 
 
@@ -261,7 +261,7 @@ class TimeStyle(object):
         self.postprocess = postprocess
         self.preprocess = preprocess
         self.dtype = dtype
-        
+
     def match(self, time):
         try:
             self.time_in = self.match_func(self.match_expr, time)
@@ -300,6 +300,13 @@ def date_to_greta(date_in):
         out += frac
     return out
 
+
+def secs_to_cxotime(date_in):
+    # date_in is a string repr of a float
+    from cxotime import CxoTime
+    return CxoTime(float(date_in), format='secs')
+
+
 # Conversions for frac_year format
 _year_secs = {}                 # Start and end secs for a year
 def year_start_end_secs(year):
@@ -327,6 +334,15 @@ def mx_DateTime_ISO_ParseDateTime(t):
         return mx.DateTime.ISO.ParseDateTime(t)
     except ImportError:
         raise ValueError('mxDateTime format is unavailable, ask TLA for migration options')
+
+
+def match_func_cxotime(expr, time_in):
+    # Access attributes that strongly indicate this is an astropy.time.Time object
+    time_in.light_travel_time
+    time_in.sidereal_time
+    time_in.format
+    time_in.shape
+    return str(time_in.secs)
 
 
 time_styles = [ TimeStyle(name       = 'fits',
@@ -366,6 +382,13 @@ time_styles = [ TimeStyle(name       = 'fits',
                           postprocess= float,
                           dtype      = np.float64,
                           ),
+                TimeStyle(name       = 'cxotime',
+                          match_func = match_func_cxotime,
+                          match_err  = AttributeError,
+                          ax3_fmt    = 's',
+                          ax3_sys    = 'm',
+                          postprocess= secs_to_cxotime,
+                          ),
                 TimeStyle(name       = 'frac_year',
                           match_expr = '^' + RE['float'] + '$',
                           ax3_fmt    = 's',
@@ -382,14 +405,14 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 TimeStyle(name       = 'iso',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= lambda t: t.replace('T', ' '),
                           ),
                 TimeStyle(name       = 'mxDateTime',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= mx_DateTime_ISO_ParseDateTime,
@@ -441,12 +464,12 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 ]
 
-time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")		  
-               'tt'  : 't',  #  TT      Terrestrial Time ("t")		  
+time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
+               'tt'  : 't',  #  TT      Terrestrial Time ("t")
                'tai' : 'a',  #  TAI     International Atomic Time ("ta" or "a")
-               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")       
+               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")
                }
- 
+
 # Preloaded methods go here.
 
 class ChandraTimeError(ValueError):
@@ -528,7 +551,7 @@ def convert_vals(vals, format_in, format_out):
             and dtype_out.startswith('S')):
         dtype_out = 'U' + dtype_out[1:]
     outs = np.array(outs, dtype=dtype_out)
-    
+
     return (outs[0].tolist() if ndim == 0 else outs.reshape(vals.shape))
 
 
@@ -597,12 +620,12 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     try:
         float(str(time_in))
         time_in = repr(float(time_in))
-    except ValueError:
+    except (ValueError, TypeError):
         time_in = str(time_in)
 
     for time_style in time_styles:
         if fmt_in and time_style.name != fmt_in:
-            continue 
+            continue
         if time_style.match(time_in):
             time_in = time_style.time_in
             ax3_fmt_in = time_style.ax3_fmt
@@ -617,7 +640,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
             ax3_sys_in = time_system[sys_in]
         else:
             raise ChandraTimeError("Invalid input system '%s'" % sys_in)
-        
+
     for time_style in time_styles:
         if time_style.name == fmt_out:
             ax3_fmt_out = time_style.ax3_fmt
@@ -635,7 +658,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     if preprocess:
         time_in = preprocess(time_in)
-        
+
     time_out = axTime3.convert_time(time_in,
                                     ax3_sys_in,
                                     ax3_fmt_in,

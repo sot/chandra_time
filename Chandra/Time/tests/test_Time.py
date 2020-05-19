@@ -1,6 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import Chandra.Time
 from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
+from cxotime import CxoTime
 import unittest
 import time
 
@@ -100,6 +101,26 @@ class TestConvert(unittest.TestCase):
         self.assertEqual(DateTime('2012-01-01T00:00:00').mjd, 55926.999233981)
         self.assertEqual(DateTime('2013-01-01T00:00:00').mjd, 56292.999222407)
 
+    def test_cxotime_scalar(self):
+        date = '1998:001:00:00:01.234'
+        tm = CxoTime(date)
+        dt = DateTime(tm)
+        self.assertEqual(dt.date, date)
+
+        tm2 = dt.cxotime
+        self.assertTrue(isinstance(tm2, CxoTime))
+        self.assertEqual(tm2.yday, date)
+
+    def test_cxotime_array(self):
+        dates = ['2012:001:01:02:03.123', '2013:001:01:02:03.456']
+        tm = CxoTime(dates)
+        dt = DateTime(tm)
+        self.assertTrue(np.all(dt.date == dates))
+
+        tm2 = dt.cxotime
+        self.assertTrue(isinstance(tm2, CxoTime))
+        self.assertTruec(np.all(tm2.yday == dates))
+
     def test_plotdate(self):
         """
         Validate against cxctime2plotdate and round-trip
@@ -130,7 +151,7 @@ class TestConvert(unittest.TestCase):
     def test_year_doy(self):
         self.assertEqual(DateTime(20483020.0).year_doy, '1998:238')
         self.assertEqual(DateTime('2004:121').date, '2004:121:12:00:00.000')
-        
+
     def test_year_mon_day(self):
         self.assertEqual(DateTime('2004:121').year_mon_day, '2004-04-30')
         self.assertEqual(DateTime('2007-01-01').date, '2007:001:12:00:00.000')
