@@ -595,11 +595,20 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
         fmt_in = 'unix'
         sys_in = None
 
+    # Special case for CxoTime so array input turns into one array-valued CxoTime.
+    # Otherwise one gets an array of CxoTime objects.
+    if fmt_out == 'cxotime':
+        from cxotime import CxoTime
+        time_out = [_convert(x, sys_in, fmt_in, sys_out='tt', fmt_out='secs')
+                    for x in time_in.flatten()]
+        time_out = CxoTime(time_out)
+        time_out.shape = time_in.shape
+        return time_out
+
     # Does is behave like a numpy ndarray with non-zero dimension?
     if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten') and time_in.shape:
-        import numpy
         time_out = [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in.flatten()]
-        return numpy.array(time_out).reshape(time_in.shape)
+        return np.array(time_out).reshape(time_in.shape)
     else:
         # If time_in is not string-like then try iterating over it
         try:
@@ -666,7 +675,8 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
                                     ax3_fmt_out,
                                     )
 
-    if postprocess: time_out = postprocess(time_out)
+    if postprocess:
+        time_out = postprocess(time_out)
 
     return time_out
 
