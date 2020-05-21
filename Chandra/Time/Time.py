@@ -288,12 +288,6 @@ def date_to_greta(date_in):
     return out
 
 
-def secs_to_cxotime(date_in):
-    # date_in is a string repr of a float
-    from cxotime import CxoTime
-    return CxoTime(float(date_in), format='secs')
-
-
 # Conversions for frac_year format
 _year_secs = {}                 # Start and end secs for a year
 def year_start_end_secs(year):
@@ -374,7 +368,6 @@ time_styles = [ TimeStyle(name       = 'fits',
                           match_err  = AttributeError,
                           ax3_fmt    = 's',
                           ax3_sys    = 'm',
-                          postprocess= secs_to_cxotime,
                           ),
                 TimeStyle(name       = 'frac_year',
                           match_expr = '^' + RE['float'] + '$',
