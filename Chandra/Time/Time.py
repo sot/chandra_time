@@ -26,6 +26,7 @@ The supported time formats are:
   mxDateTime mx.DateTime object                              utc
   frac_year  YYYY.ffffff = date as a floating point year     utc
   plotdate   Matplotlib plotdate (days since year 0)         utc
+  cxotime    CxoTime class object                            varies
 ============ ==============================================  =======
 
 Each of these formats has an associated time system, which must be one of:
