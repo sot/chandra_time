@@ -182,7 +182,6 @@ day of year (1-366), and day of week (0-6, where 0 is Monday).
 
 These are all referenced to UTC time.
 """
-import sys
 import re
 from functools import wraps
 import warnings
@@ -207,28 +206,15 @@ def override__dir__(f):
     def __dir__(self):
         return ['special_method1', 'special_method2']
 
-    This method is copied from astropy.utils.compat.misc, with a slight change to
-    remove the six dependency.
+    This method is copied from astropy.utils.compat.misc.
     """
-    if sys.version_info[:2] < (3, 3):
-        # There was no straightforward way to do this until Python 3.3, so
-        # we have this complex monstrosity
-        @wraps(f)
-        def override__dir__wrapper(self):
-            members = set()
-            for cls in self.__class__.mro():
-                members.update(dir(cls))
-            members.update(self.__dict__)
-            members.update(f(self))
-            return sorted(members)
-    else:
-        # http://bugs.python.org/issue12166
+    # http://bugs.python.org/issue12166
 
-        @wraps(f)
-        def override__dir__wrapper(self):
-            members = set(object.__dir__(self))
-            members.update(f(self))
-            return sorted(members)
+    @wraps(f)
+    def override__dir__wrapper(self):
+        members = set(object.__dir__(self))
+        members.update(f(self))
+        return sorted(members)
 
     return override__dir__wrapper
 
