@@ -3,7 +3,7 @@ import ska_helpers
 
 from .Time import *
 
-__version__ = ska_helpers.get_version(__package__)
+__version__ = ska_helpers.get_version('Chandra.Time')
 
 
 def test(*args, **kwargs):
