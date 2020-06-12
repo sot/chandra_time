@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
 import numpy as np
-from Chandra.Time import DateTime, convert, convert_vals, date2secs, secs2date
+from ..Time import DateTime, convert, convert_vals, date2secs, secs2date
 from cxotime import CxoTime
 import time
 
