@@ -1,9 +1,12 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 
+import time
 import numpy as np
+import pytest
+
 from ..Time import DateTime, convert, convert_vals, date2secs, secs2date
 from cxotime import CxoTime
-import time
+from astropy.time import Time
 
 
 def test_convert_vals_scalar():
@@ -83,26 +86,63 @@ def test_mjd():
     assert DateTime('2013-01-01T00:00:00').mjd == 56292.999222407
 
 
-def test_cxotime_scalar():
+@pytest.mark.parametrize('time_cls', [Time, CxoTime])
+@pytest.mark.parametrize('time_fmt', ['isot', 'unix', 'cxcsec'])
+def test_init_from_astropy_time_scalar(time_cls, time_fmt):
     date = '1998:001:00:00:01.234'
-    tm = CxoTime(date)
-    dt = DateTime(tm)
+    ct = time_cls(date)
+    ct.format = time_fmt
+
+    # Initialize DateTime from Time/CxoTime and convert to date or secs
+    dt = DateTime(ct)
     assert dt.date == date
+    assert np.isclose(dt.secs, ct.cxcsec)
 
-    tm2 = dt.cxotime
-    assert isinstance(tm2, CxoTime)
-    assert tm2.utc.yday == date
+    # Requesting .cxotime from DateTime initialized from CxoTime gives
+    # back the original object.
+    ct2 = dt.cxotime
+    assert isinstance(ct2, CxoTime)
+    assert ct2.date == date
 
 
-def test_cxotime_array():
-    dates = ['2012:001:01:02:03.123', '2013:001:01:02:03.456']
-    tm = CxoTime(dates)
-    dt = DateTime(tm)
+def test_convert_to_cxotime_scalar():
+    # Initialize DateTime from a date string and convert to CxoTime
+    date = '1998:001:00:00:01.234'
+    dt = DateTime(date)
+    ct = dt.cxotime
+    assert isinstance(ct, CxoTime)
+    assert ct.date == date
+    assert np.isclose(dt.secs, ct.secs)
+
+
+@pytest.mark.parametrize('time_cls', [Time, CxoTime])
+@pytest.mark.parametrize('time_fmt', ['isot', 'unix', 'cxcsec'])
+def test_init_from_astropy_time_array(time_cls, time_fmt):
+    dates = ['1998:001:00:00:01.234', '2000:001:01:02:03.456']
+    ct = time_cls(dates)
+    ct.format = time_fmt
+
+    # Initialize DateTime from Time/CxoTime and convert to date or secs
+    dt = DateTime(ct)
     assert np.all(dt.date == dates)
+    assert np.allclose(dt.secs, ct.cxcsec)
 
-    tm2 = dt.cxotime
-    assert isinstance(tm2, CxoTime)
-    assert np.all(tm2.utc.yday == dates)
+    # Requesting .cxotime from DateTime initialized from CxoTime gives
+    # back the original object.
+    ct2 = dt.cxotime
+    assert isinstance(ct2, CxoTime)
+    assert np.all(ct2.date == dates)
+
+
+def test_convert_to_cxotime_array():
+    # Initialize DateTime from a date string and convert to CxoTime
+    dates = ['1998:001:00:00:01.234', '2000:001:01:02:03.456']
+    dt = DateTime(dates)
+    ct = dt.cxotime
+    assert isinstance(ct, CxoTime)
+    assert np.all(ct.date == dates)
+    assert np.allclose(dt.secs, ct.secs)
+
 
 
 def test_plotdate():

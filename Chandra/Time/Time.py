@@ -317,15 +317,6 @@ def mx_DateTime_ISO_ParseDateTime(t):
         raise ValueError('mxDateTime format is unavailable, ask TLA for migration options')
 
 
-def match_func_cxotime(expr, time_in):
-    # Access attributes that strongly indicate this is an astropy.time.Time object
-    time_in.light_travel_time
-    time_in.sidereal_time
-    time_in.format
-    time_in.shape
-    return str(time_in.secs)
-
-
 time_styles = [ TimeStyle(name       = 'fits',
                           match_expr = RE['fits'],
                           ax3_fmt    = 'f3',
@@ -362,12 +353,6 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ax3_sys    = 'm',
                           postprocess= float,
                           dtype      = np.float64,
-                          ),
-                TimeStyle(name       = 'cxotime',
-                          match_func = match_func_cxotime,
-                          match_err  = AttributeError,
-                          ax3_fmt    = 's',
-                          ax3_sys    = 'm',
                           ),
                 TimeStyle(name       = 'frac_year',
                           match_expr = '^' + RE['float'] + '$',
@@ -575,16 +560,6 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
         fmt_in = 'unix'
         sys_in = None
 
-    # Special case for CxoTime so array input turns into one array-valued CxoTime.
-    # Otherwise one gets an array of CxoTime objects.
-    if fmt_out == 'cxotime':
-        from cxotime import CxoTime
-        time_out = [_convert(x, sys_in, fmt_in, sys_out='tt', fmt_out='secs')
-                    for x in time_in.flatten()]
-        time_out = CxoTime(time_out)
-        time_out.shape = time_in.shape
-        return time_out
-
     # Does is behave like a numpy ndarray with non-zero dimension?
     if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten') and time_in.shape:
         time_out = [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in.flatten()]
@@ -609,7 +584,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     try:
         float(str(time_in))
         time_in = repr(float(time_in))
-    except (ValueError, TypeError):
+    except ValueError:
         time_in = str(time_in)
 
     for time_style in time_styles:
@@ -708,12 +683,34 @@ class DateTime(object):
             time_in = time.time()
             format = 'unix'
 
+        # Handle the case of astropy Time or CxoTime input by first checking if
+        # it is likely one of those (without importing astropy), and if so then
+        # make sure by checking the object type explicitly.  Once there is a match
+        # then just convert to cxcsec (secs).
+        try:
+            secs = time_in.cxcsec
+            import astropy.time
+            assert isinstance(time_in, astropy.time.Time)
+            time_in = secs
+            format = 'secs'
+        except (AttributeError, ImportError, AssertionError, ChandraTimeError):
+            pass
+
         try:
             self.time_in = time_in.time_in
             self.format = time_in.format
         except AttributeError:
             self.time_in = time_in
             self.format  = format
+
+    @property
+    def cxotime(self):
+        """
+        Convert to CxoTime, bypassing the normal conversion pathway since
+        it does not quite fit in.
+        """
+        from cxotime import CxoTime
+        return CxoTime(self.secs)
 
     def __getattr__(self, fmt_out):
         if fmt_out.startswith('_'):
