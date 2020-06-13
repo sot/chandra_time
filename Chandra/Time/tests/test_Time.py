@@ -4,7 +4,7 @@ import time
 import numpy as np
 import pytest
 
-from ..Time import DateTime, convert, convert_vals, date2secs, secs2date
+from ..Time import DateTime, convert, convert_vals, date2secs, secs2date, use_noon_day_start
 from cxotime import CxoTime
 from astropy.time import Time
 
@@ -48,6 +48,18 @@ def test_secs2date():
 
 def test_mxDateTime_in():
     assert convert('1998-01-01 00:00:30') == 93.184
+
+
+def test_use_noon_day_start():
+    from .. import Time
+    assert Time._DAY_START == '00:00:00'
+    use_noon_day_start()
+    assert Time._DAY_START == '12:00:00'
+    tm = DateTime('2020:001')
+    assert tm.date == '2020:001:12:00:00.000'
+
+    # Set it back for rest of testing
+    Time._DAY_START = '00:00:00'
 
 
 def test_iso():
@@ -150,8 +162,8 @@ def test_plotdate():
     array([ 733773.5])
     """
     pd = DateTime('2010:001').plotdate
-    assert pd == 733773.5
-    assert DateTime(pd, format='plotdate').date == '2010:001:12:00:00.000'
+    assert pd == 733773.0
+    assert DateTime(pd, format='plotdate').date == '2010:001:00:00:00.000'
 
 
 def test_greta():
@@ -176,12 +188,12 @@ def test_start_day():
 
 def test_year_doy():
     assert DateTime(20483020.0).year_doy == '1998:238'
-    assert DateTime('2004:121').date == '2004:121:12:00:00.000'
+    assert DateTime('2004:121').date == '2004:121:00:00:00.000'
 
 
 def test_year_mon_day():
     assert DateTime('2004:121').year_mon_day == '2004-04-30'
-    assert DateTime('2007-01-01').date == '2007:001:12:00:00.000'
+    assert DateTime('2007-01-01').date == '2007:001:00:00:00.000'
 
 
 def test_add():
