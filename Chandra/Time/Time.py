@@ -26,15 +26,16 @@ The supported time formats are:
   mxDateTime mx.DateTime object                              utc
   frac_year  YYYY.ffffff = date as a floating point year     utc
   plotdate   Matplotlib plotdate (days since year 0)         utc
+  cxotime    CxoTime class object                            varies
 ============ ==============================================  =======
 
 Each of these formats has an associated time system, which must be one of:
 
 =======  ============================
-  met     Mission Elapsed Time 
-  tt      Terrestrial Time 
-  tai     International Atomic Time 
-  utc     Coordinated Universal Time 
+  met     Mission Elapsed Time
+  tt      Terrestrial Time
+  tai     International Atomic Time
+  utc     Coordinated Universal Time
 =======  ============================
 
 
@@ -96,7 +97,7 @@ a numpy array (returns a numpy array with the same shape)::
   ['1997:365:23:58:57.816', '2001:255:12:00:00.000', '1997:365:23:58:59.816']
   >>> DateTime(numpy.array([[1,2],[3,4]])).fits
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
-         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
+         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']],
         dtype='|S23')
 
 
@@ -120,10 +121,10 @@ appropriate broadcasting will be done.
   >>> d3 = d1 + np.array([1,2,3])
   >>> d3.date
   array(['2011:201:00:00:00.000', '2011:202:00:00:00.000',
-         '2011:203:00:00:00.000'], 
+         '2011:203:00:00:00.000'],
         dtype='|S21')
   >>> (d3 + 7).year_doy
-  array(['2011:208', '2011:209', '2011:210'], 
+  array(['2011:208', '2011:209', '2011:210'],
         dtype='|S8')
 
 
@@ -181,7 +182,6 @@ day of year (1-366), and day of week (0-6, where 0 is Monday).
 
 These are all referenced to UTC time.
 """
-import sys
 import re
 from functools import wraps
 import warnings
@@ -206,28 +206,15 @@ def override__dir__(f):
     def __dir__(self):
         return ['special_method1', 'special_method2']
 
-    This method is copied from astropy.utils.compat.misc, with a slight change to
-    remove the six dependency.
+    This method is copied from astropy.utils.compat.misc.
     """
-    if sys.version_info[:2] < (3, 3):
-        # There was no straightforward way to do this until Python 3.3, so
-        # we have this complex monstrosity
-        @wraps(f)
-        def override__dir__wrapper(self):
-            members = set()
-            for cls in self.__class__.mro():
-                members.update(dir(cls))
-            members.update(self.__dict__)
-            members.update(f(self))
-            return sorted(members)
-    else:
-        # http://bugs.python.org/issue12166
+    # http://bugs.python.org/issue12166
 
-        @wraps(f)
-        def override__dir__wrapper(self):
-            members = set(object.__dir__(self))
-            members.update(f(self))
-            return sorted(members)
+    @wraps(f)
+    def override__dir__wrapper(self):
+        members = set(object.__dir__(self))
+        members.update(f(self))
+        return sorted(members)
 
     return override__dir__wrapper
 
@@ -261,7 +248,7 @@ class TimeStyle(object):
         self.postprocess = postprocess
         self.preprocess = preprocess
         self.dtype = dtype
-        
+
     def match(self, time):
         try:
             self.time_in = self.match_func(self.match_expr, time)
@@ -299,6 +286,7 @@ def date_to_greta(date_in):
         frac = m.group(6).replace('.', '')
         out += frac
     return out
+
 
 # Conversions for frac_year format
 _year_secs = {}                 # Start and end secs for a year
@@ -382,14 +370,14 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 TimeStyle(name       = 'iso',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= lambda t: t.replace('T', ' '),
                           ),
                 TimeStyle(name       = 'mxDateTime',
                           match_expr = RE['iso'],
-                          ax3_fmt    = 'f3', 
+                          ax3_fmt    = 'f3',
                           ax3_sys    = 'u',
                           preprocess = lambda t: t.replace(' ', 'T'),
                           postprocess= mx_DateTime_ISO_ParseDateTime,
@@ -441,12 +429,12 @@ time_styles = [ TimeStyle(name       = 'fits',
                           ),
                 ]
 
-time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")		  
-               'tt'  : 't',  #  TT      Terrestrial Time ("t")		  
+time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
+               'tt'  : 't',  #  TT      Terrestrial Time ("t")
                'tai' : 'a',  #  TAI     International Atomic Time ("ta" or "a")
-               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")       
+               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")
                }
- 
+
 # Preloaded methods go here.
 
 class ChandraTimeError(ValueError):
@@ -528,7 +516,7 @@ def convert_vals(vals, format_in, format_out):
             and dtype_out.startswith('S')):
         dtype_out = 'U' + dtype_out[1:]
     outs = np.array(outs, dtype=dtype_out)
-    
+
     return (outs[0].tolist() if ndim == 0 else outs.reshape(vals.shape))
 
 
@@ -574,9 +562,8 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
 
     # Does is behave like a numpy ndarray with non-zero dimension?
     if hasattr(time_in, 'shape') and hasattr(time_in, 'flatten') and time_in.shape:
-        import numpy
         time_out = [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in.flatten()]
-        return numpy.array(time_out).reshape(time_in.shape)
+        return np.array(time_out).reshape(time_in.shape)
     else:
         # If time_in is not string-like then try iterating over it
         try:
@@ -602,7 +589,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     for time_style in time_styles:
         if fmt_in and time_style.name != fmt_in:
-            continue 
+            continue
         if time_style.match(time_in):
             time_in = time_style.time_in
             ax3_fmt_in = time_style.ax3_fmt
@@ -617,7 +604,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
             ax3_sys_in = time_system[sys_in]
         else:
             raise ChandraTimeError("Invalid input system '%s'" % sys_in)
-        
+
     for time_style in time_styles:
         if time_style.name == fmt_out:
             ax3_fmt_out = time_style.ax3_fmt
@@ -635,7 +622,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     if preprocess:
         time_in = preprocess(time_in)
-        
+
     time_out = axTime3.convert_time(time_in,
                                     ax3_sys_in,
                                     ax3_fmt_in,
@@ -643,7 +630,8 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
                                     ax3_fmt_out,
                                     )
 
-    if postprocess: time_out = postprocess(time_out)
+    if postprocess:
+        time_out = postprocess(time_out)
 
     return time_out
 
@@ -695,12 +683,34 @@ class DateTime(object):
             time_in = time.time()
             format = 'unix'
 
+        # Handle the case of astropy Time or CxoTime input by first checking if
+        # it is likely one of those (without importing astropy), and if so then
+        # make sure by checking the object type explicitly.  Once there is a match
+        # then just convert to cxcsec (secs).
+        try:
+            secs = time_in.cxcsec
+            import astropy.time
+            assert isinstance(time_in, astropy.time.Time)
+            time_in = secs
+            format = 'secs'
+        except (AttributeError, ImportError, AssertionError, ChandraTimeError):
+            pass
+
         try:
             self.time_in = time_in.time_in
             self.format = time_in.format
         except AttributeError:
             self.time_in = time_in
             self.format  = format
+
+    @property
+    def cxotime(self):
+        """
+        Convert to CxoTime, bypassing the normal conversion pathway since
+        it does not quite fit in.
+        """
+        from cxotime import CxoTime
+        return CxoTime(self.secs)
 
     def __getattr__(self, fmt_out):
         if fmt_out.startswith('_'):
