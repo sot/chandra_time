@@ -6,7 +6,7 @@ import platform
 # Special case here to allow `python setup.py --version` to run without
 # requiring cython and numpy to be installed.
 if '--version' in sys.argv[1:]:
-    cythonize = lambda arg: None
+    cythonize = lambda arg: None  # noqa
 else:
     from Cython.Build import cythonize
 

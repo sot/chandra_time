@@ -232,17 +232,17 @@ class TimeStyle(object):
                  name,
                  ax3_fmt,
                  ax3_sys,
-                 match_expr = None,
-                 match_func = lambda x,y: re.match(x,y).group(),
-                 match_err  = AttributeError,
-                 postprocess= None,
-                 preprocess= None,
+                 match_expr=None,
+                 match_func=lambda x, y: re.match(x, y).group(),
+                 match_err=AttributeError,
+                 postprocess=None,
+                 preprocess=None,
                  dtype=None,
                  ):
         self.name = name
         self.match_expr = match_expr
         self.match_func = match_func
-        self.match_err  = match_err
+        self.match_err = match_err
         self.ax3_fmt = ax3_fmt
         self.ax3_sys = ax3_sys
         self.postprocess = postprocess
@@ -257,32 +257,36 @@ class TimeStyle(object):
             pass
         return False
 
+
 T1998 = 883612736.816  # Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)
-RE = {'float'       : r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
-      'date'        : r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?$',
-      'year_doy'    : r'^(\d{4}):(\d{3})$',
-      'caldate'     : r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
-      'greta'       : r'^(\d{4})(\d{3})\.(\d{2})?(\d{2})?(\d{2})?(\d+)?$',
-      'fits'        : r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+RE = {'float': r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
+      'date': r'^(\d{4}):(\d{3}):(\d{2}):(\d{2}):(\d{2})(\.\d*)?$',
+      'year_doy': r'^(\d{4}):(\d{3})$',
+      'caldate': r'^\d{4}\w{3}\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'greta': r'^(\d{4})(\d{3})\.(\d{2})?(\d{2})?(\d{2})?(\d+)?$',
+      'fits': r'^\d{4}-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       'year_mon_day': r'^\d{4}-\d{1,2}-\d{1,2}$',
-      'iso'         : r'^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+      'iso': r'^\d{4}-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
       }
 
 # Conversions for greta format
+
+
 def greta_to_date(date_in):
     # Force date_in string to have 9 digits of precision to represent
     # hhmmssfff (where fff is milliseconds within the second)
     date_in = '{:.9f}'.format(float(date_in))
     m = re.match(RE['greta'], date_in)
     out = '%s:%s:%s:%s:%s' % m.groups()[0:5]
-    if m.group(6) != None:
+    if m.group(6) is not None:
         out += '.%s' % m.group(6)
     return out
+
 
 def date_to_greta(date_in):
     m = re.match(RE['date'], date_in)
     out = '%s%s.%s%s%s' % m.groups()[0:5]
-    if m.group(6) != None:
+    if m.group(6) is not None:
         frac = m.group(6).replace('.', '')
         out += frac
     return out
@@ -290,9 +294,12 @@ def date_to_greta(date_in):
 
 # Conversions for frac_year format
 _year_secs = {}                 # Start and end secs for a year
+
+
 def year_start_end_secs(year):
     return (DateTime('%04d:001:00:00:00' % year).secs,
             DateTime('%04d:001:00:00:00' % (year + 1)).secs)
+
 
 def frac_year_to_secs(frac_year):
     frac_year = float(frac_year)
@@ -300,13 +307,16 @@ def frac_year_to_secs(frac_year):
     s0, s1 = _year_secs.setdefault(year, year_start_end_secs(year))
     return repr((frac_year - year) * (s1 - s0) + s0)
 
+
 def secs_to_frac_year(secs):
     year = int(DateTime(secs).date[:4])
     s0, s1 = _year_secs.setdefault(year, year_start_end_secs(year))
     return (float(secs) - s0) / (s1 - s0) + year
 
+
 def raise_(r):
     raise r
+
 
 def mx_DateTime_ISO_ParseDateTime(t):
     try:
@@ -317,125 +327,127 @@ def mx_DateTime_ISO_ParseDateTime(t):
         raise ValueError('mxDateTime format is unavailable, ask TLA for migration options')
 
 
-time_styles = [ TimeStyle(name       = 'fits',
-                          match_expr = RE['fits'],
-                          ax3_fmt    = 'f3',
-                          ax3_sys    = 't',
-                          dtype      = 'S23',
-                          ),
-                TimeStyle(name       = 'year_mon_day',
-                          match_expr = RE['year_mon_day'],
-                          ax3_fmt    = 'f3',
-                          ax3_sys    = 'u',
-                          preprocess = lambda t: t + 'T12:00:00',
-                          postprocess= lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
-                          ),
-                TimeStyle(name       = 'relday',
-                          match_expr = r'^[+-]' + RE['float'] + '$',  # DDDD:hh:mm:ss.ss.
-                          ax3_fmt    = 's',
-                          ax3_sys    = 'u',
-                          preprocess = lambda x: str(time.time() + float(x)*86400.0 - T1998),
-                          postprocess= lambda x: (float(x) + T1998 - time.time()) / 86400.0,
-                          ),
-                TimeStyle(name       = 'greta',
-                          match_expr = RE['greta'],
-                          match_func = lambda f,t: ((float(t) < 2099001.000000 or raise_(ValueError))
-                                                    and re.match(f,t).group()),
-                          match_err  = (AttributeError, ValueError),
-                          ax3_fmt    = 'd3',
-                          ax3_sys    = 'u',
-                          preprocess = greta_to_date,
-                          postprocess= date_to_greta,
-                          ),
-                TimeStyle(name       = 'secs',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 's',
-                          ax3_sys    = 'm',
-                          postprocess= float,
-                          dtype      = np.float64,
-                          ),
-                TimeStyle(name       = 'frac_year',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 's',
-                          ax3_sys    = 'm',
-                          preprocess = frac_year_to_secs,
-                          postprocess= secs_to_frac_year,
-                          ),
-                TimeStyle(name       = 'unix',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 's',
-                          ax3_sys    = 'u',
-                          preprocess = lambda x: repr(float(x) - T1998),
-                          postprocess= lambda x: float(x) + T1998,
-                          ),
-                TimeStyle(name       = 'iso',
-                          match_expr = RE['iso'],
-                          ax3_fmt    = 'f3',
-                          ax3_sys    = 'u',
-                          preprocess = lambda t: t.replace(' ', 'T'),
-                          postprocess= lambda t: t.replace('T', ' '),
-                          ),
-                TimeStyle(name       = 'mxDateTime',
-                          match_expr = RE['iso'],
-                          ax3_fmt    = 'f3',
-                          ax3_sys    = 'u',
-                          preprocess = lambda t: t.replace(' ', 'T'),
-                          postprocess= mx_DateTime_ISO_ParseDateTime,
-                          ),
-                TimeStyle(name       = 'caldate',
-                          match_expr = RE['caldate'],
-                          ax3_fmt    = 'c3',
-                          ax3_sys    = 'u',
-                          dtype      = 'S25',
-                          ),
-                TimeStyle(name       = 'date',
-                          match_expr = RE['date'],
-                          ax3_fmt    = 'd3',
-                          ax3_sys    = 'u',
-                          dtype      = 'S21',
-                          ),
-                TimeStyle(name       = 'year_doy',
-                          match_expr = RE['year_doy'],
-                          ax3_fmt    = 'd3',
-                          ax3_sys    = 'u',
-                          preprocess = lambda t: t + ':12:00:00',
-                          postprocess= lambda t: re.sub(r':\d{2}:\d{2}:\d{2}\.\d+$', '', t),
-                          ),
-                TimeStyle(name       = 'jd',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 'j',
-                          ax3_sys    = 'u',
-                          postprocess= float,
-                          dtype      = np.float64,
-                          ),
-                TimeStyle(name       = 'mjd',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 'm',
-                          ax3_sys    = 'u',
-                          postprocess= float,
-                          dtype      = np.float64,
-                          ),
-                TimeStyle(name       = 'numday',
-                          match_expr = r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',  # DDDD:hh:mm:ss.ss.
-                          ax3_fmt    = 'n3',
-                          ax3_sys    = 'u',
-                          ),
-                TimeStyle(name       = 'plotdate',
-                          match_expr = '^' + RE['float'] + '$',
-                          ax3_fmt    = 'j',
-                          ax3_sys    = 'u',
-                          preprocess = lambda x: repr(float(x) + 1721424.5),
-                          postprocess= lambda x: float(x) - 1721424.5,
-                          ),
-                ]
+time_styles = [TimeStyle(name='fits',
+                         match_expr=RE['fits'],
+                         ax3_fmt='f3',
+                         ax3_sys='t',
+                         dtype='S23',
+                         ),
+               TimeStyle(name='year_mon_day',
+                         match_expr=RE['year_mon_day'],
+                         ax3_fmt='f3',
+                         ax3_sys='u',
+                         preprocess=lambda t: t + 'T12:00:00',
+                         postprocess=lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
+                         ),
+               TimeStyle(name='relday',
+                         match_expr=r'^[+-]' + RE['float'] + '$',  # DDDD:hh:mm:ss.ss.
+                         ax3_fmt='s',
+                         ax3_sys='u',
+                         preprocess=lambda x: str(time.time() + float(x) * 86400.0 - T1998),
+                         postprocess=lambda x: (float(x) + T1998 - time.time()) / 86400.0,
+                         ),
+               TimeStyle(name='greta',
+                         match_expr=RE['greta'],
+                         match_func=lambda f, t: ((float(t) < 2099001.000000 or raise_(ValueError))
+                                                  and re.match(f, t).group()),
+                         match_err=(AttributeError, ValueError),
+                         ax3_fmt='d3',
+                         ax3_sys='u',
+                         preprocess=greta_to_date,
+                         postprocess=date_to_greta,
+                         ),
+               TimeStyle(name='secs',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='s',
+                         ax3_sys='m',
+                         postprocess=float,
+                         dtype=np.float64,
+                         ),
+               TimeStyle(name='frac_year',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='s',
+                         ax3_sys='m',
+                         preprocess=frac_year_to_secs,
+                         postprocess=secs_to_frac_year,
+                         ),
+               TimeStyle(name='unix',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='s',
+                         ax3_sys='u',
+                         preprocess=lambda x: repr(float(x) - T1998),
+                         postprocess=lambda x: float(x) + T1998,
+                         ),
+               TimeStyle(name='iso',
+                         match_expr=RE['iso'],
+                         ax3_fmt='f3',
+                         ax3_sys='u',
+                         preprocess=lambda t: t.replace(' ', 'T'),
+                         postprocess=lambda t: t.replace('T', ' '),
+                         ),
+               TimeStyle(name='mxDateTime',
+                         match_expr=RE['iso'],
+                         ax3_fmt='f3',
+                         ax3_sys='u',
+                         preprocess=lambda t: t.replace(' ', 'T'),
+                         postprocess=mx_DateTime_ISO_ParseDateTime,
+                         ),
+               TimeStyle(name='caldate',
+                         match_expr=RE['caldate'],
+                         ax3_fmt='c3',
+                         ax3_sys='u',
+                         dtype='S25',
+                         ),
+               TimeStyle(name='date',
+                         match_expr=RE['date'],
+                         ax3_fmt='d3',
+                         ax3_sys='u',
+                         dtype='S21',
+                         ),
+               TimeStyle(name='year_doy',
+                         match_expr=RE['year_doy'],
+                         ax3_fmt='d3',
+                         ax3_sys='u',
+                         preprocess=lambda t: t + ':12:00:00',
+                         postprocess=lambda t: re.sub(r':\d{2}:\d{2}:\d{2}\.\d+$', '', t),
+                         ),
+               TimeStyle(name='jd',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='j',
+                         ax3_sys='u',
+                         postprocess=float,
+                         dtype=np.float64,
+                         ),
+               TimeStyle(name='mjd',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='m',
+                         ax3_sys='u',
+                         postprocess=float,
+                         dtype=np.float64,
+                         ),
+               TimeStyle(name='numday',
+                         # DDDD:hh:mm:ss.ss.
+                         match_expr=r'^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$',
+                         ax3_fmt='n3',
+                         ax3_sys='u',
+                         ),
+               TimeStyle(name='plotdate',
+                         match_expr='^' + RE['float'] + '$',
+                         ax3_fmt='j',
+                         ax3_sys='u',
+                         preprocess=lambda x: repr(float(x) + 1721424.5),
+                         postprocess=lambda x: float(x) - 1721424.5,
+                         ),
+               ]
 
-time_system = {'met' : 'm',  #  MET     Mission Elapsed Time ("m")
-               'tt'  : 't',  #  TT      Terrestrial Time ("t")
-               'tai' : 'a',  #  TAI     International Atomic Time ("ta" or "a")
-               'utc' : 'u',  #  UTC     Coordinated Universal Time ("u")
+time_system = {'met': 'm',  # MET     Mission Elapsed Time ("m")
+               'tt': 't',  # TT      Terrestrial Time ("t")
+               'tai': 'a',  # TAI     International Atomic Time ("ta" or "a")
+               'utc': 'u',  # UTC     Coordinated Universal Time ("u")
                }
 
 # Preloaded methods go here.
+
 
 class ChandraTimeError(ValueError):
     """Exception class for bad input values to Chandra.Time"""
@@ -536,6 +548,7 @@ def date2secs(dates):
     """
     return convert_vals(dates, 'date', 'secs')
 
+
 def secs2date(times):
     """
     Convert ``times`` from the ``secs`` system (CXC seconds) to the ``date``
@@ -572,6 +585,7 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
             return [_convert(x, sys_in, fmt_in, sys_out, fmt_out) for x in time_in]
         except TypeError:
             return _convert(time_in, sys_in, fmt_in, sys_out, fmt_out)
+
 
 def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
@@ -635,6 +649,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
 
     return time_out
 
+
 class DateTime(object):
     """
     DateTime - Convert between various time formats
@@ -675,6 +690,7 @@ class DateTime(object):
 
     :returns: DateTime object
     """
+
     def __init__(self, time_in=None, format=None):
         # If no time_in supplied this implies NOW.
         if time_in is None:
@@ -701,7 +717,7 @@ class DateTime(object):
             self.format = time_in.format
         except AttributeError:
             self.time_in = time_in
-            self.format  = format
+            self.format = format
 
     @property
     def cxotime(self):
@@ -742,7 +758,7 @@ class DateTime(object):
     def day_end(self):
         """Return a new DateTime object corresponding to the end of the day."""
         date = self.date.split(':')
-        return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1])+1))
+        return DateTime('%s:%03d:00:00:00' % (date[0], int(date[1]) + 1))
 
     @property
     def time_attributes(self):
@@ -825,6 +841,7 @@ def command_line_convert_time():
     print(DateTime(time_in, format).date)
     print(DateTime(time_in, format).secs)
     print(DateTime(time_in, format).jd)
+
 
 if __name__ == '__main__':
     command_line_convert_time()

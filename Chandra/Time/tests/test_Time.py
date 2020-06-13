@@ -144,10 +144,8 @@ def test_convert_to_cxotime_array():
     assert np.allclose(dt.secs, ct.secs)
 
 
-
 def test_plotdate():
-    """
-    Validate against cxctime2plotdate and round-trip
+    """Validate against cxctime2plotdate and round-trip
     >>> cxctime2plotdate([DateTime('2010:001').secs])
     array([ 733773.5])
     """
