@@ -705,6 +705,10 @@ class DateTime(object):
         # then just convert to cxcsec (secs).
         try:
             secs = time_in.cxcsec
+            # For working in Chandra operations, possibly with no network access, we cannot
+            # allow auto downloads.
+            from astropy.utils import iers
+            iers.conf.auto_download = False
             import astropy.time
             assert isinstance(time_in, astropy.time.Time)
             time_in = secs
