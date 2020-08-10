@@ -181,6 +181,24 @@ year, month (1-12), day of month (1-31), hour (0-23), minute (0-59), second (0-6
 day of year (1-366), and day of week (0-6, where 0 is Monday).
 
 These are all referenced to UTC time.
+
+Date when hour, minutes, seconds not provided
+---------------------------------------------
+
+A date like ``2020:001`` will be taken as ``2020:001:00:00:00`` since version 4.0.
+Before 4.0, ``2020:001`` was ``2020:001:12:00:00``. To get the pre-4.0 behavior
+use the following code::
+
+    from Chandra.Time import use_noon_day_start
+
+    # Set to use 12:00:00 globally from now on.
+    use_noon_day_start()
+
+.. note::
+   You should do this globally once in your code at the beginning. There
+   is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.
+   This impacts all code using ``DateTime``, not just the calls from your script.
+
 """
 import re
 from functools import wraps
@@ -189,6 +207,31 @@ import time
 
 import six
 import numpy as np
+
+# Time for dates specified without HMS. This was changed from '12:00:00' to
+# '00:00:00' in version 4.0 of Chandra.Time.  Call use_noon_day_start(True)
+# for compatibility with the pre-4.0 behavior.
+_DAY_START = '00:00:00'
+
+
+def use_noon_day_start():
+    """Set global default so date with no hours, min, sec uses 12:00:00.
+
+    A date like 2020:001 will be taken as 2020:001:00:00:00 since version 4.0.
+    Before 4.0, 2020:001 was 2020:001:12:00:00. To get the pre-4.0 behavior
+    use the following code.
+
+    NOTE: you should do this globally once in your code at the beginning. There
+    is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.
+    ::
+
+      from Chandra.Time import use_noon_day_start
+
+      # Set to use 12:00:00 globally from now on.
+      use_noon_day_start()
+    """
+    global _DAY_START
+    _DAY_START = '12:00:00'
 
 
 def override__dir__(f):
@@ -337,7 +380,7 @@ time_styles = [TimeStyle(name='fits',
                          match_expr=RE['year_mon_day'],
                          ax3_fmt='f3',
                          ax3_sys='u',
-                         preprocess=lambda t: t + 'T12:00:00',
+                         preprocess=lambda t: t + 'T' + _DAY_START,
                          postprocess=lambda t: re.sub(r'T\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                          ),
                TimeStyle(name='relday',
@@ -408,7 +451,7 @@ time_styles = [TimeStyle(name='fits',
                          match_expr=RE['year_doy'],
                          ax3_fmt='d3',
                          ax3_sys='u',
-                         preprocess=lambda t: t + ':12:00:00',
+                         preprocess=lambda t: t + ':' + _DAY_START,
                          postprocess=lambda t: re.sub(r':\d{2}:\d{2}:\d{2}\.\d+$', '', t),
                          ),
                TimeStyle(name='jd',
@@ -705,6 +748,10 @@ class DateTime(object):
         # then just convert to cxcsec (secs).
         try:
             secs = time_in.cxcsec
+            # For working in Chandra operations, possibly with no network access, we cannot
+            # allow auto downloads.
+            from astropy.utils import iers
+            iers.conf.auto_download = False
             import astropy.time
             assert isinstance(time_in, astropy.time.Time)
             time_in = secs
