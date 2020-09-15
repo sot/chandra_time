@@ -1,0 +1,443 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quaternion Class (Quat) &#8212; Quaternion 3.5.3.dev6+gec82274.d20200915 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quaternion Quick Facts" href="quaternions.html" />
+    <link rel="prev" title="Quaternion" href="index.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="index.html"><span id="logotext1">Ska! </span><span id="logotext2">Quaternion</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="quaternions.html" title="Quaternion Quick Facts">
+	  next &raquo;
+	</a>
+      </li>
+      <li class="right">
+	<a href="index.html" title="Quaternion">
+	  &laquo; previous
+	</a>
+	 |
+      </li>
+      <li>
+	<a href="index.html">Quaternion 3.5.3.dev6+gec82274.d20200915 documentation</a>
+	 &#187;
+      </li>
+      
+      <li>Quaternion Class (Quat)</li> 
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-Quaternion.Quaternion">
+<span id="quaternion-class-quat"></span><h1>Quaternion Class (Quat)<a class="headerlink" href="#module-Quaternion.Quaternion" title="Permalink to this headline">¶</a></h1>
+<p>Quaternion provides a class for manipulating quaternion objects.  This class provides:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>convenient ways to deal with rotation representations (equatorial coordinates, matrix and quaternion):</p>
+<ul>
+<li><p>a constructor to initialize from rotations in various representations,</p></li>
+<li><p>conversion methods to the different representations.</p></li>
+</ul>
+</li>
+<li><p>methods to multiply and divide quaternions.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Copyright</dt>
+<dd class="field-odd"><p>Smithsonian Astrophysical Observatory (2010)</p>
+</dd>
+<dt class="field-even">Authors</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Tom Aldcroft (<a class="reference external" href="mailto:aldcroft&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aldcroft<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+<li><p>Jean Connelly (<a class="reference external" href="mailto:jconnelly&#37;&#52;&#48;cfa&#46;harvard&#46;edu">jconnelly<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+<li><p>Javier Gonzalez (<a class="reference external" href="mailto:javier&#46;gonzalez&#37;&#52;&#48;cfa&#46;harvard&#46;edu">javier<span>&#46;</span>gonzalez<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py class">
+<dt id="Quaternion.Quaternion.Quat">
+<em class="property">class </em><code class="sig-prename descclassname">Quaternion.Quaternion.</code><code class="sig-name descname">Quat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">attitude</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">transform</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">q</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">equatorial</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat" title="Permalink to this definition">¶</a></dt>
+<dd><p>Quaternion class</p>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">Quaternion</span> <span class="kn">import</span> <span class="n">Quat</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quat</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span><span class="mi">45</span><span class="p">,</span><span class="mi">45</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quat</span><span class="o">.</span><span class="n">ra</span><span class="p">,</span> <span class="n">quat</span><span class="o">.</span><span class="n">dec</span><span class="p">,</span> <span class="n">quat</span><span class="o">.</span><span class="n">roll</span>
+<span class="go">(12, 45, 45)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">quat</span><span class="o">.</span><span class="n">q</span>
+<span class="go">array([ 0.38857298, -0.3146602 ,  0.23486498,  0.8335697 ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">q</span><span class="o">=</span><span class="n">quat</span><span class="o">.</span><span class="n">q</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span><span class="o">.</span><span class="n">ra</span>
+<span class="go">12.0</span>
+</pre></div>
+</div>
+<p>Multiplication and division operators are overloaded for the class to
+perform appropriate quaternion multiplication and division.</p>
+<p>Quaternion composition as a multiplication q = q1 * q2 is equivalent to
+applying the q2 transform followed by the q1 transform.  Another way to
+express this is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">q</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">transform</span><span class="o">=</span><span class="n">q1</span><span class="o">.</span><span class="n">transform</span> <span class="o">@</span> <span class="n">q2</span><span class="o">.</span><span class="n">transform</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">q1</span> <span class="o">*</span> <span class="n">q2</span><span class="p">)</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([20., 30., 40.])</span>
+</pre></div>
+</div>
+<p>This example first rolls about X by 40 degrees, then rotates that rolled frame
+to RA=20 and Dec=30.  Doing the composition in the other order does a roll about
+(the original) X-axis of the (RA, Dec) = (20, 30) frame, yielding a non-intuitive
+though correct result:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="p">(</span><span class="n">q2</span> <span class="o">*</span> <span class="n">q1</span><span class="p">)</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([ 353.37684725,   34.98868888,   47.499696  ])</span>
+</pre></div>
+</div>
+<p>Note that each step is as described in the section <a class="reference internal" href="quaternions.html#equatorialmatrix"><span class="std std-ref">Equatorial -&gt; Matrix</span></a></p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q3</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q1</span><span class="o">.</span><span class="n">transform</span><span class="p">,</span> <span class="n">q2</span><span class="o">.</span><span class="n">transform</span><span class="p">,</span> <span class="n">q3</span><span class="o">.</span><span class="n">transform</span>
+<span class="go">(array([[ 0.93969262, -0.34202014,  0.        ],</span>
+<span class="go">        [ 0.34202014,  0.93969262, -0.        ],</span>
+<span class="go">        [ 0.        ,  0.        ,  1.        ]]),</span>
+<span class="go"> array([[ 0.8660254, -0.       , -0.5      ],</span>
+<span class="go">        [ 0.       ,  1.       , -0.       ],</span>
+<span class="go">        [ 0.5      ,  0.       ,  0.8660254]]),</span>
+<span class="go"> array([[ 1.        , -0.        ,  0.        ],</span>
+<span class="go">        [ 0.        ,  0.76604444, -0.64278761],</span>
+<span class="go">        [ 0.        ,  0.64278761,  0.76604444]]))</span>
+</pre></div>
+</div>
+<p>Be aware that for Chandra operations the correct formalism for applying a
+delta quaternion <code class="docutils literal notranslate"><span class="pre">dq</span></code> to maneuver from <code class="docutils literal notranslate"><span class="pre">q1</span></code> to <code class="docutils literal notranslate"><span class="pre">q2</span></code> is:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">q1</span> <span class="o">*</span> <span class="n">dq</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">inv</span><span class="p">()</span> <span class="o">*</span> <span class="n">q2</span>
+</pre></div>
+</div>
+<p>The quaternion returned by <code class="docutils literal notranslate"><span class="pre">q1</span> <span class="pre">/</span> <span class="pre">q2</span></code> using the divide operator represents the
+delta quaternion in the INERTIAL FRAME, which is not what is used by the
+spacecraft to represent maneuvers.</p>
+<p>Instead use the <code class="docutils literal notranslate"><span class="pre">dq</span></code> method (or equivalently <code class="docutils literal notranslate"><span class="pre">q1.inv()</span> <span class="pre">*</span> <span class="pre">q2</span></code>) for computing a
+delta quaternion to maneuver from <code class="docutils literal notranslate"><span class="pre">q1</span></code> to <code class="docutils literal notranslate"><span class="pre">q2</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">dq</span><span class="p">(</span><span class="n">q2</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When dealing with a collection of quaternions, it is much faster to operate on all of them at a time:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">eq1</span> <span class="o">=</span> <span class="p">[[</span> <span class="mf">30.000008</span><span class="p">,</span>  <span class="mf">39.999999</span><span class="p">,</span>  <span class="mf">49.999995</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">30.000016</span><span class="p">,</span>  <span class="mf">39.999999</span><span class="p">,</span>  <span class="mf">49.99999</span> <span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">30.000024</span><span class="p">,</span>  <span class="mf">39.999998</span><span class="p">,</span>  <span class="mf">49.999984</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">30.000032</span><span class="p">,</span>  <span class="mf">39.999998</span><span class="p">,</span>  <span class="mf">49.999979</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">30.00004</span> <span class="p">,</span>  <span class="mf">39.999997</span><span class="p">,</span>  <span class="mf">49.999974</span><span class="p">]])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">eq2</span> <span class="o">=</span> <span class="p">[[</span> <span class="mf">34.679189</span><span class="p">,</span>  <span class="mf">42.454957</span><span class="p">,</span>  <span class="mf">43.647651</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">26.457503</span><span class="p">,</span>  <span class="mf">58.05772</span> <span class="p">,</span>  <span class="mf">70.638782</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">42.283086</span><span class="p">,</span>  <span class="mf">50.072731</span><span class="p">,</span>  <span class="mf">36.676534</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">27.138448</span><span class="p">,</span>  <span class="mf">31.389365</span><span class="p">,</span>  <span class="mf">34.429049</span><span class="p">],</span>
+<span class="gp">... </span>       <span class="p">[</span> <span class="mf">22.722112</span><span class="p">,</span>  <span class="mf">37.893094</span><span class="p">,</span>  <span class="mf">50.06074</span> <span class="p">]]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="n">eq1</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">(</span><span class="n">equatorial</span><span class="o">=</span><span class="n">eq2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">dq</span><span class="p">(</span><span class="n">q2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span><span class="o">.</span><span class="n">q</span>
+<span class="go">array([[-0.02848482,  0.00774419,  0.03661687,  0.99889331],</span>
+<span class="go">       [ 0.15387087, -0.09527764,  0.12624189,  0.97535066],</span>
+<span class="go">       [-0.03970954, -0.01159734,  0.11488968,  0.99251651],</span>
+<span class="go">       [-0.14947438,  0.04195765, -0.06544431,  0.98570483],</span>
+<span class="go">       [-0.0393673 , -0.02604388, -0.045771  ,  0.99783613]])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>attitude</strong> – initialization attitude for quat</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">attitude</span></code> may be:</dt><dd><ul class="simple">
+<li><p>another Quat</p></li>
+<li><p>a 4 element array (expects x,y,z,w quat form)</p></li>
+<li><p>a 3 element array (expects ra,dec,roll in degrees)</p></li>
+<li><p>a 3x3 transform/rotation matrix</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>q</strong> – attitude as a quaternion.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">q</span></code> must be an array with shape (4,) or (N, 4), with arbitrary N.
+The last axis corresponds to quaternion coordinates x, y, z, w.
+For example: (3, 2, 4) corresponds to a (3, 2) array of quaternions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>equatorial</strong> – attitude in equatorial coordinates.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">q</span></code> must be an array with shape (3,) or (N, 3), with arbitrary N.
+The last axis corresponds to equatorial coordinates ra, dec, roll.
+For example: (3, 2, 3) corresponds to a (3, 2) array of quaternions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>transform</strong> – attitude as a 3x3 transform.</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">q</span></code> must be an array with shape (3, 3) or (N, 3, 3), with arbitrary N.
+The last two axes correspond to (3, 3) transformations.
+For example: (3, 2, 3, 3) corresponds to a (3, 2) array of quaternions.</p>
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.dec">
+<em class="property">property </em><code class="sig-name descname">dec</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.dec" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Dec term from equatorial system in degrees</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.dq">
+<code class="sig-name descname">dq</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">q2</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.dq"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.dq" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a delta quaternion <code class="docutils literal notranslate"><span class="pre">dq</span></code> such that <code class="docutils literal notranslate"><span class="pre">q2</span> <span class="pre">=</span> <span class="pre">self</span> <span class="pre">*</span> <span class="pre">dq</span></code>.
+I works with any argument that instantiates a <code class="docutils literal notranslate"><span class="pre">Quat</span></code> object.</p>
+<p>This method returns the delta quaternion which represents the transformation
+from the frame of this quaternion (<code class="docutils literal notranslate"><span class="pre">self</span></code>) to <code class="docutils literal notranslate"><span class="pre">q2</span></code>.</p>
+<blockquote>
+<div><p>q = Quat(q1.transform &#64; q2.transform)</p>
+</div></blockquote>
+<p>Example usage:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">q1</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">q2</span> <span class="o">=</span> <span class="n">Quat</span><span class="p">((</span><span class="mi">20</span><span class="p">,</span> <span class="mf">30.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span> <span class="o">=</span> <span class="n">q1</span><span class="o">.</span><span class="n">dq</span><span class="p">(</span><span class="n">q2</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dq</span><span class="o">.</span><span class="n">equatorial</span>
+<span class="go">array([  1.79974166e-15,   1.00000000e-01,   1.00000000e+00])</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Param</dt>
+<dd class="field-odd"><p>q2 Quat or array</p>
+</dd>
+</dl>
+<p><code class="docutils literal notranslate"><span class="pre">q2</span></code> must have the same shape as self.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>Quat</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.equatorial">
+<em class="property">property </em><code class="sig-name descname">equatorial</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.equatorial" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve [RA, Dec, Roll]</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.inv">
+<code class="sig-name descname">inv</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#Quat.inv"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.Quat.inv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invert the quaternion.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>inverted quaternion</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p><a class="reference internal" href="#Quaternion.Quaternion.Quat" title="Quaternion.Quaternion.Quat">Quat</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.pitch">
+<em class="property">property </em><code class="sig-name descname">pitch</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.pitch" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return quaternion pitch (same as -dec)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.q">
+<em class="property">property </em><code class="sig-name descname">q</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.q" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve 4-vector of quaternion elements in [x, y, z, w] form
+or N x 4-vector if N &gt; 1.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.ra">
+<em class="property">property </em><code class="sig-name descname">ra</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve RA term from equatorial system in degrees</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.ra0">
+<em class="property">property </em><code class="sig-name descname">ra0</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.ra0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return quaternion RA in the range -180 &lt;= roll &lt; 180.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.roll">
+<em class="property">property </em><code class="sig-name descname">roll</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve Roll term from equatorial system in degrees</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.roll0">
+<em class="property">property </em><code class="sig-name descname">roll0</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.roll0" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return quaternion roll in the range -180 &lt;= roll &lt; 180.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.shape">
+<em class="property">property </em><code class="sig-name descname">shape</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.shape" title="Permalink to this definition">¶</a></dt>
+<dd><p>The shape of the multi-quaternion.</p>
+<p>For example, if the Quat is:
+- a single quaternion, then its shape is ().
+- a multi-quaternion with self.q.shape = (N, 4), then its shape is (N,)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>self.q.shape[:-1]</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.transform">
+<em class="property">property </em><code class="sig-name descname">transform</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.transform" title="Permalink to this definition">¶</a></dt>
+<dd><p>Retrieve the value of the 3x3 rotation/transform matrix</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns</dt>
+<dd class="field-odd"><p>3x3 rotation/transform matrix</p>
+</dd>
+<dt class="field-even">Return type</dt>
+<dd class="field-even"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt id="Quaternion.Quaternion.Quat.yaw">
+<em class="property">property </em><code class="sig-name descname">yaw</code><a class="headerlink" href="#Quaternion.Quaternion.Quat.yaw" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return quaternion yaw (same as ra0)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="Quaternion.Quaternion.normalize">
+<code class="sig-prename descclassname">Quaternion.Quaternion.</code><code class="sig-name descname">normalize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">array</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/Quaternion/Quaternion.html#normalize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#Quaternion.Quaternion.normalize" title="Permalink to this definition">¶</a></dt>
+<dd><p>Normalize a 4 (or Nx4) element array/list/numpy.array for use as a quaternion</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>array</strong> – 4 or Nx4 element list/array</p>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>normalized array</p>
+</dd>
+<dt class="field-odd">Return type</dt>
+<dd class="field-odd"><p>numpy array</p>
+</dd>
+</dl>
+</dd></dl>
+
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Quaternion Class (Quat)</a></li>
+</ul>
+
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Quaternion</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="quaternions.html"
+                        title="next chapter">Quaternion Quick Facts</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/module.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/module.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2015, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>

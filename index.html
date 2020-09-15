@@ -1,0 +1,152 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quaternion &#8212; Quaternion 3.5.3.dev6+gec82274.d20200915 documentation</title>
+    <link rel="stylesheet" href="_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script src="_static/jquery.js"></script>
+    <script src="_static/underscore.js"></script>
+    <script src="_static/doctools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.7/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <script type="text/javascript" src="_static/sidebar.js"></script>
+    <script type="text/javascript" src="_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Quaternion Class (Quat)" href="module.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="#"><span id="logotext1">Ska! </span><span id="logotext2">Quaternion</span><span id="logotext3"></span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1">ska</span><span id="logotext2">tools</span>
+    </a></li>
+    <li><a title="General Index" href="genindex.html">Index</a></li>
+    <li><a title="Module Index" href="py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li class="right">
+	<a href="module.html" title="Quaternion Class (Quat)">
+	  next &raquo;
+	</a>
+      </li>
+      <li>
+	<a href="#">Quaternion 3.5.3.dev6+gec82274.d20200915 documentation</a>
+	 &#187;
+      </li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="quaternion">
+<h1>Quaternion<a class="headerlink" href="#quaternion" title="Permalink to this headline">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="module.html">Quaternion Class (Quat)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quaternions.html">Quaternion Quick Facts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="quaternions.html#quaternions">Quaternions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quaternions.html#rotations">Rotations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="quaternions.html#switching-representations">Switching Representations</a></li>
+</ul>
+</li>
+</ul>
+</div>
+<span class="target" id="module-Quaternion.Quaternion"></span><p>Quaternion provides a class for manipulating quaternion objects.  This class provides:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>convenient ways to deal with rotation representations (equatorial coordinates, matrix and quaternion):</p>
+<ul>
+<li><p>a constructor to initialize from rotations in various representations,</p></li>
+<li><p>conversion methods to the different representations.</p></li>
+</ul>
+</li>
+<li><p>methods to multiply and divide quaternions.</p></li>
+</ul>
+</div></blockquote>
+<dl class="field-list simple">
+<dt class="field-odd">Copyright</dt>
+<dd class="field-odd"><p>Smithsonian Astrophysical Observatory (2010)</p>
+</dd>
+<dt class="field-even">Authors</dt>
+<dd class="field-even"><ul class="simple">
+<li><p>Tom Aldcroft (<a class="reference external" href="mailto:aldcroft&#37;&#52;&#48;cfa&#46;harvard&#46;edu">aldcroft<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+<li><p>Jean Connelly (<a class="reference external" href="mailto:jconnelly&#37;&#52;&#48;cfa&#46;harvard&#46;edu">jconnelly<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+<li><p>Javier Gonzalez (<a class="reference external" href="mailto:javier&#46;gonzalez&#37;&#52;&#48;cfa&#46;harvard&#46;edu">javier<span>&#46;</span>gonzalez<span>&#64;</span>cfa<span>&#46;</span>harvard<span>&#46;</span>edu</a>)</p></li>
+</ul>
+</dd>
+</dl>
+</div>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+<ul>
+<li><a class="reference internal" href="#">Quaternion</a></li>
+</ul>
+
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="module.html"
+                        title="next chapter">Quaternion Class (Quat)</a></p>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.rst.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<form action="search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right">
+    <a href="_sources/index.rst.txt"
+       rel="nofollow">Page Source</a> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2015, Jean Connelly, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
