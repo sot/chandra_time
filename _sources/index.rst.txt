@@ -1,15 +1,62 @@
-.. chandra_aca documentation master file, created by
-   sphinx-quickstart on Fri Nov 13 15:19:28 2015.
-   You can adapt this file completely to your liking, but it should at least
-   contain the root `toctree` directive.
+:mod:`Chandra.Time`
+===============================================================================================================================================
 
-Quaternion
-===========
 
-.. toctree::
-   :maxdepth: 2
+.. automodule:: Chandra.Time.Time
 
-   module
-   quaternions
 
-.. automodule:: Quaternion.Quaternion
+Functions
+----------
+
+Fast conversion functions
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. autofunction:: convert_vals
+
+.. autofunction:: date2secs
+
+.. autofunction:: secs2date
+
+Other functions
+^^^^^^^^^^^^^^^^
+
+.. autofunction:: convert
+
+.. autofunction:: date_to_greta
+
+.. autofunction:: greta_to_date
+
+
+
+
+
+Classes
+--------
+
+.. autoclass:: DateTime
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+
+
+.. autoclass:: TimeStyle
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+
+
+
+
+
+Exceptions
+------------
+
+.. autoclass:: ChandraTimeError
+   :show-inheritance:
+   :members:
+   :inherited-members:
+   :undoc-members:
+
+

@@ -1,0 +1,988 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chandra.Time.Time &#8212; Chandra.Time 3.20.7.dev34+g0ce0ba6 documentation</title>
+    <link rel="stylesheet" href="../../../_static/bootstrap-astropy.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <script src="../../../_static/language_data.js"></script>
+    <script type="text/javascript" src="../../../_static/sidebar.js"></script>
+    <script type="text/javascript" src="../../../_static/copybutton.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,600' rel='stylesheet' type='text/css'/>
+
+  </head><body>
+<div class="topbar">
+  <a class="brand" title="Documentation Home" href="../../../index.html"><span id="logotext1">Ska! </span><span id="logotext2">Chandra</span><span id="logotext3">.Time</span></a>
+  <ul>
+    
+    <li><a class="home" title="Homepage" href="">
+        <span id="logotext1"></span><span id="logotext2"></span>
+    </a></li>
+    <li><a title="General Index" href="../../../genindex.html">Index</a></li>
+    <li><a title="Module Index" href="../../../py-modindex.html">Modules</a></li>
+    <li>
+      
+      
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+      
+    </li>
+  </ul>
+</div>
+
+<div class="related">
+    <h3>Navigation</h3>
+    <ul>
+      <li>
+	<a href="../../../index.html">Chandra.Time 3.20.7.dev34+g0ce0ba6 documentation</a>
+	 &#187;
+      </li>
+      <li><a href="../../index.html" accesskey="U">Module code</a> &#187;</li>
+      
+       
+    </ul>
+</div>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for Chandra.Time.Time</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Licensed under a 3-clause BSD style license - see LICENSE.rst</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Convert between various time formats relevant to Chandra.</span>
+
+<span class="sd">Chandra.Time provides a simple interface to the C++ time conversion</span>
+<span class="sd">utility axTime3 (which itself is a wrapper for XTime) written by Arnold</span>
+<span class="sd">Rots.  Chandra.Time also supports some useful additional time formats.</span>
+
+<span class="sd">The supported time formats are:</span>
+
+<span class="sd">============ ==============================================  =======</span>
+<span class="sd"> Format      Description                                     System</span>
+<span class="sd">============ ==============================================  =======</span>
+<span class="sd">  secs       Seconds since 1998-01-01T00:00:00 (float)       tt</span>
+<span class="sd">  numday     DDDD:hh:mm:ss.ss... Elapsed days and time       utc</span>
+<span class="sd">  relday     [+-]&lt;float&gt; Relative number of days from now    utc</span>
+<span class="sd">  jd         Julian Day                                      utc</span>
+<span class="sd">  mjd        Modified Julian Day = JD - 2400000.5            utc</span>
+<span class="sd">  date       YYYY:DDD:hh:mm:ss.ss..                          utc</span>
+<span class="sd">  caldate    YYYYMonDD at hh:mm:ss.ss..                      utc</span>
+<span class="sd">  fits       YYYY-MM-DDThh:mm:ss.ss..                        tt</span>
+<span class="sd">  iso        YYYY-MM-DD hh:mm:ss.ss..                        utc</span>
+<span class="sd">  unix       Unix time (since 1970.0)                        utc</span>
+<span class="sd">  greta      YYYYDDD.hhmmss[sss]                             utc</span>
+<span class="sd">  year_doy   YYYY:DDD                                        utc</span>
+<span class="sd">  mxDateTime mx.DateTime object                              utc</span>
+<span class="sd">  frac_year  YYYY.ffffff = date as a floating point year     utc</span>
+<span class="sd">  plotdate   Matplotlib plotdate (days since year 0)         utc</span>
+<span class="sd">  cxotime    CxoTime class object                            varies</span>
+<span class="sd">============ ==============================================  =======</span>
+
+<span class="sd">Each of these formats has an associated time system, which must be one of:</span>
+
+<span class="sd">=======  ============================</span>
+<span class="sd">  met     Mission Elapsed Time</span>
+<span class="sd">  tt      Terrestrial Time</span>
+<span class="sd">  tai     International Atomic Time</span>
+<span class="sd">  utc     Coordinated Universal Time</span>
+<span class="sd">=======  ============================</span>
+
+
+<span class="sd">Usage</span>
+<span class="sd">-----</span>
+
+<span class="sd">The normal usage is to create an object that allows conversion from one time</span>
+<span class="sd">format to another.  Conversion takes place by examining the appropriate</span>
+<span class="sd">attribute.  Unless the time format is specified or it is ambiguous (i.e. secs,</span>
+<span class="sd">jd, mjd, and unix), the time format is automatically determined.  To</span>
+<span class="sd">specifically select a format use the &#39;format&#39; option.::</span>
+
+<span class="sd">  &gt;&gt;&gt; from Chandra.Time import DateTime</span>
+<span class="sd">  &gt;&gt;&gt; t = DateTime(&#39;1999-07-23T23:56:00&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; print t.date</span>
+<span class="sd">  1999:204:23:54:55.816</span>
+<span class="sd">  &gt;&gt;&gt; t.date</span>
+<span class="sd">  &#39;1999:204:23:54:55.816&#39;</span>
+<span class="sd">  &gt;&gt;&gt; t.secs</span>
+<span class="sd">  49161360.0</span>
+<span class="sd">  &gt;&gt;&gt; t.jd</span>
+<span class="sd">  2451383.496479352</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(t.jd + 1, format=&#39;jd&#39;).fits</span>
+<span class="sd">  &#39;1999-07-24T23:56:00.056&#39;</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(t.mjd + 1, format=&#39;mjd&#39;).caldate</span>
+<span class="sd">  &#39;1999Jul24 at 23:54:55.820&#39;</span>
+<span class="sd">  &gt;&gt;&gt; u = DateTime(1125538824.0, format=&#39;unix&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; u.date</span>
+<span class="sd">  &#39;2005:244:01:40:24.000&#39;</span>
+<span class="sd">  &gt;&gt;&gt; mxd = mx.DateTime.Parser.DateTimeFromString(&#39;1999-01-01 12:13:14&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(mxd).fits</span>
+<span class="sd">  &#39;1999-01-01T12:14:18.184&#39;</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(mxd).date</span>
+<span class="sd">  &#39;1999:001:12:13:14.000&#39;</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(mxd).mxDateTime.strftime(&#39;%c&#39;)</span>
+<span class="sd">  &#39;Fri Jan  1 12:13:14 1999&#39;</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(&#39;2007122.01020340&#39;).date</span>
+<span class="sd">  &#39;2007:122:01:02:03.400&#39;</span>
+
+<span class="sd">If no input time is supplied when creating the object then the current time is used.::</span>
+
+<span class="sd">  &gt;&gt;&gt; DateTime().fits</span>
+<span class="sd">  &#39;2009-11-14T18:24:14.504&#39;</span>
+
+<span class="sd">For convenience a DateTime object can be initialized from another DateTime object.</span>
+
+<span class="sd">  &gt;&gt;&gt; t = DateTime()</span>
+<span class="sd">  &gt;&gt;&gt; u = DateTime(t)</span>
+
+
+<span class="sd">Sequences of dates</span>
+<span class="sd">------------------</span>
+
+<span class="sd">The input time can also be an iterable sequence (returns a list) or</span>
+<span class="sd">a numpy array (returns a numpy array with the same shape)::</span>
+
+<span class="sd">  &gt;&gt;&gt; import numpy</span>
+<span class="sd">  &gt;&gt;&gt; DateTime([1,&#39;2001:255&#39;,3]).date</span>
+<span class="sd">  [&#39;1997:365:23:58:57.816&#39;, &#39;2001:255:12:00:00.000&#39;, &#39;1997:365:23:58:59.816&#39;]</span>
+<span class="sd">  &gt;&gt;&gt; DateTime(numpy.array([[1,2],[3,4]])).fits</span>
+<span class="sd">  array([[&#39;1998-01-01T00:00:01.000&#39;, &#39;1998-01-01T00:00:02.000&#39;],</span>
+<span class="sd">         [&#39;1998-01-01T00:00:03.000&#39;, &#39;1998-01-01T00:00:04.000&#39;]],</span>
+<span class="sd">        dtype=&#39;|S23&#39;)</span>
+
+
+<span class="sd">Date arithmetic</span>
+<span class="sd">---------------</span>
+
+<span class="sd">DateTime objects support a limited arithmetic with a delta time expressed in days.</span>
+<span class="sd">One can add a delta time to a DateTime or subtract a delta time from a DateTime.</span>
+<span class="sd">It is also possible to subtract two DateTiem objects to get a delta time in days.</span>
+<span class="sd">If the DateTime holds a NumPy array or the delta times are NumPy arrays then the</span>
+<span class="sd">appropriate broadcasting will be done.</span>
+<span class="sd">::</span>
+
+<span class="sd">  &gt;&gt;&gt; d1 = DateTime(&#39;2011:200:00:00:00&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; d2 = d1 + 4.25</span>
+<span class="sd">  &gt;&gt;&gt; d2.date</span>
+<span class="sd">  &#39;2011:204:06:00:00.000&#39;</span>
+<span class="sd">  &gt;&gt;&gt; d2 - d1</span>
+<span class="sd">  4.25</span>
+<span class="sd">  &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">  &gt;&gt;&gt; d3 = d1 + np.array([1,2,3])</span>
+<span class="sd">  &gt;&gt;&gt; d3.date</span>
+<span class="sd">  array([&#39;2011:201:00:00:00.000&#39;, &#39;2011:202:00:00:00.000&#39;,</span>
+<span class="sd">         &#39;2011:203:00:00:00.000&#39;],</span>
+<span class="sd">        dtype=&#39;|S21&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; (d3 + 7).year_doy</span>
+<span class="sd">  array([&#39;2011:208&#39;, &#39;2011:209&#39;, &#39;2011:210&#39;],</span>
+<span class="sd">        dtype=&#39;|S8&#39;)</span>
+
+
+<span class="sd">Fast conversion functions</span>
+<span class="sd">-------------------------</span>
+
+<span class="sd">The DateTime class does full validation and format-detection of input</span>
+<span class="sd">values.  In cases where this is not necessary a substantial improvement in</span>
+<span class="sd">speed (factor of 4 to 12) can be obtained using functions that skip the</span>
+<span class="sd">validation and format detection.  See the documentation for</span>
+<span class="sd">:func:`~Chandra.Time.date2secs`, :func:`~Chandra.Time.secs2date`, and</span>
+<span class="sd">:func:`~Chandra.Time.convert_vals`.</span>
+<span class="sd">::</span>
+
+<span class="sd">  &gt;&gt;&gt; from Chandra.Time import date2secs, secs2date, convert_vals</span>
+<span class="sd">  &gt;&gt;&gt; date2secs(&#39;2001:001:01:01:01&#39;)</span>
+<span class="sd">  94698125.18399999</span>
+<span class="sd">  &gt;&gt;&gt; dates = secs2date([0, 1e8, 2e8])</span>
+<span class="sd">  &gt;&gt;&gt; dates</span>
+<span class="sd">  array([&#39;1997:365:23:58:56.816&#39;, &#39;2001:062:09:45:35.816&#39;, &#39;2004:124:19:32:15.816&#39;],</span>
+<span class="sd">        dtype=&#39;|S21&#39;)</span>
+<span class="sd">  &gt;&gt;&gt; date2secs(dates)</span>
+<span class="sd">  array([  0.00000000e+00,   1.00000000e+08,   2.00000000e+08])</span>
+<span class="sd">  &gt;&gt;&gt; convert_vals(dates, &#39;date&#39;, &#39;mjd&#39;)</span>
+<span class="sd">  array([ 50813.9992687 ,  51971.40666454,  53128.81407194])</span>
+<span class="sd">  &gt;&gt;&gt; convert_vals(dates, &#39;date&#39;, &#39;secs&#39;)</span>
+<span class="sd">  array([  0.00000000e+00,   1.00000000e+08,   2.00000000e+08])</span>
+
+
+<span class="sd">Input and output time system</span>
+<span class="sd">----------------------------</span>
+
+<span class="sd">Currently the object-oriented interface does not allow you to adjust the</span>
+<span class="sd">input or output time system.  If you really need to do this, use the package</span>
+<span class="sd">function convert()::</span>
+
+<span class="sd">  &gt;&gt;&gt; import Chandra.Time</span>
+<span class="sd">  &gt;&gt;&gt; Chandra.Time.convert(53614.0,</span>
+<span class="sd">  ...                      fmt_in=&#39;mjd&#39;,</span>
+<span class="sd">  ...                      sys_in=&#39;tt&#39;,</span>
+<span class="sd">  ...                      fmt_out=&#39;caldate&#39;,</span>
+<span class="sd">  ...                      sys_out=&#39;tai&#39;)</span>
+<span class="sd">  &#39;2005Aug31 at 23:59:27.816&#39;</span>
+
+<span class="sd">The convert() routine will guess fmt_in and supply a default for sys_in if not</span>
+<span class="sd">specified.  As for DateTime() the input time can be a sequence or numpy array.</span>
+
+<span class="sd">Time attributes</span>
+<span class="sd">---------------</span>
+
+<span class="sd">A ``DateTime`` object has additional attributes ``year``, ``mon``, ``day``,</span>
+<span class="sd">``hour``, ``min``, ``sec``, ``yday``, and ``wday``.  These provide the</span>
+<span class="sd">year, month (1-12), day of month (1-31), hour (0-23), minute (0-59), second (0-60),</span>
+<span class="sd">day of year (1-366), and day of week (0-6, where 0 is Monday).</span>
+
+<span class="sd">These are all referenced to UTC time.</span>
+
+<span class="sd">Date when hour, minutes, seconds not provided</span>
+<span class="sd">---------------------------------------------</span>
+
+<span class="sd">A date like ``2020:001`` will be taken as ``2020:001:00:00:00`` since version 4.0.</span>
+<span class="sd">Before 4.0, ``2020:001`` was ``2020:001:12:00:00``. To get the pre-4.0 behavior</span>
+<span class="sd">use the following code::</span>
+
+<span class="sd">    from Chandra.Time import use_noon_day_start</span>
+
+<span class="sd">    # Set to use 12:00:00 globally from now on.</span>
+<span class="sd">    use_noon_day_start()</span>
+
+<span class="sd">.. note::</span>
+<span class="sd">   You should do this globally once in your code at the beginning. There</span>
+<span class="sd">   is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.</span>
+<span class="sd">   This impacts all code using ``DateTime``, not just the calls from your script.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="kn">import</span> <span class="nn">six</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># Time for dates specified without HMS. This was changed from &#39;12:00:00&#39; to</span>
+<span class="c1"># &#39;00:00:00&#39; in version 4.0 of Chandra.Time.  Call use_noon_day_start(True)</span>
+<span class="c1"># for compatibility with the pre-4.0 behavior.</span>
+<span class="n">_DAY_START</span> <span class="o">=</span> <span class="s1">&#39;00:00:00&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">use_noon_day_start</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Set global default so date with no hours, min, sec uses 12:00:00.</span>
+
+<span class="sd">    A date like 2020:001 will be taken as 2020:001:00:00:00 since version 4.0.</span>
+<span class="sd">    Before 4.0, 2020:001 was 2020:001:12:00:00. To get the pre-4.0 behavior</span>
+<span class="sd">    use the following code.</span>
+
+<span class="sd">    NOTE: you should do this globally once in your code at the beginning. There</span>
+<span class="sd">    is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.</span>
+<span class="sd">    ::</span>
+
+<span class="sd">      from Chandra.Time import use_noon_day_start</span>
+
+<span class="sd">      # Set to use 12:00:00 globally from now on.</span>
+<span class="sd">      use_noon_day_start()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_DAY_START</span>
+    <span class="n">_DAY_START</span> <span class="o">=</span> <span class="s1">&#39;12:00:00&#39;</span>
+
+
+<span class="k">def</span> <span class="nf">override__dir__</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    When overriding a __dir__ method on an object, you often want to</span>
+<span class="sd">    include the &quot;standard&quot; members on the object as well.  This</span>
+<span class="sd">    decorator takes care of that automatically, and all the wrapped</span>
+<span class="sd">    function needs to do is return a list of the &quot;special&quot; members</span>
+<span class="sd">    that wouldn&#39;t be found by the normal Python means.</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    @override__dir__</span>
+<span class="sd">    def __dir__(self):</span>
+<span class="sd">        return [&#39;special_method1&#39;, &#39;special_method2&#39;]</span>
+
+<span class="sd">    This method is copied from astropy.utils.compat.misc.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># http://bugs.python.org/issue12166</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">override__dir__wrapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">members</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="nb">object</span><span class="o">.</span><span class="fm">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="n">members</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="bp">self</span><span class="p">))</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">members</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">override__dir__wrapper</span>
+
+
+<span class="k">class</span> <span class="nc">TimeAttribute</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">attr</span> <span class="o">=</span> <span class="n">attr</span>
+
+    <span class="k">def</span> <span class="fm">__get__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instance</span><span class="p">,</span> <span class="n">owner</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">time_attributes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="TimeStyle"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.TimeStyle">[docs]</a><span class="k">class</span> <span class="nc">TimeStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">name</span><span class="p">,</span>
+                 <span class="n">ax3_fmt</span><span class="p">,</span>
+                 <span class="n">ax3_sys</span><span class="p">,</span>
+                 <span class="n">match_expr</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">match_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(),</span>
+                 <span class="n">match_err</span><span class="o">=</span><span class="ne">AttributeError</span><span class="p">,</span>
+                 <span class="n">postprocess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">preprocess</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_expr</span> <span class="o">=</span> <span class="n">match_expr</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_func</span> <span class="o">=</span> <span class="n">match_func</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">match_err</span> <span class="o">=</span> <span class="n">match_err</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax3_fmt</span> <span class="o">=</span> <span class="n">ax3_fmt</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax3_sys</span> <span class="o">=</span> <span class="n">ax3_sys</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">postprocess</span> <span class="o">=</span> <span class="n">postprocess</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">preprocess</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
+
+<div class="viewcode-block" id="TimeStyle.match"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.TimeStyle.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">match_expr</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_err</span><span class="p">:</span>
+            <span class="k">pass</span>
+        <span class="k">return</span> <span class="kc">False</span></div></div>
+
+
+<span class="n">T1998</span> <span class="o">=</span> <span class="mf">883612736.816</span>  <span class="c1"># Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)</span>
+<span class="n">RE</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;float&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;date&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^(\d</span><span class="si">{4}</span><span class="s1">):(\d</span><span class="si">{3}</span><span class="s1">):(\d</span><span class="si">{2}</span><span class="s1">):(\d</span><span class="si">{2}</span><span class="s1">):(\d</span><span class="si">{2}</span><span class="s1">)(\.\d*)?$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;year_doy&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^(\d</span><span class="si">{4}</span><span class="s1">):(\d</span><span class="si">{3}</span><span class="s1">)$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;caldate&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{4}</span><span class="s1">\w</span><span class="si">{3}</span><span class="s1">\d{1,2}\s+at\s+\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;greta&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^(\d</span><span class="si">{4}</span><span class="s1">)(\d</span><span class="si">{3}</span><span class="s1">)\.(\d</span><span class="si">{2}</span><span class="s1">)?(\d</span><span class="si">{2}</span><span class="s1">)?(\d</span><span class="si">{2}</span><span class="s1">)?(\d+)?$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;fits&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{4}</span><span class="s1">-\d{1,2}-\d{1,2}T\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;year_mon_day&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{4}</span><span class="s1">-\d{1,2}-\d{1,2}$&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;iso&#39;</span><span class="p">:</span> <span class="sa">r</span><span class="s1">&#39;^\d</span><span class="si">{4}</span><span class="s1">-\d{1,2}-\d{1,2} \d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$&#39;</span><span class="p">,</span>
+      <span class="p">}</span>
+
+<span class="c1"># Conversions for greta format</span>
+
+
+<div class="viewcode-block" id="greta_to_date"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.greta_to_date">[docs]</a><span class="k">def</span> <span class="nf">greta_to_date</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
+    <span class="c1"># Force date_in string to have 9 digits of precision to represent</span>
+    <span class="c1"># hhmmssfff (where fff is milliseconds within the second)</span>
+    <span class="n">date_in</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.9f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">date_in</span><span class="p">))</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;greta&#39;</span><span class="p">],</span> <span class="n">date_in</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="s1">&#39;.</span><span class="si">%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<div class="viewcode-block" id="date_to_greta"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.date_to_greta">[docs]</a><span class="k">def</span> <span class="nf">date_to_greta</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">date_in</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">.</span><span class="si">%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">frac</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">+=</span> <span class="n">frac</span>
+    <span class="k">return</span> <span class="n">out</span></div>
+
+
+<span class="c1"># Conversions for frac_year format</span>
+<span class="n">_year_secs</span> <span class="o">=</span> <span class="p">{}</span>                 <span class="c1"># Start and end secs for a year</span>
+
+
+<span class="k">def</span> <span class="nf">year_start_end_secs</span><span class="p">(</span><span class="n">year</span><span class="p">):</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%04d</span><span class="s1">:001:00:00:00&#39;</span> <span class="o">%</span> <span class="n">year</span><span class="p">)</span><span class="o">.</span><span class="n">secs</span><span class="p">,</span>
+            <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%04d</span><span class="s1">:001:00:00:00&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">year</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">frac_year_to_secs</span><span class="p">(</span><span class="n">frac_year</span><span class="p">):</span>
+    <span class="n">frac_year</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">frac_year</span><span class="p">)</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">frac_year</span><span class="p">)</span>
+    <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="n">_year_secs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">year_start_end_secs</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+    <span class="k">return</span> <span class="nb">repr</span><span class="p">((</span><span class="n">frac_year</span> <span class="o">-</span> <span class="n">year</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">s1</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">+</span> <span class="n">s0</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">secs_to_frac_year</span><span class="p">(</span><span class="n">secs</span><span class="p">):</span>
+    <span class="n">year</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">secs</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">[:</span><span class="mi">4</span><span class="p">])</span>
+    <span class="n">s0</span><span class="p">,</span> <span class="n">s1</span> <span class="o">=</span> <span class="n">_year_secs</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">year_start_end_secs</span><span class="p">(</span><span class="n">year</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">secs</span><span class="p">)</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">s1</span> <span class="o">-</span> <span class="n">s0</span><span class="p">)</span> <span class="o">+</span> <span class="n">year</span>
+
+
+<span class="k">def</span> <span class="nf">raise_</span><span class="p">(</span><span class="n">r</span><span class="p">):</span>
+    <span class="k">raise</span> <span class="n">r</span>
+
+
+<span class="k">def</span> <span class="nf">mx_DateTime_ISO_ParseDateTime</span><span class="p">(</span><span class="n">t</span><span class="p">):</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">import</span> <span class="nn">mx.DateTime</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s1">&#39;mxDateTime format will be removed soon, ask TLA for migration options&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">mx</span><span class="o">.</span><span class="n">DateTime</span><span class="o">.</span><span class="n">ISO</span><span class="o">.</span><span class="n">ParseDateTime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;mxDateTime format is unavailable, ask TLA for migration options&#39;</span><span class="p">)</span>
+
+
+<span class="n">time_styles</span> <span class="o">=</span> <span class="p">[</span><span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;fits&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;fits&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;f3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;t&#39;</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;S23&#39;</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;year_mon_day&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;year_mon_day&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;f3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span> <span class="o">+</span> <span class="s1">&#39;T&#39;</span> <span class="o">+</span> <span class="n">_DAY_START</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;T\d</span><span class="si">{2}</span><span class="s1">:\d</span><span class="si">{2}</span><span class="s1">:\d</span><span class="si">{2}</span><span class="s1">\.\d+$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;relday&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^[+-]&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>  <span class="c1"># DDDD:hh:mm:ss.ss.</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">+</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">*</span> <span class="mf">86400.0</span> <span class="o">-</span> <span class="n">T1998</span><span class="p">),</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">T1998</span> <span class="o">-</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">())</span> <span class="o">/</span> <span class="mf">86400.0</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;greta&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;greta&#39;</span><span class="p">],</span>
+                         <span class="n">match_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="p">((</span><span class="nb">float</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">2099001.000000</span> <span class="ow">or</span> <span class="n">raise_</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">))</span>
+                                                  <span class="ow">and</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">()),</span>
+                         <span class="n">match_err</span><span class="o">=</span><span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">),</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;d3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="n">greta_to_date</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="n">date_to_greta</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;secs&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;frac_year&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="n">frac_year_to_secs</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="n">secs_to_frac_year</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;unix&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="n">T1998</span><span class="p">),</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="n">T1998</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;iso&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;iso&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;f3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">),</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">,</span> <span class="s1">&#39; &#39;</span><span class="p">),</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mxDateTime&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;iso&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;f3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">,</span> <span class="s1">&#39;T&#39;</span><span class="p">),</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="n">mx_DateTime_ISO_ParseDateTime</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;caldate&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;caldate&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;c3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;S25&#39;</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;date&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;d3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;S21&#39;</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;year_doy&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;year_doy&#39;</span><span class="p">],</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;d3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">t</span> <span class="o">+</span> <span class="s1">&#39;:&#39;</span> <span class="o">+</span> <span class="n">_DAY_START</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;:\d</span><span class="si">{2}</span><span class="s1">:\d</span><span class="si">{2}</span><span class="s1">:\d</span><span class="si">{2}</span><span class="s1">\.\d+$&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">t</span><span class="p">),</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;mjd&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;m&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+                         <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;numday&#39;</span><span class="p">,</span>
+                         <span class="c1"># DDDD:hh:mm:ss.ss.</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="sa">r</span><span class="s1">&#39;^\d{1,4}:\d{1,2}:\d{1,2}:\d{1,2}(\.\d*)?$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;n3&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="n">TimeStyle</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;plotdate&#39;</span><span class="p">,</span>
+                         <span class="n">match_expr</span><span class="o">=</span><span class="s1">&#39;^&#39;</span> <span class="o">+</span> <span class="n">RE</span><span class="p">[</span><span class="s1">&#39;float&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="s1">&#39;$&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_fmt</span><span class="o">=</span><span class="s1">&#39;j&#39;</span><span class="p">,</span>
+                         <span class="n">ax3_sys</span><span class="o">=</span><span class="s1">&#39;u&#39;</span><span class="p">,</span>
+                         <span class="n">preprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1721424.5</span><span class="p">),</span>
+                         <span class="n">postprocess</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="o">-</span> <span class="mf">1721424.5</span><span class="p">,</span>
+                         <span class="p">),</span>
+               <span class="p">]</span>
+
+<span class="n">time_system</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;met&#39;</span><span class="p">:</span> <span class="s1">&#39;m&#39;</span><span class="p">,</span>  <span class="c1"># MET     Mission Elapsed Time (&quot;m&quot;)</span>
+               <span class="s1">&#39;tt&#39;</span><span class="p">:</span> <span class="s1">&#39;t&#39;</span><span class="p">,</span>  <span class="c1"># TT      Terrestrial Time (&quot;t&quot;)</span>
+               <span class="s1">&#39;tai&#39;</span><span class="p">:</span> <span class="s1">&#39;a&#39;</span><span class="p">,</span>  <span class="c1"># TAI     International Atomic Time (&quot;ta&quot; or &quot;a&quot;)</span>
+               <span class="s1">&#39;utc&#39;</span><span class="p">:</span> <span class="s1">&#39;u&#39;</span><span class="p">,</span>  <span class="c1"># UTC     Coordinated Universal Time (&quot;u&quot;)</span>
+               <span class="p">}</span>
+
+<span class="c1"># Preloaded methods go here.</span>
+
+
+<div class="viewcode-block" id="ChandraTimeError"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.ChandraTimeError">[docs]</a><span class="k">class</span> <span class="nc">ChandraTimeError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Exception class for bad input values to Chandra.Time&quot;&quot;&quot;</span></div>
+
+
+<span class="k">def</span> <span class="nf">_make_array</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Take ``val`` and convert/reshape to a 1-d array.  If ``copy`` is True</span>
+<span class="sd">    then copy input values.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    val, val_ndim: ndarray, int</span>
+<span class="sd">        Array version of ``val`` and the number of dims in original.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+    <span class="n">val_ndim</span> <span class="o">=</span> <span class="n">val</span><span class="o">.</span><span class="n">ndim</span>  <span class="c1"># remember original ndim</span>
+    <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">([</span><span class="n">val</span><span class="p">])</span>
+
+    <span class="c1"># Allow only string or float arrays as input (XXX datetime later...)</span>
+    <span class="k">if</span> <span class="n">val</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;i&#39;</span><span class="p">:</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">val_ndim</span>
+
+
+<div class="viewcode-block" id="convert_vals"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.convert_vals">[docs]</a><span class="k">def</span> <span class="nf">convert_vals</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">format_in</span><span class="p">,</span> <span class="n">format_out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert ``vals`` from the input ``format_in`` to the output format</span>
+<span class="sd">    ``format_out``.  This does **no input validation** and thus runs much faster</span>
+<span class="sd">    than the corresponding DateTime() conversion.  Be careful because invalid</span>
+<span class="sd">    inputs can give unpredictable results.</span>
+
+<span class="sd">    The input ``vals`` can be a single (scalar) value, a Python list or a numpy</span>
+<span class="sd">    array.  The output data type is specified with ``dtype`` which must be a</span>
+<span class="sd">    valid numpy dtype.</span>
+
+<span class="sd">    The input and output format should be one of the following DateTime</span>
+<span class="sd">    format names: &#39;secs&#39;, &#39;date&#39;, &#39;jd&#39;, &#39;mjd&#39;, &#39;fits&#39;, &#39;caldate&#39;.</span>
+
+<span class="sd">    The function returns the converted time as either a scalar or a numpy</span>
+<span class="sd">    array, depending on the input ``vals``.</span>
+
+<span class="sd">    :param vals: input values (scalar, list, array)</span>
+<span class="sd">    :param fmt_in: input format (e.g. &#39;secs&#39;, &#39;date&#39;, &#39;jd&#39;, ..)</span>
+<span class="sd">    :param fmt_out: output format (e.g. &#39;secs&#39;, &#39;date&#39;, &#39;jd&#39;, ..)</span>
+
+<span class="sd">    :returns: converted values as either scalar or numpy array</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_axTime3</span> <span class="k">as</span> <span class="n">axTime3</span>
+
+    <span class="k">def</span> <span class="nf">get_style</span><span class="p">(</span><span class="n">fmt</span><span class="p">):</span>
+        <span class="c1"># Only the styles with a dtype attribute can be converted using this function.</span>
+        <span class="n">ok_styles</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">time_styles</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">dtype</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">time_style</span> <span class="ow">in</span> <span class="n">ok_styles</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">time_style</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">fmt</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_sys</span><span class="p">,</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_fmt</span><span class="p">,</span> <span class="n">time_style</span><span class="o">.</span><span class="n">dtype</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Error - specified format </span><span class="si">{}</span><span class="s1"> is not an allowed value </span><span class="si">{}</span><span class="s1">&#39;</span>
+                             <span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">fmt</span><span class="p">,</span> <span class="p">[</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">ok_styles</span><span class="p">]))</span>
+
+    <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">dtype_in</span> <span class="o">=</span> <span class="n">get_style</span><span class="p">(</span><span class="n">format_in</span><span class="p">)</span>
+    <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">,</span> <span class="n">dtype_out</span> <span class="o">=</span> <span class="n">get_style</span><span class="p">(</span><span class="n">format_out</span><span class="p">)</span>
+
+    <span class="n">vals</span><span class="p">,</span> <span class="n">ndim</span> <span class="o">=</span> <span class="n">_make_array</span><span class="p">(</span><span class="n">vals</span><span class="p">)</span>
+    <span class="c1"># If the input is already string-like then pass straight to convert_time.</span>
+    <span class="c1"># Otherwise convert to string with repr().</span>
+    <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">char</span> <span class="ow">in</span> <span class="s1">&#39;SU&#39;</span><span class="p">:</span>
+        <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span>
+
+    <span class="k">if</span> <span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">PY3</span>
+            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dtype_out</span><span class="p">,</span> <span class="n">six</span><span class="o">.</span><span class="n">string_types</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">dtype_out</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;S&#39;</span><span class="p">)):</span>
+        <span class="n">dtype_out</span> <span class="o">=</span> <span class="s1">&#39;U&#39;</span> <span class="o">+</span> <span class="n">dtype_out</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="n">outs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">outs</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype_out</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="n">outs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">outs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="date2secs"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.date2secs">[docs]</a><span class="k">def</span> <span class="nf">date2secs</span><span class="p">(</span><span class="n">dates</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert ``dates`` from the ``date`` system (e.g. &#39;2011:001:12:23:45.001&#39;) to</span>
+<span class="sd">    the ``secs`` system (CXC seconds).  This does **no input validation** and</span>
+<span class="sd">    thus runs much faster than the corresponding ``DateTime(dates).secs``</span>
+<span class="sd">    conversion.  Be careful because invalid inputs can give unpredictable</span>
+<span class="sd">    results.</span>
+
+<span class="sd">    The input ``dates`` can be a single (scalar) value, a Python list or a numpy</span>
+<span class="sd">    array.  The shape of the output matches the shape of the input.</span>
+
+<span class="sd">    :param dates: input dates (scalar, list, array of strings)</span>
+<span class="sd">    :returns: converted times as either scalar or numpy array (float)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">convert_vals</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;secs&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="secs2date"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.secs2date">[docs]</a><span class="k">def</span> <span class="nf">secs2date</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert ``times`` from the ``secs`` system (CXC seconds) to the ``date``</span>
+<span class="sd">    system (e.g. &#39;2011:001:12:23:45.001&#39;).  This does **no input validation**</span>
+<span class="sd">    and thus runs much faster than the corresponding ``DateTime(times).date``</span>
+<span class="sd">    conversion.  Be careful because invalid inputs can give unpredictable</span>
+<span class="sd">    results.</span>
+
+<span class="sd">    The input ``times`` can be a single (scalar) value, a Python list or a numpy</span>
+<span class="sd">    array.  The shape of the output matches the shape of the input.</span>
+
+<span class="sd">    :param times: input times (scalar, list, array of floats)</span>
+<span class="sd">    :returns: converted dates as either scalar or numpy array (string)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">convert_vals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="s1">&#39;secs&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sys_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_out</span><span class="o">=</span><span class="s1">&#39;secs&#39;</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">time_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">time_in</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">fmt_in</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
+        <span class="n">sys_in</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Does is behave like a numpy ndarray with non-zero dimension?</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="s1">&#39;flatten&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">time_in</span><span class="o">.</span><span class="n">shape</span><span class="p">:</span>
+        <span class="n">time_out</span> <span class="o">=</span> <span class="p">[</span><span class="n">_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">time_in</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span>
+        <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">time_out</span><span class="p">)</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">time_in</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># If time_in is not string-like then try iterating over it</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_in</span><span class="p">)</span> <span class="o">==</span> <span class="n">time_in</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">TypeError</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">_convert</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">time_in</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">_convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
+
+    <span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">_axTime3</span> <span class="k">as</span> <span class="n">axTime3</span>
+
+    <span class="c1"># See if time_in works as a float after first getting the string version.</span>
+    <span class="c1"># For an actual float input this then gets the full-precision representation.</span>
+    <span class="c1"># For time_in = mx.DateTime object then the try will fail through.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">time_in</span><span class="p">))</span>
+        <span class="n">time_in</span> <span class="o">=</span> <span class="nb">repr</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">time_in</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">time_in</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">time_in</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">time_style</span> <span class="ow">in</span> <span class="n">time_styles</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">fmt_in</span> <span class="ow">and</span> <span class="n">time_style</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="n">fmt_in</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">time_style</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">time_in</span><span class="p">):</span>
+            <span class="n">time_in</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">time_in</span>
+            <span class="n">ax3_fmt_in</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_fmt</span>
+            <span class="n">ax3_sys_in</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_sys</span>
+            <span class="n">preprocess</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">preprocess</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ChandraTimeError</span><span class="p">(</span><span class="s2">&quot;Invalid input format &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">fmt_in</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sys_in</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sys_in</span> <span class="ow">in</span> <span class="n">time_system</span><span class="p">:</span>
+            <span class="n">ax3_sys_in</span> <span class="o">=</span> <span class="n">time_system</span><span class="p">[</span><span class="n">sys_in</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ChandraTimeError</span><span class="p">(</span><span class="s2">&quot;Invalid input system &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">sys_in</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">time_style</span> <span class="ow">in</span> <span class="n">time_styles</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">time_style</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">fmt_out</span><span class="p">:</span>
+            <span class="n">ax3_fmt_out</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_fmt</span>
+            <span class="n">ax3_sys_out</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">ax3_sys</span>
+            <span class="n">postprocess</span> <span class="o">=</span> <span class="n">time_style</span><span class="o">.</span><span class="n">postprocess</span>
+            <span class="k">break</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ChandraTimeError</span><span class="p">(</span><span class="s2">&quot;Invalid output format &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">fmt_out</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">sys_out</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">sys_out</span> <span class="ow">in</span> <span class="n">time_system</span><span class="p">:</span>
+            <span class="n">ax3_sys_out</span> <span class="o">=</span> <span class="n">time_system</span><span class="p">[</span><span class="n">sys_out</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ChandraTimeError</span><span class="p">(</span><span class="s2">&quot;Invalid output system &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span> <span class="o">%</span> <span class="n">sys_out</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">preprocess</span><span class="p">:</span>
+        <span class="n">time_in</span> <span class="o">=</span> <span class="n">preprocess</span><span class="p">(</span><span class="n">time_in</span><span class="p">)</span>
+
+    <span class="n">time_out</span> <span class="o">=</span> <span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span>
+                                    <span class="n">ax3_sys_in</span><span class="p">,</span>
+                                    <span class="n">ax3_fmt_in</span><span class="p">,</span>
+                                    <span class="n">ax3_sys_out</span><span class="p">,</span>
+                                    <span class="n">ax3_fmt_out</span><span class="p">,</span>
+                                    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">postprocess</span><span class="p">:</span>
+        <span class="n">time_out</span> <span class="o">=</span> <span class="n">postprocess</span><span class="p">(</span><span class="n">time_out</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">time_out</span>
+
+
+<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DateTime - Convert between various time formats</span>
+
+<span class="sd">    The supported time formats are:</span>
+
+<span class="sd">    ============ ==============================================  =======</span>
+<span class="sd">     Format      Description                                     System</span>
+<span class="sd">    ============ ==============================================  =======</span>
+<span class="sd">      secs       Seconds since 1998-01-01T00:00:00 (float)       tt</span>
+<span class="sd">      numday     DDDD:hh:mm:ss.ss... Elapsed days and time       utc</span>
+<span class="sd">      relday     [+-]&lt;float&gt; Relative number of days from now    utc</span>
+<span class="sd">      jd         Julian Day                                      utc</span>
+<span class="sd">      mjd        Modified Julian Day = JD - 2400000.5            utc</span>
+<span class="sd">      date       YYYY:DDD:hh:mm:ss.ss..                          utc</span>
+<span class="sd">      caldate    YYYYMonDD at hh:mm:ss.ss..                      utc</span>
+<span class="sd">      fits       YYYY-MM-DDThh:mm:ss.ss..                        tt</span>
+<span class="sd">      iso        YYYY-MM-DD hh:mm:ss.ss..                        utc</span>
+<span class="sd">      unix       Unix time (since 1970.0)                        utc</span>
+<span class="sd">      greta      YYYYDDD.hhmmss[sss]                             utc</span>
+<span class="sd">      year_doy   YYYY:DDD                                        utc</span>
+<span class="sd">      mxDateTime mx.DateTime object                              utc</span>
+<span class="sd">      frac_year  YYYY.ffffff = date as a floating point year     utc</span>
+<span class="sd">      plotdate   Matplotlib plotdate (days since 0001-01-01)     utc</span>
+<span class="sd">    ============ ==============================================  =======</span>
+
+<span class="sd">    Each of these formats has an associated time system, which must be one of:</span>
+
+<span class="sd">    =======  ============================</span>
+<span class="sd">      met     Mission Elapsed Time</span>
+<span class="sd">      tt      Terrestrial Time</span>
+<span class="sd">      tai     International Atomic Time</span>
+<span class="sd">      utc     Coordinated Universal Time</span>
+<span class="sd">    =======  ============================</span>
+
+<span class="sd">    :param time_in: input time (current time if not supplied)</span>
+<span class="sd">    :param format: format of input time ()</span>
+
+<span class="sd">    :returns: DateTime object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># If no time_in supplied this implies NOW.</span>
+        <span class="k">if</span> <span class="n">time_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot supply `format` without `time_in`&#39;</span><span class="p">)</span>
+            <span class="n">time_in</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
+
+        <span class="c1"># Handle the case of astropy Time or CxoTime input by first checking if</span>
+        <span class="c1"># it is likely one of those (without importing astropy), and if so then</span>
+        <span class="c1"># make sure by checking the object type explicitly.  Once there is a match</span>
+        <span class="c1"># then just convert to cxcsec (secs).</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">secs</span> <span class="o">=</span> <span class="n">time_in</span><span class="o">.</span><span class="n">cxcsec</span>
+            <span class="c1"># For working in Chandra operations, possibly with no network access, we cannot</span>
+            <span class="c1"># allow auto downloads.</span>
+            <span class="kn">from</span> <span class="nn">astropy.utils</span> <span class="kn">import</span> <span class="n">iers</span>
+            <span class="n">iers</span><span class="o">.</span><span class="n">conf</span><span class="o">.</span><span class="n">auto_download</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="kn">import</span> <span class="nn">astropy.time</span>
+            <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">astropy</span><span class="o">.</span><span class="n">time</span><span class="o">.</span><span class="n">Time</span><span class="p">)</span>
+            <span class="n">time_in</span> <span class="o">=</span> <span class="n">secs</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;secs&#39;</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AssertionError</span><span class="p">,</span> <span class="n">ChandraTimeError</span><span class="p">):</span>
+            <span class="k">pass</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_in</span> <span class="o">=</span> <span class="n">time_in</span><span class="o">.</span><span class="n">time_in</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="n">time_in</span><span class="o">.</span><span class="n">format</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">time_in</span> <span class="o">=</span> <span class="n">time_in</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">format</span> <span class="o">=</span> <span class="nb">format</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">cxotime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert to CxoTime, bypassing the normal conversion pathway since</span>
+<span class="sd">        it does not quite fit in.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+        <span class="k">return</span> <span class="n">CxoTime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__getattr__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">fmt_out</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">fmt_out</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">convert</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">time_in</span><span class="p">,</span>
+                       <span class="n">fmt_in</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">format</span><span class="p">,</span>
+                       <span class="n">fmt_out</span><span class="o">=</span><span class="n">fmt_out</span><span class="p">,</span>
+                       <span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">days</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">+</span> <span class="n">days</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="fm">__sub__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">DateTime</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="n">other</span><span class="o">.</span><span class="n">jd</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">jd</span> <span class="o">-</span> <span class="n">other</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;jd&#39;</span><span class="p">)</span>
+
+    <span class="nd">@override__dir__</span>
+    <span class="k">def</span> <span class="fm">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">time_style</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">time_style</span> <span class="ow">in</span> <span class="n">time_styles</span><span class="p">]</span>
+
+<div class="viewcode-block" id="DateTime.day_start"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.DateTime.day_start">[docs]</a>    <span class="k">def</span> <span class="nf">day_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the start of the day.&quot;&quot;&quot;</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">:00:00:00&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
+
+<div class="viewcode-block" id="DateTime.day_end"><a class="viewcode-back" href="../../../index.html#Chandra.Time.Time.DateTime.day_end">[docs]</a>    <span class="k">def</span> <span class="nf">day_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the end of the day.&quot;&quot;&quot;</span>
+        <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%03d</span><span class="s1">:00:00:00&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">time_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_time_attributes&#39;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_attributes</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;_time_attributes&#39;</span><span class="p">):</span>
+            <span class="c1"># date       YYYY:DDD:hh:mm:ss.ss..                          utc</span>
+            <span class="c1"># iso        YYYY-MM-DD hh:mm:ss.ss..                        utc</span>
+            <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span>
+            <span class="n">iso</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">iso</span>
+            <span class="n">mjd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">mjd</span>
+
+            <span class="c1"># Coerce list output into np.array</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+                <span class="n">date</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">date</span><span class="p">)</span>
+                <span class="n">iso</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">iso</span><span class="p">)</span>
+                <span class="n">mjd</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">mjd</span><span class="p">)</span>
+
+            <span class="n">monday_mjd</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;2015:159:00:00:00&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">mjd</span>
+            <span class="n">is_array</span> <span class="o">=</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s1">&#39;shape&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="s1">&#39;flatten&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">date</span><span class="o">.</span><span class="n">shape</span>
+
+            <span class="k">def</span> <span class="nf">slice_string</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">,</span> <span class="n">out_type</span><span class="p">):</span>
+                <span class="n">slc</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">i0</span><span class="p">,</span> <span class="n">i1</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">is_array</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">x</span><span class="p">[</span><span class="n">slc</span><span class="p">]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">val</span><span class="p">])</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">out_type</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">out</span> <span class="o">=</span> <span class="n">out_type</span><span class="p">(</span><span class="n">val</span><span class="p">[</span><span class="n">slc</span><span class="p">])</span>
+                <span class="k">return</span> <span class="n">out</span>
+
+            <span class="n">ta</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;yday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;hour&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;min&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">14</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;sec&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">date</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;mon&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">iso</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;day&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">slice_string</span><span class="p">(</span><span class="n">iso</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span>
+            <span class="n">wday</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mod</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">mjd</span> <span class="o">-</span> <span class="n">monday_mjd</span><span class="p">),</span> <span class="mi">7</span><span class="p">)</span>
+            <span class="n">ta</span><span class="p">[</span><span class="s1">&#39;wday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">wday</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span> <span class="k">if</span> <span class="n">is_array</span> <span class="k">else</span> <span class="nb">int</span><span class="p">(</span><span class="n">wday</span><span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_time_attributes</span> <span class="o">=</span> <span class="n">ta</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_time_attributes</span>
+
+    <span class="n">year</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;year&#39;</span><span class="p">)</span>
+    <span class="n">yday</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;yday&#39;</span><span class="p">)</span>
+    <span class="n">hour</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;hour&#39;</span><span class="p">)</span>
+    <span class="nb">min</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;min&#39;</span><span class="p">)</span>
+    <span class="n">sec</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;sec&#39;</span><span class="p">)</span>
+    <span class="n">mon</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;mon&#39;</span><span class="p">)</span>
+    <span class="n">day</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;day&#39;</span><span class="p">)</span>
+    <span class="n">wday</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;wday&#39;</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">command_line_convert_time</span><span class="p">():</span>
+    <span class="kn">import</span> <span class="nn">argparse</span>
+
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s1">&#39;Convert time to standard formats&#39;</span><span class="p">,</span>
+                                     <span class="n">usage</span><span class="o">=</span><span class="s1">&#39;convert_time [-h] [time] [format]&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;time&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input time in any Chandra.Time format&#39;</span><span class="p">)</span>
+
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;format&#39;</span><span class="p">,</span>
+                        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+                        <span class="n">nargs</span><span class="o">=</span><span class="s1">&#39;?&#39;</span><span class="p">,</span>
+                        <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                        <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input format&#39;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">time_in</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">time</span>
+    <span class="nb">format</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">fits</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">caldate</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">date</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">secs</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">DateTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">format</span><span class="p">)</span><span class="o">.</span><span class="n">jd</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s1">&#39;__main__&#39;</span><span class="p">:</span>
+    <span class="n">command_line_convert_time</span><span class="p">()</span>
+</pre></div>
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
+
+
+<form action="../../../search.html" method="get">
+  <input type="text" name="q" placeholder="Search" />
+  <input type="hidden" name="check_keywords" value="yes" />
+  <input type="hidden" name="area" value="default" />
+</form>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+<footer class="footer">
+  <p class="pull-right"> &nbsp;
+    <a href="#">Back to Top</a></p>
+  <p>
+    &copy; Copyright 2020, Tom Aldcroft.<br/>
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 3.1.2. &nbsp;
+  </p>
+</footer>
+  </body>
+</html>
