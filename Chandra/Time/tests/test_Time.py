@@ -36,9 +36,16 @@ def test_convert_vals_array():
                 assert np.all(val == convert_back)
 
 
-def test_date2secs():
-    vals = DateTime(['2012:001', '2000:001'])
-    assert np.all(date2secs(vals.date) == vals.secs)
+@pytest.mark.parametrize('date_in', ('2012:001:00:00:00',
+                                     ['2012:001:00:00:00', '2000:001:00:00:00']))
+def test_date2secs(date_in):
+    vals = DateTime(date_in)
+    assert np.all(date2secs(date_in) == vals.secs)
+    if isinstance(date_in, str):
+        date_in_bytes = date_in.encode('ascii')
+    else:
+        date_in_bytes = [date.encode('ascii') for date in date_in]
+    assert np.all(date2secs(date_in_bytes) == vals.secs)
 
 
 def test_secs2date():
