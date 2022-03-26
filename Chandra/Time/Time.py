@@ -557,9 +557,17 @@ def convert_vals(vals, format_in, format_out):
     sys_out, fmt_out, dtype_out = get_style(format_out)
 
     vals, ndim = _make_array(vals)
+
+    # Allow passing bytes to axTime3 by converting to string here. This is
+    # actually silly since later in axTime3.convert_time() it gets encoded back
+    # to ASCII bytes. But since this package is largely deprecated we take the
+    # performance hit in the interest of simpler code.
+    if vals.dtype.kind == 'S':
+        vals = np.char.decode(vals, 'ascii')
+
     # If the input is already string-like then pass straight to convert_time.
     # Otherwise convert to string with repr().
-    if vals.dtype.char in 'SU':
+    if vals.dtype.kind == 'U':
         outs = [axTime3.convert_time(val, sys_in, fmt_in, sys_out, fmt_out)
                 for val in vals.flatten()]
     else:
