@@ -2,9 +2,17 @@
 """
 Convert between various time formats relevant to Chandra.
 
-Chandra.Time provides a simple interface to the C++ time conversion
+Chandra_time provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
-Rots.  Chandra.Time also supports some useful additional time formats.
+Rots.  Chandra_time also supports some useful additional time formats.
+
+.. warning::
+   The ``chandra_time`` package and ``DateTime`` class are deprecated. All new code
+   should use the ``CxoTime`` class from ``cxotime``.
+
+.. note::
+   The ``Chandra.Time`` package is equivalent to the ``chandra_time`` and is provided
+   for back-compatibility with legacy code.
 
 The supported time formats are:
 
@@ -48,9 +56,9 @@ attribute.  Unless the time format is specified or it is ambiguous (i.e. secs,
 jd, mjd, and unix), the time format is automatically determined.  To
 specifically select a format use the 'format' option.::
 
-  >>> from Chandra.Time import DateTime
+  >>> from chandra_time import DateTime
   >>> t = DateTime('1999-07-23T23:56:00')
-  >>> print t.date
+  >>> print(t.date)
   1999:204:23:54:55.816
   >>> t.date
   '1999:204:23:54:55.816'
@@ -135,11 +143,11 @@ The DateTime class does full validation and format-detection of input
 values.  In cases where this is not necessary a substantial improvement in
 speed (factor of 4 to 12) can be obtained using functions that skip the
 validation and format detection.  See the documentation for
-:func:`~Chandra.Time.date2secs`, :func:`~Chandra.Time.secs2date`, and
-:func:`~Chandra.Time.convert_vals`.
+:func:`~chandra_time.date2secs`, :func:`~chandra_time.secs2date`, and
+:func:`~chandra_time.convert_vals`.
 ::
 
-  >>> from Chandra.Time import date2secs, secs2date, convert_vals
+  >>> from chandra_time import date2secs, secs2date, convert_vals
   >>> date2secs('2001:001:01:01:01')
   94698125.18399999
   >>> dates = secs2date([0, 1e8, 2e8])
@@ -161,8 +169,8 @@ Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
 function convert()::
 
-  >>> import Chandra.Time
-  >>> Chandra.Time.convert(53614.0,
+  >>> import chandra_time
+  >>> chandra_time.convert(53614.0,
   ...                      fmt_in='mjd',
   ...                      sys_in='tt',
   ...                      fmt_out='caldate',
@@ -189,7 +197,7 @@ A date like ``2020:001`` will be taken as ``2020:001:00:00:00`` since version 4.
 Before 4.0, ``2020:001`` was ``2020:001:12:00:00``. To get the pre-4.0 behavior
 use the following code::
 
-    from Chandra.Time import use_noon_day_start
+    from chandra_time import use_noon_day_start
 
     # Set to use 12:00:00 globally from now on.
     use_noon_day_start()
@@ -209,7 +217,7 @@ import six
 import numpy as np
 
 # Time for dates specified without HMS. This was changed from '12:00:00' to
-# '00:00:00' in version 4.0 of Chandra.Time.  Call use_noon_day_start(True)
+# '00:00:00' in version 4.0 of chandra_time.  Call use_noon_day_start(True)
 # for compatibility with the pre-4.0 behavior.
 _DAY_START = '00:00:00'
 
@@ -225,7 +233,7 @@ def use_noon_day_start():
     is no way to revert to using 00:00:00 after calling ``use_noon_day_start``.
     ::
 
-      from Chandra.Time import use_noon_day_start
+      from chandra_time import use_noon_day_start
 
       # Set to use 12:00:00 globally from now on.
       use_noon_day_start()
@@ -493,7 +501,7 @@ time_system = {'met': 'm',  # MET     Mission Elapsed Time ("m")
 
 
 class ChandraTimeError(ValueError):
-    """Exception class for bad input values to Chandra.Time"""
+    """Exception class for bad input values to chandra_time"""
 
 
 def _make_array(val):
@@ -541,7 +549,7 @@ def convert_vals(vals, format_in, format_out):
 
     :returns: converted values as either scalar or numpy array
     """
-    from . import _axTime3 as axTime3
+    from chandra_time import _axTime3 as axTime3
 
     def get_style(fmt):
         # Only the styles with a dtype attribute can be converted using this function.
@@ -641,7 +649,7 @@ def convert(time_in, sys_in=None, fmt_in=None, sys_out=None, fmt_out='secs'):
 def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     """Base routine to convert from/to any format."""
 
-    from . import _axTime3 as axTime3
+    from chandra_time import _axTime3 as axTime3
 
     # See if time_in works as a float after first getting the string version.
     # For an actual float input this then gets the full-precision representation.
@@ -879,7 +887,7 @@ def command_line_convert_time():
                         type=str,
                         nargs='?',
                         default=None,
-                        help='Input time in any Chandra.Time format')
+                        help='Input time in any chandra_time format')
 
     parser.add_argument('format',
                         type=str,

@@ -1,8 +1,8 @@
 Convert between various time formats relevant to Chandra.
 
-Chandra.Time provides a simple interface to the C++ time conversion
+chandra_time provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
-Rots.  Chandra.Time also supports some useful additional time formats.
+Rots.  chandra_time also supports some useful additional time formats.
 
 The supported time formats are:
 
@@ -28,10 +28,10 @@ The supported time formats are:
 Each of these formats has an associated time system, which must be one of:
 
 =======  ============================
-  met     Mission Elapsed Time 
-  tt      Terrestrial Time 
-  tai     International Atomic Time 
-  utc     Coordinated Universal Time 
+  met     Mission Elapsed Time
+  tt      Terrestrial Time
+  tai     International Atomic Time
+  utc     Coordinated Universal Time
 =======  ============================
 
 Usage
@@ -43,7 +43,7 @@ attribute.  Unless the time format is specified or it is ambiguous (i.e. secs,
 jd, mjd, and unix), the time format is automatically determined.  To
 specifically select a format use the 'format' option.::
 
-  >>> from Chandra.Time import DateTime
+  >>> from chandra_time import DateTime
   >>> t = DateTime('1999-07-23T23:56:00')
   >>> print t.date
   1999:204:23:54:55.816
@@ -91,7 +91,7 @@ a numpy array (returns a numpy array with the same shape)::
   ['1997:365:23:58:57.816', '2001:255:12:00:00.000', '1997:365:23:58:59.816']
   >>> DateTime(numpy.array([[1,2],[3,4]])).fits
   array([['1998-01-01T00:00:01.000', '1998-01-01T00:00:02.000'],
-         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']], 
+         ['1998-01-01T00:00:03.000', '1998-01-01T00:00:04.000']],
         dtype='|S23')
 
 Date arithmetic
@@ -114,10 +114,10 @@ appropriate broadcasting will be done.
   >>> d3 = d1 + np.array([1,2,3])
   >>> d3.date
   array(['2011:201:00:00:00.000', '2011:202:00:00:00.000',
-         '2011:203:00:00:00.000'], 
+         '2011:203:00:00:00.000'],
         dtype='|S21')
   >>> (d3 + 7).year_doy
-  array(['2011:208', '2011:209', '2011:210'], 
+  array(['2011:208', '2011:209', '2011:210'],
         dtype='|S8')
 
 Input and output time system
@@ -127,8 +127,8 @@ Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
 function convert()::
 
-  >>> import Chandra.Time
-  >>> Chandra.Time.convert(53614.0,
+  >>> import chandra_time
+  >>> chandra_time.convert(53614.0,
   ...                      fmt_in='mjd',
   ...                      sys_in='tt',
   ...                      fmt_out='caldate',
