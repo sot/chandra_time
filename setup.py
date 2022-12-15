@@ -33,7 +33,8 @@ extensions = [
     )
 ]
 
-from testr.setup_helper import cmdclass, duplicate_package_info
+from testr.setup_helper import cmdclass
+from ska_helpers.setup_helper import duplicate_package_info
 
 name = "chandra_time"
 namespace = "Chandra.Time"
