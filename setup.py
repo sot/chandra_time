@@ -3,6 +3,8 @@ import platform
 import sys
 
 from setuptools import Extension, setup
+from ska_helpers.setup_helper import duplicate_package_info
+from testr.setup_helper import cmdclass
 
 # Special case here to allow `python setup.py --version` to run without
 # requiring cython and numpy to be installed.
@@ -32,8 +34,6 @@ extensions = [
         extra_compile_args=compile_args,
     )
 ]
-
-from testr.setup_helper import cmdclass, duplicate_package_info
 
 name = "chandra_time"
 namespace = "Chandra.Time"
