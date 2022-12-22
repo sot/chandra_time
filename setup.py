@@ -1,8 +1,8 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
-import sys
-from setuptools import setup, Extension
-
 import platform
+import sys
+
+from setuptools import Extension, setup
 
 # Special case here to allow `python setup.py --version` to run without
 # requiring cython and numpy to be installed.
@@ -55,7 +55,7 @@ setup(
     zip_safe=False,
     packages=packages,
     package_dir=package_dir,
-    ext_modules=cythonize(extensions),
+    ext_modules=cythonize(extensions, language_level="3"),
     tests_require=["pytest"],
     cmdclass=cmdclass,
 )
