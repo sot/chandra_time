@@ -2,7 +2,7 @@
 """
 Convert between various time formats relevant to Chandra.
 
-Chandra_time provides a simple interface to the C++ time conversion
+``chandra_time`` provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
 Rots.  Chandra_time also supports some useful additional time formats.
 
