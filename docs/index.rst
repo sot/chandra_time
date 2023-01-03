@@ -1,8 +1,8 @@
-:mod:`Chandra.Time`
+:mod:`chandra_time`
 ===============================================================================================================================================
 
 
-.. automodule:: Chandra.Time.Time
+.. automodule:: chandra_time.Time
 
 
 Functions

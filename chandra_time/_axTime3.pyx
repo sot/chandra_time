@@ -1,5 +1,5 @@
 # distutils: language = c++
-# distutils: sources = Chandra/Time/axTime3.cc Chandra/Time/XTime.cc
+# distutils: sources = chandra_time/axTime3.cc chandra_time/XTime.cc
 
 from six import PY3
 
