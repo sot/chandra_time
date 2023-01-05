@@ -1,3 +1,0 @@
-include README.*
-include Chandra/Time/*.h
-include Chandra/Time/*.pyx

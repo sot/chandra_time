@@ -6,13 +6,6 @@ from setuptools import Extension, setup
 from ska_helpers.setup_helper import duplicate_package_info
 from testr.setup_helper import cmdclass
 
-# Special case here to allow `python setup.py --version` to run without
-# requiring cython and numpy to be installed.
-if "--version" in sys.argv[1:]:
-    cythonize = lambda arg: None  # noqa
-else:
-    from Cython.Build import cythonize
-
 os_name = platform.system()
 if os_name == "Windows":
     compile_args = ["/EHs", "/D_CRT_SECURE_NO_DEPRECATE"]
@@ -44,6 +37,13 @@ package_dir = {name: name}
 duplicate_package_info(packages, name, namespace)
 duplicate_package_info(package_dir, name, namespace)
 
+# Special case here to allow `python setup.py --version` to run without
+# requiring cython and numpy to be installed.
+if "--version" in sys.argv[1:]:
+    ext_modules = None
+else:
+    from Cython.Build import cythonize
+    ext_modules = cythonize(extensions, language_level="3")
 
 setup(
     name=name,
@@ -55,7 +55,7 @@ setup(
     zip_safe=False,
     packages=packages,
     package_dir=package_dir,
-    ext_modules=cythonize(extensions, language_level="3"),
+    ext_modules=ext_modules,
     tests_require=["pytest"],
     cmdclass=cmdclass,
 )
