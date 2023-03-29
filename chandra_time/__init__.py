@@ -1,7 +1,7 @@
 # Licensed under a 3-clause BSD style license - see LICENSE.rst
 import ska_helpers
 
-from .Time import *  # noqa
+from chandra_time.Time import *  # noqa
 
 __version__ = ska_helpers.get_version('chandra_time')
 
