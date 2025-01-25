@@ -73,13 +73,6 @@ specifically select a format use the 'format' option.::
   >>> u = DateTime(1125538824.0, format='unix')
   >>> u.date
   '2005:244:01:40:24.000'
-  >>> mxd = mx.DateTime.Parser.DateTimeFromString('1999-01-01 12:13:14')
-  >>> DateTime(mxd).fits
-  '1999-01-01T12:14:18.184'
-  >>> DateTime(mxd).date
-  '1999:001:12:13:14.000'
-  >>> DateTime(mxd).mxDateTime.strftime('%c')
-  'Fri Jan  1 12:13:14 1999'
   >>> DateTime('2007122.01020340').date
   '2007:122:01:02:03.400'
 
@@ -88,11 +81,18 @@ If no input time is supplied when creating the object then the current time is u
   >>> DateTime().fits
   '2009-11-14T18:24:14.504'
 
+If the ``CXOTIME_NOW`` environment variable is set then it will be used as the current
+time. This is useful for testing.
+
+   >>> import os
+   >>> os.environ['CXOTIME_NOW'] = '2020:001:00:00:00.000'
+   >>> DateTime().date
+   '2020:001:00:00:00.000'
+
 For convenience a DateTime object can be initialized from another DateTime object.
 
   >>> t = DateTime()
   >>> u = DateTime(t)
-
 
 Sequences of dates
 ------------------
