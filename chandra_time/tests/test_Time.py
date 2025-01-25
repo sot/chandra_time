@@ -4,7 +4,15 @@ import time
 import numpy as np
 import pytest
 
-from ..Time import DateTime, convert, convert_vals, date2secs, secs2date, use_noon_day_start
+from ..Time import (
+    DateTime,
+    convert,
+    convert_vals,
+    date2secs,
+    secs2date,
+    use_noon_day_start,
+    ChandraTimeError,
+)
 from cxotime import CxoTime
 from astropy.time import Time
 
@@ -316,3 +324,30 @@ def test_date_attributes():
                       ('day', 9),
                       ('wday', 1)):
         assert getattr(t, attr) == val
+
+
+def test_cxotime_now():
+    """Check instantiating with CxoTime.NOW results in current time."""
+    # These two commands should run within a 2 sec of each other, even on the slowest
+    # machine.
+    date1 = DateTime(CxoTime.NOW)
+    date2 = DateTime()
+    assert abs(date2.secs - date1.secs) < 2.0
+
+
+def test_with_object_input():
+    """Check DateTime fails when called with an object() that is not CxoTime.NOW"""
+    with pytest.raises(ChandraTimeError):
+        DateTime(object()).iso
+
+
+def test_cxotime_now_env_var(monkeypatch):
+    """Check instantiating with CxoTime.NOW results in current time."""
+    # These two commands should run within a 2 sec of each other, even on the slowest
+    # machine.
+    date = '2015:160:02:24:01.250'
+    monkeypatch.setenv('CXOTIME_NOW', date)
+    assert DateTime(CxoTime.NOW).date == date
+    assert DateTime().date == date
+    assert DateTime(None).date == date
+    assert DateTime('2025:001:00:00:01.250').date == '2025:001:00:00:01.250'

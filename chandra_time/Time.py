@@ -208,6 +208,7 @@ use the following code::
    This impacts all code using ``DateTime``, not just the calls from your script.
 
 """
+import os
 import re
 from functools import wraps
 import warnings
@@ -751,12 +752,28 @@ class DateTime(object):
     """
 
     def __init__(self, time_in=None, format=None):
-        # If no time_in supplied this implies NOW.
+        # Check if time_in is cxotime.CxoTime.NOW. This sentinel object is defined as
+        # a class attribute NOW = object(), so we can initially check for it without
+        # importing cxotime. If it *appears* to be CxoTime.NOW, then we import cxotime
+        # and check the match explicitly.
+        if type(time_in) is object:
+            try:
+                from cxotime import CxoTime
+                if time_in is CxoTime.NOW:
+                    time_in = None
+            except Exception:
+                pass
+
+        # If no time_in supplied this implies current time or the value of the
+        # environment variable CXOTIME_NOW if set.
         if time_in is None:
             if format is not None:
                 raise ValueError('Cannot supply `format` without `time_in`')
-            time_in = time.time()
-            format = 'unix'
+            if cxotime_now := os.environ.get('CXOTIME_NOW'):
+                time_in = cxotime_now
+            else:
+                time_in = time.time()
+                format = 'unix'
 
         # Handle the case of astropy Time or CxoTime input by first checking if
         # it is likely one of those (without importing astropy), and if so then
