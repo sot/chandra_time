@@ -731,7 +731,6 @@ class DateTime(object):
       unix       Unix time (since 1970.0)                        utc
       greta      YYYYDDD.hhmmss[sss]                             utc
       year_doy   YYYY:DDD                                        utc
-      mxDateTime mx.DateTime object                              utc
       frac_year  YYYY.ffffff = date as a floating point year     utc
       plotdate   Matplotlib plotdate (days since 0001-01-01)     utc
     ============ ==============================================  =======
