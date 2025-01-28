@@ -73,13 +73,6 @@ specifically select a format use the 'format' option.::
   >>> u = DateTime(1125538824.0, format='unix')
   >>> u.date
   '2005:244:01:40:24.000'
-  >>> mxd = mx.DateTime.Parser.DateTimeFromString('1999-01-01 12:13:14')
-  >>> DateTime(mxd).fits
-  '1999-01-01T12:14:18.184'
-  >>> DateTime(mxd).date
-  '1999:001:12:13:14.000'
-  >>> DateTime(mxd).mxDateTime.strftime('%c')
-  'Fri Jan  1 12:13:14 1999'
   >>> DateTime('2007122.01020340').date
   '2007:122:01:02:03.400'
 
@@ -88,11 +81,18 @@ If no input time is supplied when creating the object then the current time is u
   >>> DateTime().fits
   '2009-11-14T18:24:14.504'
 
+If the ``CXOTIME_NOW`` environment variable is set then it will be used as the current
+time. This is useful for testing.
+
+   >>> import os
+   >>> os.environ['CXOTIME_NOW'] = '2020:001:00:00:00.000'
+   >>> DateTime().date
+   '2020:001:00:00:00.000'
+
 For convenience a DateTime object can be initialized from another DateTime object.
 
   >>> t = DateTime()
   >>> u = DateTime(t)
-
 
 Sequences of dates
 ------------------
@@ -208,6 +208,7 @@ use the following code::
    This impacts all code using ``DateTime``, not just the calls from your script.
 
 """
+import os
 import re
 from functools import wraps
 import warnings
@@ -730,7 +731,6 @@ class DateTime(object):
       unix       Unix time (since 1970.0)                        utc
       greta      YYYYDDD.hhmmss[sss]                             utc
       year_doy   YYYY:DDD                                        utc
-      mxDateTime mx.DateTime object                              utc
       frac_year  YYYY.ffffff = date as a floating point year     utc
       plotdate   Matplotlib plotdate (days since 0001-01-01)     utc
     ============ ==============================================  =======
@@ -751,12 +751,28 @@ class DateTime(object):
     """
 
     def __init__(self, time_in=None, format=None):
-        # If no time_in supplied this implies NOW.
+        # Check if time_in is cxotime.CxoTime.NOW. This sentinel object is defined as
+        # a class attribute NOW = object(), so we can initially check for it without
+        # importing cxotime. If it *appears* to be CxoTime.NOW, then we import cxotime
+        # and check the match explicitly.
+        if type(time_in) is object:
+            try:
+                from cxotime import CxoTime
+                if time_in is CxoTime.NOW:
+                    time_in = None
+            except Exception:
+                pass
+
+        # If no time_in supplied this implies current time or the value of the
+        # environment variable CXOTIME_NOW if set.
         if time_in is None:
             if format is not None:
                 raise ValueError('Cannot supply `format` without `time_in`')
-            time_in = time.time()
-            format = 'unix'
+            if cxotime_now := os.environ.get('CXOTIME_NOW'):
+                time_in = cxotime_now
+            else:
+                time_in = time.time()
+                format = 'unix'
 
         # Handle the case of astropy Time or CxoTime input by first checking if
         # it is likely one of those (without importing astropy), and if so then
