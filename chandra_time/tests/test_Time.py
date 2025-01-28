@@ -350,4 +350,6 @@ def test_cxotime_now_env_var(monkeypatch):
     assert DateTime(CxoTime.NOW).date == date
     assert DateTime().date == date
     assert DateTime(None).date == date
+
+    # Ensure that env var does not disrupt normal operation
     assert DateTime('2025:001:00:00:01.250').date == '2025:001:00:00:01.250'
