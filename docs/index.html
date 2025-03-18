@@ -1,19 +1,17 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>chandra_time &#8212; chandra_time 4.1.2 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css" />
+    <title>chandra_time &#8212; chandra_time 4.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+    <script src="_static/documentation_options.js?v=d0ae6d56"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
     <script type="text/javascript" src="_static/copybutton.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -47,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">chandra_time 4.1.2 documentation</a>
+	<a href="#">chandra_time 4.2.0 documentation</a>
 	 &#187;
       </li>
       
@@ -62,7 +60,7 @@
           <div class="body" role="main">
             
   <section id="module-chandra_time.Time">
-<span id="chandra-time"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">chandra_time</span></code><a class="headerlink" href="#module-chandra_time.Time" title="Permalink to this headline">¶</a></h1>
+<span id="chandra-time"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">chandra_time</span></code><a class="headerlink" href="#module-chandra_time.Time" title="Link to this heading">¶</a></h1>
 <p>Convert between various time formats relevant to Chandra.</p>
 <p><code class="docutils literal notranslate"><span class="pre">chandra_time</span></code> provides a simple interface to the C++ time conversion
 utility axTime3 (which itself is a wrapper for XTime) written by Arnold
@@ -79,11 +77,6 @@ for back-compatibility with legacy code.</p>
 </div>
 <p>The supported time formats are:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 18%" />
-<col style="width: 71%" />
-<col style="width: 11%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Format</p></th>
 <th class="head"><p>Description</p></th>
@@ -159,10 +152,6 @@ for back-compatibility with legacy code.</p>
 </table>
 <p>Each of these formats has an associated time system, which must be one of:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>met</p></td>
 <td><p>Mission Elapsed Time</p></td>
@@ -179,7 +168,7 @@ for back-compatibility with legacy code.</p>
 </tbody>
 </table>
 <section id="usage">
-<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading">¶</a></h2>
 <p>The normal usage is to create an object that allows conversion from one time
 format to another.  Conversion takes place by examining the appropriate
 attribute.  Unless the time format is specified or it is ambiguous (i.e. secs,
@@ -202,13 +191,6 @@ specifically select a format use the ‘format’ option.:</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="mf">1125538824.0</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;unix&#39;</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">u</span><span class="o">.</span><span class="n">date</span>
 <span class="go">&#39;2005:244:01:40:24.000&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">mxd</span> <span class="o">=</span> <span class="n">mx</span><span class="o">.</span><span class="n">DateTime</span><span class="o">.</span><span class="n">Parser</span><span class="o">.</span><span class="n">DateTimeFromString</span><span class="p">(</span><span class="s1">&#39;1999-01-01 12:13:14&#39;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">(</span><span class="n">mxd</span><span class="p">)</span><span class="o">.</span><span class="n">fits</span>
-<span class="go">&#39;1999-01-01T12:14:18.184&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">(</span><span class="n">mxd</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
-<span class="go">&#39;1999:001:12:13:14.000&#39;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">(</span><span class="n">mxd</span><span class="p">)</span><span class="o">.</span><span class="n">mxDateTime</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%c</span><span class="s1">&#39;</span><span class="p">)</span>
-<span class="go">&#39;Fri Jan  1 12:13:14 1999&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;2007122.01020340&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
 <span class="go">&#39;2007:122:01:02:03.400&#39;</span>
 </pre></div>
@@ -218,6 +200,14 @@ specifically select a format use the ‘format’ option.:</p>
 <span class="go">&#39;2009-11-14T18:24:14.504&#39;</span>
 </pre></div>
 </div>
+<p>If the <code class="docutils literal notranslate"><span class="pre">CXOTIME_NOW</span></code> environment variable is set then it will be used as the current
+time. This is useful for testing.</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">os</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CXOTIME_NOW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2020:001:00:00:00.000&#39;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">()</span><span class="o">.</span><span class="n">date</span>
+<span class="go">&#39;2020:001:00:00:00.000&#39;</span>
+</pre></div>
+</div>
 <p>For convenience a DateTime object can be initialized from another DateTime object.</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">t</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">()</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">u</span> <span class="o">=</span> <span class="n">DateTime</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
@@ -225,7 +215,7 @@ specifically select a format use the ‘format’ option.:</p>
 </div>
 </section>
 <section id="sequences-of-dates">
-<h2>Sequences of dates<a class="headerlink" href="#sequences-of-dates" title="Permalink to this headline">¶</a></h2>
+<h2>Sequences of dates<a class="headerlink" href="#sequences-of-dates" title="Link to this heading">¶</a></h2>
 <p>The input time can also be an iterable sequence (returns a list) or
 a numpy array (returns a numpy array with the same shape):</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span>
@@ -239,7 +229,7 @@ a numpy array (returns a numpy array with the same shape):</p>
 </div>
 </section>
 <section id="date-arithmetic">
-<h2>Date arithmetic<a class="headerlink" href="#date-arithmetic" title="Permalink to this headline">¶</a></h2>
+<h2>Date arithmetic<a class="headerlink" href="#date-arithmetic" title="Link to this heading">¶</a></h2>
 <p>DateTime objects support a limited arithmetic with a delta time expressed in days.
 One can add a delta time to a DateTime or subtract a delta time from a DateTime.
 It is also possible to subtract two DateTiem objects to get a delta time in days.
@@ -264,7 +254,7 @@ appropriate broadcasting will be done.</p>
 </div>
 </section>
 <section id="fast-conversion-functions">
-<h2>Fast conversion functions<a class="headerlink" href="#fast-conversion-functions" title="Permalink to this headline">¶</a></h2>
+<h2>Fast conversion functions<a class="headerlink" href="#fast-conversion-functions" title="Link to this heading">¶</a></h2>
 <p>The DateTime class does full validation and format-detection of input
 values.  In cases where this is not necessary a substantial improvement in
 speed (factor of 4 to 12) can be obtained using functions that skip the
@@ -288,7 +278,7 @@ validation and format detection.  See the documentation for
 </div>
 </section>
 <section id="input-and-output-time-system">
-<h2>Input and output time system<a class="headerlink" href="#input-and-output-time-system" title="Permalink to this headline">¶</a></h2>
+<h2>Input and output time system<a class="headerlink" href="#input-and-output-time-system" title="Link to this heading">¶</a></h2>
 <p>Currently the object-oriented interface does not allow you to adjust the
 input or output time system.  If you really need to do this, use the package
 function convert():</p>
@@ -305,7 +295,7 @@ function convert():</p>
 specified.  As for DateTime() the input time can be a sequence or numpy array.</p>
 </section>
 <section id="time-attributes">
-<h2>Time attributes<a class="headerlink" href="#time-attributes" title="Permalink to this headline">¶</a></h2>
+<h2>Time attributes<a class="headerlink" href="#time-attributes" title="Link to this heading">¶</a></h2>
 <p>A <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> object has additional attributes <code class="docutils literal notranslate"><span class="pre">year</span></code>, <code class="docutils literal notranslate"><span class="pre">mon</span></code>, <code class="docutils literal notranslate"><span class="pre">day</span></code>,
 <code class="docutils literal notranslate"><span class="pre">hour</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">sec</span></code>, <code class="docutils literal notranslate"><span class="pre">yday</span></code>, and <code class="docutils literal notranslate"><span class="pre">wday</span></code>.  These provide the
 year, month (1-12), day of month (1-31), hour (0-23), minute (0-59), second (0-60),
@@ -313,7 +303,7 @@ day of year (1-366), and day of week (0-6, where 0 is Monday).</p>
 <p>These are all referenced to UTC time.</p>
 </section>
 <section id="date-when-hour-minutes-seconds-not-provided">
-<h2>Date when hour, minutes, seconds not provided<a class="headerlink" href="#date-when-hour-minutes-seconds-not-provided" title="Permalink to this headline">¶</a></h2>
+<h2>Date when hour, minutes, seconds not provided<a class="headerlink" href="#date-when-hour-minutes-seconds-not-provided" title="Link to this heading">¶</a></h2>
 <p>A date like <code class="docutils literal notranslate"><span class="pre">2020:001</span></code> will be taken as <code class="docutils literal notranslate"><span class="pre">2020:001:00:00:00</span></code> since version 4.0.
 Before 4.0, <code class="docutils literal notranslate"><span class="pre">2020:001</span></code> was <code class="docutils literal notranslate"><span class="pre">2020:001:12:00:00</span></code>. To get the pre-4.0 behavior
 use the following code:</p>
@@ -331,12 +321,12 @@ This impacts all code using <code class="docutils literal notranslate"><span cla
 </div>
 </section>
 <section id="functions">
-<h2>Functions<a class="headerlink" href="#functions" title="Permalink to this headline">¶</a></h2>
+<h2>Functions<a class="headerlink" href="#functions" title="Link to this heading">¶</a></h2>
 <section id="id1">
-<h3>Fast conversion functions<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<h3>Fast conversion functions<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.convert_vals">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">convert_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#convert_vals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.convert_vals" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">convert_vals</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vals</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_out</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#convert_vals"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.convert_vals" title="Link to this definition">¶</a></dt>
 <dd><p>Convert <code class="docutils literal notranslate"><span class="pre">vals</span></code> from the input <code class="docutils literal notranslate"><span class="pre">format_in</span></code> to the output format
 <code class="docutils literal notranslate"><span class="pre">format_out</span></code>.  This does <strong>no input validation</strong> and thus runs much faster
 than the corresponding DateTime() conversion.  Be careful because invalid
@@ -349,14 +339,14 @@ format names: ‘secs’, ‘date’, ‘jd’, ‘mjd’, ‘fits’, ‘caldat
 <p>The function returns the converted time as either a scalar or a numpy
 array, depending on the input <code class="docutils literal notranslate"><span class="pre">vals</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>vals</strong> – input values (scalar, list, array)</p></li>
 <li><p><strong>fmt_in</strong> – input format (e.g. ‘secs’, ‘date’, ‘jd’, ..)</p></li>
 <li><p><strong>fmt_out</strong> – output format (e.g. ‘secs’, ‘date’, ‘jd’, ..)</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>converted values as either scalar or numpy array</p>
 </dd>
 </dl>
@@ -364,7 +354,7 @@ array, depending on the input <code class="docutils literal notranslate"><span c
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.date2secs">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">date2secs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#date2secs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.date2secs" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">date2secs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dates</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#date2secs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.date2secs" title="Link to this definition">¶</a></dt>
 <dd><p>Convert <code class="docutils literal notranslate"><span class="pre">dates</span></code> from the <code class="docutils literal notranslate"><span class="pre">date</span></code> system (e.g. ‘2011:001:12:23:45.001’) to
 the <code class="docutils literal notranslate"><span class="pre">secs</span></code> system (CXC seconds).  This does <strong>no input validation</strong> and
 thus runs much faster than the corresponding <code class="docutils literal notranslate"><span class="pre">DateTime(dates).secs</span></code>
@@ -373,10 +363,10 @@ results.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">dates</span></code> can be a single (scalar) value, a Python list or a numpy
 array.  The shape of the output matches the shape of the input.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>dates</strong> – input dates (scalar, list, array of strings)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>converted times as either scalar or numpy array (float)</p>
 </dd>
 </dl>
@@ -384,7 +374,7 @@ array.  The shape of the output matches the shape of the input.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.secs2date">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">secs2date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#secs2date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.secs2date" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">secs2date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">times</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#secs2date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.secs2date" title="Link to this definition">¶</a></dt>
 <dd><p>Convert <code class="docutils literal notranslate"><span class="pre">times</span></code> from the <code class="docutils literal notranslate"><span class="pre">secs</span></code> system (CXC seconds) to the <code class="docutils literal notranslate"><span class="pre">date</span></code>
 system (e.g. ‘2011:001:12:23:45.001’).  This does <strong>no input validation</strong>
 and thus runs much faster than the corresponding <code class="docutils literal notranslate"><span class="pre">DateTime(times).date</span></code>
@@ -393,10 +383,10 @@ results.</p>
 <p>The input <code class="docutils literal notranslate"><span class="pre">times</span></code> can be a single (scalar) value, a Python list or a numpy
 array.  The shape of the output matches the shape of the input.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>times</strong> – input times (scalar, list, array of floats)</p>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>converted dates as either scalar or numpy array (string)</p>
 </dd>
 </dl>
@@ -404,39 +394,34 @@ array.  The shape of the output matches the shape of the input.</p>
 
 </section>
 <section id="other-functions">
-<h3>Other functions<a class="headerlink" href="#other-functions" title="Permalink to this headline">¶</a></h3>
+<h3>Other functions<a class="headerlink" href="#other-functions" title="Link to this heading">¶</a></h3>
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.convert">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sys_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sys_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'secs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.convert" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">convert</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_in</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sys_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sys_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmt_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'secs'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#convert"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.convert" title="Link to this definition">¶</a></dt>
 <dd><p>Base routine to convert from/to any format.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.date_to_greta">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">date_to_greta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#date_to_greta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.date_to_greta" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">date_to_greta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#date_to_greta"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.date_to_greta" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="chandra_time.Time.greta_to_date">
-<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">greta_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#greta_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.greta_to_date" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">greta_to_date</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">date_in</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#greta_to_date"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.greta_to_date" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </section>
 </section>
 <section id="classes">
-<h2>Classes<a class="headerlink" href="#classes" title="Permalink to this headline">¶</a></h2>
+<h2>Classes<a class="headerlink" href="#classes" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">DateTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">DateTime</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time_in</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>DateTime - Convert between various time formats</p>
 <p>The supported time formats are:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 18%" />
-<col style="width: 71%" />
-<col style="width: 11%" />
-</colgroup>
 <thead>
 <tr class="row-odd"><th class="head"><p>Format</p></th>
 <th class="head"><p>Description</p></th>
@@ -492,15 +477,11 @@ array.  The shape of the output matches the shape of the input.</p>
 <td><p>YYYY:DDD</p></td>
 <td><p>utc</p></td>
 </tr>
-<tr class="row-even"><td><p>mxDateTime</p></td>
-<td><p>mx.DateTime object</p></td>
-<td><p>utc</p></td>
-</tr>
-<tr class="row-odd"><td><p>frac_year</p></td>
+<tr class="row-even"><td><p>frac_year</p></td>
 <td><p>YYYY.ffffff = date as a floating point year</p></td>
 <td><p>utc</p></td>
 </tr>
-<tr class="row-even"><td><p>plotdate</p></td>
+<tr class="row-odd"><td><p>plotdate</p></td>
 <td><p>Matplotlib plotdate (days since 0001-01-01)</p></td>
 <td><p>utc</p></td>
 </tr>
@@ -508,10 +489,6 @@ array.  The shape of the output matches the shape of the input.</p>
 </table>
 <p>Each of these formats has an associated time system, which must be one of:</p>
 <table class="docutils align-default">
-<colgroup>
-<col style="width: 20%" />
-<col style="width: 80%" />
-</colgroup>
 <tbody>
 <tr class="row-odd"><td><p>met</p></td>
 <td><p>Mission Elapsed Time</p></td>
@@ -528,109 +505,116 @@ array.  The shape of the output matches the shape of the input.</p>
 </tbody>
 </table>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>time_in</strong> – input time (current time if not supplied)</p></li>
 <li><p><strong>format</strong> – format of input time ()</p></li>
 </ul>
 </dd>
-<dt class="field-even">Returns</dt>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>DateTime object</p>
 </dd>
 </dl>
 <dl class="py property">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.cxotime">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">cxotime</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.cxotime" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">cxotime</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.cxotime" title="Link to this definition">¶</a></dt>
 <dd><p>Convert to CxoTime, bypassing the normal conversion pathway since
 it does not quite fit in.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.day">
-<span class="sig-name descname"><span class="pre">day</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.day" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">day</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.day" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.day_end">
-<span class="sig-name descname"><span class="pre">day_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime.day_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime.day_end" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">day_end</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime.day_end"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime.day_end" title="Link to this definition">¶</a></dt>
 <dd><p>Return a new DateTime object corresponding to the end of the day.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.day_start">
-<span class="sig-name descname"><span class="pre">day_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime.day_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime.day_start" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">day_start</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#DateTime.day_start"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.DateTime.day_start" title="Link to this definition">¶</a></dt>
 <dd><p>Return a new DateTime object corresponding to the start of the day.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.hour">
-<span class="sig-name descname"><span class="pre">hour</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.hour" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">hour</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.hour" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.min">
-<span class="sig-name descname"><span class="pre">min</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.min" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">min</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.min" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.mon">
-<span class="sig-name descname"><span class="pre">mon</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.mon" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">mon</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.mon" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.sec">
-<span class="sig-name descname"><span class="pre">sec</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.sec" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">sec</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.sec" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.time_attributes">
-<em class="property"><span class="pre">property</span> </em><span class="sig-name descname"><span class="pre">time_attributes</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.time_attributes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">time_attributes</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.time_attributes" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.wday">
-<span class="sig-name descname"><span class="pre">wday</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.wday" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">wday</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.wday" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.yday">
-<span class="sig-name descname"><span class="pre">yday</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.yday" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">yday</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.yday" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.DateTime.year">
-<span class="sig-name descname"><span class="pre">year</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.year" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">year</span></span><a class="headerlink" href="#chandra_time.Time.DateTime.year" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt class="sig sig-object py" id="chandra_time.Time.TimeStyle">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">TimeStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="pre">name</span></em>, <em class="sig-param"><span class="pre">ax3_fmt</span></em>, <em class="sig-param"><span class="pre">ax3_sys</span></em>, <em class="sig-param"><span class="pre">match_expr=None</span></em>, <em class="sig-param"><span class="pre">match_func=&lt;function</span> <span class="pre">TimeStyle.&lt;lambda&gt;&gt;</span></em>, <em class="sig-param"><span class="pre">match_err=&lt;class</span> <span class="pre">'AttributeError'&gt;</span></em>, <em class="sig-param"><span class="pre">postprocess=None</span></em>, <em class="sig-param"><span class="pre">preprocess=None</span></em>, <em class="sig-param"><span class="pre">dtype=None</span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#TimeStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.TimeStyle" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">TimeStyle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax3_fmt</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax3_sys</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_expr=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_func=&lt;function</span> <span class="pre">TimeStyle.&lt;lambda&gt;&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">match_err=&lt;class</span> <span class="pre">'AttributeError'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">postprocess=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">preprocess=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dtype=None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#TimeStyle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.TimeStyle" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <dl class="py method">
 <dt class="sig sig-object py" id="chandra_time.Time.TimeStyle.match">
-<span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#TimeStyle.match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.TimeStyle.match" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">match</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/chandra_time/Time.html#TimeStyle.match"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.TimeStyle.match" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 </section>
 <section id="exceptions">
-<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Link to this heading">¶</a></h2>
 <dl class="py class">
 <dt class="sig sig-object py" id="chandra_time.Time.ChandraTimeError">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">ChandraTimeError</span></span><a class="reference internal" href="_modules/chandra_time/Time.html#ChandraTimeError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.ChandraTimeError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">chandra_time.Time.</span></span><span class="sig-name descname"><span class="pre">ChandraTimeError</span></span><a class="reference internal" href="_modules/chandra_time/Time.html#ChandraTimeError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#chandra_time.Time.ChandraTimeError" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ValueError</span></code></p>
 <p>Exception class for bad input values to chandra_time</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="chandra_time.Time.ChandraTimeError.add_note">
+<span class="sig-name descname"><span class="pre">add_note</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chandra_time.Time.ChandraTimeError.add_note" title="Link to this definition">¶</a></dt>
+<dd><p>Exception.add_note(note) –
+add a note to the exception</p>
+</dd></dl>
+
 <dl class="py attribute">
 <dt class="sig sig-object py" id="chandra_time.Time.ChandraTimeError.args">
-<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#chandra_time.Time.ChandraTimeError.args" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">args</span></span><a class="headerlink" href="#chandra_time.Time.ChandraTimeError.args" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="chandra_time.Time.ChandraTimeError.with_traceback">
-<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chandra_time.Time.ChandraTimeError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">with_traceback</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#chandra_time.Time.ChandraTimeError.with_traceback" title="Link to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -645,7 +629,7 @@ set self.__traceback__ to tb and return self.</p>
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 <ul>
 <li><a class="reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">chandra_time</span></code></a><ul>
@@ -657,12 +641,51 @@ set self.__traceback__ to tb and return self.</p>
 <li><a class="reference internal" href="#time-attributes">Time attributes</a></li>
 <li><a class="reference internal" href="#date-when-hour-minutes-seconds-not-provided">Date when hour, minutes, seconds not provided</a></li>
 <li><a class="reference internal" href="#functions">Functions</a><ul>
-<li><a class="reference internal" href="#id1">Fast conversion functions</a></li>
-<li><a class="reference internal" href="#other-functions">Other functions</a></li>
+<li><a class="reference internal" href="#id1">Fast conversion functions</a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.convert_vals"><code class="docutils literal notranslate"><span class="pre">convert_vals()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.date2secs"><code class="docutils literal notranslate"><span class="pre">date2secs()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.secs2date"><code class="docutils literal notranslate"><span class="pre">secs2date()</span></code></a></li>
 </ul>
 </li>
-<li><a class="reference internal" href="#classes">Classes</a></li>
-<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
+<li><a class="reference internal" href="#other-functions">Other functions</a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.convert"><code class="docutils literal notranslate"><span class="pre">convert()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.date_to_greta"><code class="docutils literal notranslate"><span class="pre">date_to_greta()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.greta_to_date"><code class="docutils literal notranslate"><span class="pre">greta_to_date()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#classes">Classes</a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime"><code class="docutils literal notranslate"><span class="pre">DateTime</span></code></a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.cxotime"><code class="docutils literal notranslate"><span class="pre">DateTime.cxotime</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.day"><code class="docutils literal notranslate"><span class="pre">DateTime.day</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.day_end"><code class="docutils literal notranslate"><span class="pre">DateTime.day_end()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.day_start"><code class="docutils literal notranslate"><span class="pre">DateTime.day_start()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.hour"><code class="docutils literal notranslate"><span class="pre">DateTime.hour</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.min"><code class="docutils literal notranslate"><span class="pre">DateTime.min</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.mon"><code class="docutils literal notranslate"><span class="pre">DateTime.mon</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.sec"><code class="docutils literal notranslate"><span class="pre">DateTime.sec</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.time_attributes"><code class="docutils literal notranslate"><span class="pre">DateTime.time_attributes</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.wday"><code class="docutils literal notranslate"><span class="pre">DateTime.wday</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.yday"><code class="docutils literal notranslate"><span class="pre">DateTime.yday</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.DateTime.year"><code class="docutils literal notranslate"><span class="pre">DateTime.year</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#chandra_time.Time.TimeStyle"><code class="docutils literal notranslate"><span class="pre">TimeStyle</span></code></a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.TimeStyle.match"><code class="docutils literal notranslate"><span class="pre">TimeStyle.match()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#exceptions">Exceptions</a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.ChandraTimeError"><code class="docutils literal notranslate"><span class="pre">ChandraTimeError</span></code></a><ul>
+<li><a class="reference internal" href="#chandra_time.Time.ChandraTimeError.add_note"><code class="docutils literal notranslate"><span class="pre">ChandraTimeError.add_note()</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.ChandraTimeError.args"><code class="docutils literal notranslate"><span class="pre">ChandraTimeError.args</span></code></a></li>
+<li><a class="reference internal" href="#chandra_time.Time.ChandraTimeError.with_traceback"><code class="docutils literal notranslate"><span class="pre">ChandraTimeError.with_traceback()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -691,7 +714,7 @@ set self.__traceback__ to tb and return self.</p>
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
   </p>
 </footer>
   </body>

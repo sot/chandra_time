@@ -1,18 +1,16 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chandra_time.Time &#8212; chandra_time 4.1.2 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css" />
+    <title>chandra_time.Time &#8212; chandra_time 4.2.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
+    <script src="../../_static/documentation_options.js?v=d0ae6d56"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
     <script type="text/javascript" src="../../_static/copybutton.js"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -46,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">chandra_time 4.1.2 documentation</a>
+	<a href="../../index.html">chandra_time 4.2.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -137,13 +135,6 @@
 <span class="sd">  &gt;&gt;&gt; u = DateTime(1125538824.0, format=&#39;unix&#39;)</span>
 <span class="sd">  &gt;&gt;&gt; u.date</span>
 <span class="sd">  &#39;2005:244:01:40:24.000&#39;</span>
-<span class="sd">  &gt;&gt;&gt; mxd = mx.DateTime.Parser.DateTimeFromString(&#39;1999-01-01 12:13:14&#39;)</span>
-<span class="sd">  &gt;&gt;&gt; DateTime(mxd).fits</span>
-<span class="sd">  &#39;1999-01-01T12:14:18.184&#39;</span>
-<span class="sd">  &gt;&gt;&gt; DateTime(mxd).date</span>
-<span class="sd">  &#39;1999:001:12:13:14.000&#39;</span>
-<span class="sd">  &gt;&gt;&gt; DateTime(mxd).mxDateTime.strftime(&#39;%c&#39;)</span>
-<span class="sd">  &#39;Fri Jan  1 12:13:14 1999&#39;</span>
 <span class="sd">  &gt;&gt;&gt; DateTime(&#39;2007122.01020340&#39;).date</span>
 <span class="sd">  &#39;2007:122:01:02:03.400&#39;</span>
 
@@ -152,11 +143,18 @@
 <span class="sd">  &gt;&gt;&gt; DateTime().fits</span>
 <span class="sd">  &#39;2009-11-14T18:24:14.504&#39;</span>
 
+<span class="sd">If the ``CXOTIME_NOW`` environment variable is set then it will be used as the current</span>
+<span class="sd">time. This is useful for testing.</span>
+
+<span class="sd">   &gt;&gt;&gt; import os</span>
+<span class="sd">   &gt;&gt;&gt; os.environ[&#39;CXOTIME_NOW&#39;] = &#39;2020:001:00:00:00.000&#39;</span>
+<span class="sd">   &gt;&gt;&gt; DateTime().date</span>
+<span class="sd">   &#39;2020:001:00:00:00.000&#39;</span>
+
 <span class="sd">For convenience a DateTime object can be initialized from another DateTime object.</span>
 
 <span class="sd">  &gt;&gt;&gt; t = DateTime()</span>
 <span class="sd">  &gt;&gt;&gt; u = DateTime(t)</span>
-
 
 <span class="sd">Sequences of dates</span>
 <span class="sd">------------------</span>
@@ -272,6 +270,7 @@
 <span class="sd">   This impacts all code using ``DateTime``, not just the calls from your script.</span>
 
 <span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
 <span class="kn">import</span> <span class="nn">re</span>
 <span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
@@ -287,7 +286,7 @@
 
 
 <span class="k">def</span> <span class="nf">use_noon_day_start</span><span class="p">():</span>
-    <span class="sd">&quot;&quot;&quot;Set global default so date with no hours, min, sec uses 12:00:00.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Set global default so date with no hours, min, sec uses 12:00:00.</span>
 
 <span class="sd">    A date like 2020:001 will be taken as 2020:001:00:00:00 since version 4.0.</span>
 <span class="sd">    Before 4.0, 2020:001 was 2020:001:12:00:00. To get the pre-4.0 behavior</span>
@@ -307,7 +306,7 @@
 
 
 <span class="k">def</span> <span class="nf">override__dir__</span><span class="p">(</span><span class="n">f</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    When overriding a __dir__ method on an object, you often want to</span>
 <span class="sd">    include the &quot;standard&quot; members on the object as well.  This</span>
 <span class="sd">    decorator takes care of that automatically, and all the wrapped</span>
@@ -342,7 +341,9 @@
         <span class="k">return</span> <span class="n">instance</span><span class="o">.</span><span class="n">time_attributes</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">attr</span><span class="p">]</span>
 
 
-<div class="viewcode-block" id="TimeStyle"><a class="viewcode-back" href="../../index.html#chandra_time.Time.TimeStyle">[docs]</a><span class="k">class</span> <span class="nc">TimeStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="TimeStyle">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.TimeStyle">[docs]</a>
+<span class="k">class</span> <span class="nc">TimeStyle</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                  <span class="n">name</span><span class="p">,</span>
                  <span class="n">ax3_fmt</span><span class="p">,</span>
@@ -364,13 +365,17 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">preprocess</span> <span class="o">=</span> <span class="n">preprocess</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype</span> <span class="o">=</span> <span class="n">dtype</span>
 
-<div class="viewcode-block" id="TimeStyle.match"><a class="viewcode-back" href="../../index.html#chandra_time.Time.TimeStyle.match">[docs]</a>    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+<div class="viewcode-block" id="TimeStyle.match">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.TimeStyle.match">[docs]</a>
+    <span class="k">def</span> <span class="nf">match</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_in</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">match_expr</span><span class="p">,</span> <span class="n">time</span><span class="p">)</span>
             <span class="k">return</span> <span class="kc">True</span>
         <span class="k">except</span> <span class="bp">self</span><span class="o">.</span><span class="n">match_err</span><span class="p">:</span>
             <span class="k">pass</span>
-        <span class="k">return</span> <span class="kc">False</span></div></div>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
 
 
 <span class="n">T1998</span> <span class="o">=</span> <span class="mf">883612736.816</span>  <span class="c1"># Seconds from 1970:001:00:00:00 (UTC) to 1998-01-01T00:00:00 (TT)</span>
@@ -387,7 +392,9 @@
 <span class="c1"># Conversions for greta format</span>
 
 
-<div class="viewcode-block" id="greta_to_date"><a class="viewcode-back" href="../../index.html#chandra_time.Time.greta_to_date">[docs]</a><span class="k">def</span> <span class="nf">greta_to_date</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
+<div class="viewcode-block" id="greta_to_date">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.greta_to_date">[docs]</a>
+<span class="k">def</span> <span class="nf">greta_to_date</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
     <span class="c1"># Force date_in string to have 9 digits of precision to represent</span>
     <span class="c1"># hhmmssfff (where fff is milliseconds within the second)</span>
     <span class="n">date_in</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">{:.9f}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">date_in</span><span class="p">))</span>
@@ -398,13 +405,17 @@
     <span class="k">return</span> <span class="n">out</span></div>
 
 
-<div class="viewcode-block" id="date_to_greta"><a class="viewcode-back" href="../../index.html#chandra_time.Time.date_to_greta">[docs]</a><span class="k">def</span> <span class="nf">date_to_greta</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
+
+<div class="viewcode-block" id="date_to_greta">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.date_to_greta">[docs]</a>
+<span class="k">def</span> <span class="nf">date_to_greta</span><span class="p">(</span><span class="n">date_in</span><span class="p">):</span>
     <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">RE</span><span class="p">[</span><span class="s1">&#39;date&#39;</span><span class="p">],</span> <span class="n">date_in</span><span class="p">)</span>
     <span class="n">out</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="si">%s%s</span><span class="s1">.</span><span class="si">%s%s%s</span><span class="s1">&#39;</span> <span class="o">%</span> <span class="n">m</span><span class="o">.</span><span class="n">groups</span><span class="p">()[</span><span class="mi">0</span><span class="p">:</span><span class="mi">5</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">frac</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
         <span class="n">out</span> <span class="o">+=</span> <span class="n">frac</span>
     <span class="k">return</span> <span class="n">out</span></div>
+
 
 
 <span class="c1"># Conversions for frac_year format</span>
@@ -564,12 +575,15 @@
 <span class="c1"># Preloaded methods go here.</span>
 
 
-<div class="viewcode-block" id="ChandraTimeError"><a class="viewcode-back" href="../../index.html#chandra_time.Time.ChandraTimeError">[docs]</a><span class="k">class</span> <span class="nc">ChandraTimeError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Exception class for bad input values to chandra_time&quot;&quot;&quot;</span></div>
+<div class="viewcode-block" id="ChandraTimeError">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.ChandraTimeError">[docs]</a>
+<span class="k">class</span> <span class="nc">ChandraTimeError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Exception class for bad input values to chandra_time&quot;&quot;&quot;</span></div>
+
 
 
 <span class="k">def</span> <span class="nf">_make_array</span><span class="p">(</span><span class="n">val</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Take ``val`` and convert/reshape to a 1-d array.  If ``copy`` is True</span>
 <span class="sd">    then copy input values.</span>
 
@@ -590,8 +604,10 @@
     <span class="k">return</span> <span class="n">val</span><span class="p">,</span> <span class="n">val_ndim</span>
 
 
-<div class="viewcode-block" id="convert_vals"><a class="viewcode-back" href="../../index.html#chandra_time.Time.convert_vals">[docs]</a><span class="k">def</span> <span class="nf">convert_vals</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">format_in</span><span class="p">,</span> <span class="n">format_out</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="convert_vals">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.convert_vals">[docs]</a>
+<span class="k">def</span> <span class="nf">convert_vals</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="n">format_in</span><span class="p">,</span> <span class="n">format_out</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert ``vals`` from the input ``format_in`` to the output format</span>
 <span class="sd">    ``format_out``.  This does **no input validation** and thus runs much faster</span>
 <span class="sd">    than the corresponding DateTime() conversion.  Be careful because invalid</span>
@@ -655,8 +671,11 @@
     <span class="k">return</span> <span class="p">(</span><span class="n">outs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> <span class="k">if</span> <span class="n">ndim</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">else</span> <span class="n">outs</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="n">vals</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="date2secs"><a class="viewcode-back" href="../../index.html#chandra_time.Time.date2secs">[docs]</a><span class="k">def</span> <span class="nf">date2secs</span><span class="p">(</span><span class="n">dates</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="date2secs">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.date2secs">[docs]</a>
+<span class="k">def</span> <span class="nf">date2secs</span><span class="p">(</span><span class="n">dates</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert ``dates`` from the ``date`` system (e.g. &#39;2011:001:12:23:45.001&#39;) to</span>
 <span class="sd">    the ``secs`` system (CXC seconds).  This does **no input validation** and</span>
 <span class="sd">    thus runs much faster than the corresponding ``DateTime(dates).secs``</span>
@@ -672,8 +691,11 @@
     <span class="k">return</span> <span class="n">convert_vals</span><span class="p">(</span><span class="n">dates</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">,</span> <span class="s1">&#39;secs&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="secs2date"><a class="viewcode-back" href="../../index.html#chandra_time.Time.secs2date">[docs]</a><span class="k">def</span> <span class="nf">secs2date</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="secs2date">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.secs2date">[docs]</a>
+<span class="k">def</span> <span class="nf">secs2date</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convert ``times`` from the ``secs`` system (CXC seconds) to the ``date``</span>
 <span class="sd">    system (e.g. &#39;2011:001:12:23:45.001&#39;).  This does **no input validation**</span>
 <span class="sd">    and thus runs much faster than the corresponding ``DateTime(times).date``</span>
@@ -689,8 +711,11 @@
     <span class="k">return</span> <span class="n">convert_vals</span><span class="p">(</span><span class="n">times</span><span class="p">,</span> <span class="s1">&#39;secs&#39;</span><span class="p">,</span> <span class="s1">&#39;date&#39;</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="convert"><a class="viewcode-back" href="../../index.html#chandra_time.Time.convert">[docs]</a><span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sys_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_out</span><span class="o">=</span><span class="s1">&#39;secs&#39;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="convert">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.convert">[docs]</a>
+<span class="k">def</span> <span class="nf">convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sys_out</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fmt_out</span><span class="o">=</span><span class="s1">&#39;secs&#39;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">time_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">time_in</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="n">fmt_in</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
@@ -710,8 +735,9 @@
             <span class="k">return</span> <span class="n">_convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">_convert</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base routine to convert from/to any format.&quot;&quot;&quot;</span>
 
     <span class="kn">from</span> <span class="nn">chandra_time</span> <span class="kn">import</span> <span class="n">_axTime3</span> <span class="k">as</span> <span class="n">axTime3</span>
 
@@ -773,8 +799,10 @@
     <span class="k">return</span> <span class="n">time_out</span>
 
 
-<div class="viewcode-block" id="DateTime"><a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime">[docs]</a><span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DateTime">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime">[docs]</a>
+<span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    DateTime - Convert between various time formats</span>
 
 <span class="sd">    The supported time formats are:</span>
@@ -794,7 +822,6 @@
 <span class="sd">      unix       Unix time (since 1970.0)                        utc</span>
 <span class="sd">      greta      YYYYDDD.hhmmss[sss]                             utc</span>
 <span class="sd">      year_doy   YYYY:DDD                                        utc</span>
-<span class="sd">      mxDateTime mx.DateTime object                              utc</span>
 <span class="sd">      frac_year  YYYY.ffffff = date as a floating point year     utc</span>
 <span class="sd">      plotdate   Matplotlib plotdate (days since 0001-01-01)     utc</span>
 <span class="sd">    ============ ==============================================  =======</span>
@@ -815,12 +842,28 @@
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time_in</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># If no time_in supplied this implies NOW.</span>
+        <span class="c1"># Check if time_in is cxotime.CxoTime.NOW. This sentinel object is defined as</span>
+        <span class="c1"># a class attribute NOW = object(), so we can initially check for it without</span>
+        <span class="c1"># importing cxotime. If it *appears* to be CxoTime.NOW, then we import cxotime</span>
+        <span class="c1"># and check the match explicitly.</span>
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">time_in</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">object</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+                <span class="k">if</span> <span class="n">time_in</span> <span class="ow">is</span> <span class="n">CxoTime</span><span class="o">.</span><span class="n">NOW</span><span class="p">:</span>
+                    <span class="n">time_in</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">pass</span>
+
+        <span class="c1"># If no time_in supplied this implies current time or the value of the</span>
+        <span class="c1"># environment variable CXOTIME_NOW if set.</span>
         <span class="k">if</span> <span class="n">time_in</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cannot supply `format` without `time_in`&#39;</span><span class="p">)</span>
-            <span class="n">time_in</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
+            <span class="k">if</span> <span class="n">cxotime_now</span> <span class="o">:=</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;CXOTIME_NOW&#39;</span><span class="p">):</span>
+                <span class="n">time_in</span> <span class="o">=</span> <span class="n">cxotime_now</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">time_in</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+                <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;unix&#39;</span>
 
         <span class="c1"># Handle the case of astropy Time or CxoTime input by first checking if</span>
         <span class="c1"># it is likely one of those (without importing astropy), and if so then</span>
@@ -848,7 +891,7 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">cxotime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert to CxoTime, bypassing the normal conversion pathway since</span>
 <span class="sd">        it does not quite fit in.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -877,15 +920,21 @@
     <span class="k">def</span> <span class="fm">__dir__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">[</span><span class="n">time_style</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">time_style</span> <span class="ow">in</span> <span class="n">time_styles</span><span class="p">]</span>
 
-<div class="viewcode-block" id="DateTime.day_start"><a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime.day_start">[docs]</a>    <span class="k">def</span> <span class="nf">day_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the start of the day.&quot;&quot;&quot;</span>
+<div class="viewcode-block" id="DateTime.day_start">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime.day_start">[docs]</a>
+    <span class="k">def</span> <span class="nf">day_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the start of the day.&quot;&quot;&quot;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%s</span><span class="s1">:00:00:00&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">date</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="DateTime.day_end"><a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime.day_end">[docs]</a>    <span class="k">def</span> <span class="nf">day_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the end of the day.&quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="DateTime.day_end">
+<a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime.day_end">[docs]</a>
+    <span class="k">def</span> <span class="nf">day_end</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return a new DateTime object corresponding to the end of the day.&quot;&quot;&quot;</span>
         <span class="n">date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;:&#39;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">DateTime</span><span class="p">(</span><span class="s1">&#39;</span><span class="si">%s</span><span class="s1">:</span><span class="si">%03d</span><span class="s1">:00:00:00&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="nb">int</span><span class="p">(</span><span class="n">date</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span></div>
+
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">time_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -941,6 +990,7 @@
     <span class="n">wday</span> <span class="o">=</span> <span class="n">TimeAttribute</span><span class="p">(</span><span class="s1">&#39;wday&#39;</span><span class="p">)</span></div>
 
 
+
 <span class="k">def</span> <span class="nf">command_line_convert_time</span><span class="p">():</span>
     <span class="kn">import</span> <span class="nn">argparse</span>
 
@@ -978,7 +1028,7 @@
           </div>
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper"><h3>Page Contents</h3>
 
 
@@ -996,7 +1046,7 @@
     <a href="#">Back to Top</a></p>
   <p>
     &copy; Copyright 2020, Tom Aldcroft.<br/>
-    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 4.2.0. &nbsp;
+    Created using <a href="http://www.sphinx-doc.org/en/stable/">Sphinx</a> 8.1.3. &nbsp;
   </p>
 </footer>
   </body>
