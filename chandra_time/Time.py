@@ -89,7 +89,9 @@ time. This is useful for testing.
    >>> DateTime().date
    '2020:001:00:00:00.000'
 
-If the input time is a single `delta time string <https://docs.astropy.org/en/stable/api/astropy.time.TimeDeltaQuantityString.html>`_, then the ``DateTime`` object is
+If the input time is a single `delta time string
+<https://docs.astropy.org/en/stable/api/astropy.time.TimeDeltaQuantityString.html>`_,
+then the ``DateTime`` object is
 initialized as the current time (or ``CXOTIME_NOW``) plus the delta time. A delta time
 string is of the form ``"+/-1yr 2d 3hr 4.2min 10.25s"``. One year is exactly 365.25 days,
 not one calendar year. Likewise one day is always 86400.0 sec. The components must be in
