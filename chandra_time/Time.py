@@ -333,7 +333,6 @@ RE = {'float': r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
 
 # Conversions for greta format
 
-
 def greta_to_date(date_in):
     # Force date_in string to have 9 digits of precision to represent
     # hhmmssfff (where fff is milliseconds within the second)
@@ -718,6 +717,7 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
         time_out = postprocess(time_out)
 
     return time_out
+
 
 # Regex to parse a delta time string like "1.02yr 2.2d 3.12hr 4.322min 5.6s" where each
 # element is optional but order is fixed. This is copied from astropy/time/formats.py.
