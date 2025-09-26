@@ -335,6 +335,7 @@ RE = {'float': r'[+-]?(?:\d+[.]?\d*|[.]\d+)(?:[dDeE][+-]?\d+)?$',
 
 # Conversions for greta format
 
+
 def greta_to_date(date_in):
     # Force date_in string to have 9 digits of precision to represent
     # hhmmssfff (where fff is milliseconds within the second)
