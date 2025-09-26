@@ -326,13 +326,15 @@ def test_date_attributes():
         assert getattr(t, attr) == val
 
 
-def test_cxotime_now():
+def test_cxotime_now(monkeypatch):
     """Check instantiating with CxoTime.NOW results in current time."""
     # These two commands should run within a 2 sec of each other, even on the slowest
     # machine.
+    monkeypatch.setenv("CXOTIME_NOW", "2020:001")
     date1 = DateTime(CxoTime.NOW)
     date2 = DateTime()
-    assert abs(date2.secs - date1.secs) < 2.0
+    assert date1.date == "2020:001:00:00:00.000"
+    assert date1.date == date2.date
 
 
 def test_with_object_input():
@@ -353,3 +355,9 @@ def test_cxotime_now_env_var(monkeypatch):
 
     # Ensure that env var does not disrupt normal operation
     assert DateTime('2025:001:00:00:01.250').date == '2025:001:00:00:01.250'
+
+
+def test_delta_time_str_scalar(monkeypatch):
+    monkeypatch.setenv("CXOTIME_NOW", "2020:001")
+    tm = DateTime("1d 2hr 3.5min 4.25s")
+    assert tm.date == "2020:002:02:03:34.250"
