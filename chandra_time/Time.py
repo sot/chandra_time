@@ -2,9 +2,9 @@
 """
 Convert between various time formats relevant to Chandra.
 
-``chandra_time`` provides a simple interface to the C++ time conversion
-utility axTime3 (which itself is a wrapper for XTime) written by Arnold
-Rots.  Chandra_time also supports some useful additional time formats.
+``chandra_time`` provides a simple interface to the C++ time conversion utility axTime3
+(which itself is a wrapper for XTime) written by Arnold Rots.  Chandra_time also
+supports some useful additional time formats.
 
 .. warning::
    The ``chandra_time`` package and ``DateTime`` class are deprecated. All new code
@@ -88,6 +88,18 @@ time. This is useful for testing.
    >>> os.environ['CXOTIME_NOW'] = '2020:001:00:00:00.000'
    >>> DateTime().date
    '2020:001:00:00:00.000'
+
+If the input time is a single `delta time string
+<https://docs.astropy.org/en/stable/api/astropy.time.TimeDeltaQuantityString.html>`_,
+then the ``DateTime`` object is
+initialized as the current time (or ``CXOTIME_NOW``) plus the delta time. A delta time
+string is of the form ``"+/-1yr 2d 3hr 4.2min 10.25s"``. One year is exactly 365.25 days,
+not one calendar year. Likewise one day is always 86400.0 sec. The components must be in
+``yr, d, hr, min, s`` order, but each component is optional. Assuming the same
+``CXOTIME_NOW`` value above:
+
+   >>> DateTime("1d 2hr 3.5min 4s").date
+   '2020:002:02:03:34.000'
 
 For convenience a DateTime object can be initialized from another DateTime object.
 
@@ -710,6 +722,24 @@ def _convert(time_in, sys_in, fmt_in, sys_out, fmt_out):
     return time_out
 
 
+# Regex to parse a delta time string like "1.02yr 2.2d 3.12hr 4.322min 5.6s" where each
+# element is optional but order is fixed. This is copied from astropy/time/formats.py.
+re_float = r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?"
+re_delta_time = re.compile(
+    rf"""^ \s*
+    (?P<sign>[-+])? \s*  # Optional sign
+    (?=[^-+\s])  # At least one character which is not a sign or whitespace
+    ((?P<yr>{re_float}) \s* yr \s*)?
+    ((?P<d>{re_float}) \s* d \s*)?
+    ((?P<hr>{re_float}) \s* hr \s*)?
+    ((?P<min>{re_float}) \s* min \s*)?
+    ((?P<s>{re_float}) \s* s)?
+    \s* $
+    """,
+    re.VERBOSE,
+)
+
+
 class DateTime(object):
     """
     DateTime - Convert between various time formats
@@ -790,6 +820,13 @@ class DateTime(object):
             format = 'secs'
         except (AttributeError, ImportError, AssertionError, ChandraTimeError):
             pass
+
+        # Special case a single delta time string like "1hr 3min 2.05s" which is
+        # relative to the current time.
+        if isinstance(time_in, str) and re_delta_time.match(time_in):
+            from cxotime import CxoTime
+            time_in = CxoTime(time_in).date
+            format = "date"
 
         try:
             self.time_in = time_in.time_in
