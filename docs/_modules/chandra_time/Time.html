@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chandra_time.Time &#8212; chandra_time 4.2.0 documentation</title>
+    <title>chandra_time.Time &#8212; chandra_time 4.3.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../_static/documentation_options.js?v=d0ae6d56"></script>
+    <script src="../../_static/documentation_options.js?v=a17b270f"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">chandra_time 4.2.0 documentation</a>
+	<a href="../../index.html">chandra_time 4.3.0 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -64,9 +64,9 @@
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Convert between various time formats relevant to Chandra.</span>
 
-<span class="sd">``chandra_time`` provides a simple interface to the C++ time conversion</span>
-<span class="sd">utility axTime3 (which itself is a wrapper for XTime) written by Arnold</span>
-<span class="sd">Rots.  Chandra_time also supports some useful additional time formats.</span>
+<span class="sd">``chandra_time`` provides a simple interface to the C++ time conversion utility axTime3</span>
+<span class="sd">(which itself is a wrapper for XTime) written by Arnold Rots.  Chandra_time also</span>
+<span class="sd">supports some useful additional time formats.</span>
 
 <span class="sd">.. warning::</span>
 <span class="sd">   The ``chandra_time`` package and ``DateTime`` class are deprecated. All new code</span>
@@ -150,6 +150,18 @@
 <span class="sd">   &gt;&gt;&gt; os.environ[&#39;CXOTIME_NOW&#39;] = &#39;2020:001:00:00:00.000&#39;</span>
 <span class="sd">   &gt;&gt;&gt; DateTime().date</span>
 <span class="sd">   &#39;2020:001:00:00:00.000&#39;</span>
+
+<span class="sd">If the input time is a single `delta time string</span>
+<span class="sd">&lt;https://docs.astropy.org/en/stable/api/astropy.time.TimeDeltaQuantityString.html&gt;`_,</span>
+<span class="sd">then the ``DateTime`` object is</span>
+<span class="sd">initialized as the current time (or ``CXOTIME_NOW``) plus the delta time. A delta time</span>
+<span class="sd">string is of the form ``&quot;+/-1yr 2d 3hr 4.2min 10.25s&quot;``. One year is exactly 365.25 days,</span>
+<span class="sd">not one calendar year. Likewise one day is always 86400.0 sec. The components must be in</span>
+<span class="sd">``yr, d, hr, min, s`` order, but each component is optional. Assuming the same</span>
+<span class="sd">``CXOTIME_NOW`` value above:</span>
+
+<span class="sd">   &gt;&gt;&gt; DateTime(&quot;1d 2hr 3.5min 4s&quot;).date</span>
+<span class="sd">   &#39;2020:002:02:03:34.000&#39;</span>
 
 <span class="sd">For convenience a DateTime object can be initialized from another DateTime object.</span>
 
@@ -799,6 +811,24 @@
     <span class="k">return</span> <span class="n">time_out</span>
 
 
+<span class="c1"># Regex to parse a delta time string like &quot;1.02yr 2.2d 3.12hr 4.322min 5.6s&quot; where each</span>
+<span class="c1"># element is optional but order is fixed. This is copied from astropy/time/formats.py.</span>
+<span class="n">re_float</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?&quot;</span>
+<span class="n">re_delta_time</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">rf</span><span class="s2">&quot;&quot;&quot;^ \s*</span>
+<span class="s2">    (?P&lt;sign&gt;[-+])? \s*  # Optional sign</span>
+<span class="s2">    (?=[^-+\s])  # At least one character which is not a sign or whitespace</span>
+<span class="s2">    ((?P&lt;yr&gt;</span><span class="si">{</span><span class="n">re_float</span><span class="si">}</span><span class="s2">) \s* yr \s*)?</span>
+<span class="s2">    ((?P&lt;d&gt;</span><span class="si">{</span><span class="n">re_float</span><span class="si">}</span><span class="s2">) \s* d \s*)?</span>
+<span class="s2">    ((?P&lt;hr&gt;</span><span class="si">{</span><span class="n">re_float</span><span class="si">}</span><span class="s2">) \s* hr \s*)?</span>
+<span class="s2">    ((?P&lt;min&gt;</span><span class="si">{</span><span class="n">re_float</span><span class="si">}</span><span class="s2">) \s* min \s*)?</span>
+<span class="s2">    ((?P&lt;s&gt;</span><span class="si">{</span><span class="n">re_float</span><span class="si">}</span><span class="s2">) \s* s)?</span>
+<span class="s2">    \s* $</span>
+<span class="s2">    &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">VERBOSE</span><span class="p">,</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="DateTime">
 <a class="viewcode-back" href="../../index.html#chandra_time.Time.DateTime">[docs]</a>
 <span class="k">class</span> <span class="nc">DateTime</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
@@ -881,6 +911,13 @@
             <span class="nb">format</span> <span class="o">=</span> <span class="s1">&#39;secs&#39;</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">AttributeError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">,</span> <span class="ne">AssertionError</span><span class="p">,</span> <span class="n">ChandraTimeError</span><span class="p">):</span>
             <span class="k">pass</span>
+
+        <span class="c1"># Special case a single delta time string like &quot;1hr 3min 2.05s&quot; which is</span>
+        <span class="c1"># relative to the current time.</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">time_in</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">re_delta_time</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">time_in</span><span class="p">):</span>
+            <span class="kn">from</span> <span class="nn">cxotime</span> <span class="kn">import</span> <span class="n">CxoTime</span>
+            <span class="n">time_in</span> <span class="o">=</span> <span class="n">CxoTime</span><span class="p">(</span><span class="n">time_in</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
+            <span class="nb">format</span> <span class="o">=</span> <span class="s2">&quot;date&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">time_in</span> <span class="o">=</span> <span class="n">time_in</span><span class="o">.</span><span class="n">time_in</span>

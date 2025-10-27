@@ -5,11 +5,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>chandra_time &#8212; chandra_time 4.2.0 documentation</title>
+    <title>chandra_time &#8212; chandra_time 4.3.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="_static/documentation_options.js?v=d0ae6d56"></script>
+    <script src="_static/documentation_options.js?v=a17b270f"></script>
     <script src="_static/doctools.js?v=9bcbadda"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="_static/sidebar.js"></script>
@@ -45,7 +45,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="#">chandra_time 4.2.0 documentation</a>
+	<a href="#">chandra_time 4.3.0 documentation</a>
 	 &#187;
       </li>
       
@@ -62,9 +62,9 @@
   <section id="module-chandra_time.Time">
 <span id="chandra-time"></span><h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">chandra_time</span></code><a class="headerlink" href="#module-chandra_time.Time" title="Link to this heading">¶</a></h1>
 <p>Convert between various time formats relevant to Chandra.</p>
-<p><code class="docutils literal notranslate"><span class="pre">chandra_time</span></code> provides a simple interface to the C++ time conversion
-utility axTime3 (which itself is a wrapper for XTime) written by Arnold
-Rots.  Chandra_time also supports some useful additional time formats.</p>
+<p><code class="docutils literal notranslate"><span class="pre">chandra_time</span></code> provides a simple interface to the C++ time conversion utility axTime3
+(which itself is a wrapper for XTime) written by Arnold Rots.  Chandra_time also
+supports some useful additional time formats.</p>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">chandra_time</span></code> package and <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> class are deprecated. All new code
@@ -206,6 +206,17 @@ time. This is useful for testing.</p>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="p">[</span><span class="s1">&#39;CXOTIME_NOW&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="s1">&#39;2020:001:00:00:00.000&#39;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">()</span><span class="o">.</span><span class="n">date</span>
 <span class="go">&#39;2020:001:00:00:00.000&#39;</span>
+</pre></div>
+</div>
+<p>If the input time is a single <a class="reference external" href="https://docs.astropy.org/en/stable/api/astropy.time.TimeDeltaQuantityString.html">delta time string</a>,
+then the <code class="docutils literal notranslate"><span class="pre">DateTime</span></code> object is
+initialized as the current time (or <code class="docutils literal notranslate"><span class="pre">CXOTIME_NOW</span></code>) plus the delta time. A delta time
+string is of the form <code class="docutils literal notranslate"><span class="pre">&quot;+/-1yr</span> <span class="pre">2d</span> <span class="pre">3hr</span> <span class="pre">4.2min</span> <span class="pre">10.25s&quot;</span></code>. One year is exactly 365.25 days,
+not one calendar year. Likewise one day is always 86400.0 sec. The components must be in
+<code class="docutils literal notranslate"><span class="pre">yr,</span> <span class="pre">d,</span> <span class="pre">hr,</span> <span class="pre">min,</span> <span class="pre">s</span></code> order, but each component is optional. Assuming the same
+<code class="docutils literal notranslate"><span class="pre">CXOTIME_NOW</span></code> value above:</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">DateTime</span><span class="p">(</span><span class="s2">&quot;1d 2hr 3.5min 4s&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">date</span>
+<span class="go">&#39;2020:002:02:03:34.000&#39;</span>
 </pre></div>
 </div>
 <p>For convenience a DateTime object can be initialized from another DateTime object.</p>
