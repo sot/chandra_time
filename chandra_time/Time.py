@@ -586,7 +586,6 @@ def convert_vals(vals, format_in, format_out):
     if vals.dtype.kind == 'S':
         vals = np.char.decode(vals, 'ascii')
 
-
     # If the input is already string-like then pass straight to convert_time.
     # Otherwise convert to string with str().
     if vals.dtype.kind == 'U':
