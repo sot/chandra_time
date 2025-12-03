@@ -586,13 +586,20 @@ def convert_vals(vals, format_in, format_out):
     if vals.dtype.kind == 'S':
         vals = np.char.decode(vals, 'ascii')
 
+    def legacy_repr(x):
+        # If it's a NumPy scalar (np.float64, np.int64, np.str_, np.bool_, etc.)
+        # convert to the corresponding Python scalar; otherwise leave it as-is.
+        if isinstance(x, np.generic):
+            x = x.item()
+        return repr(x)
+
     # If the input is already string-like then pass straight to convert_time.
     # Otherwise convert to string with repr().
     if vals.dtype.kind == 'U':
         outs = [axTime3.convert_time(val, sys_in, fmt_in, sys_out, fmt_out)
                 for val in vals.flatten()]
     else:
-        outs = [axTime3.convert_time(repr(val), sys_in, fmt_in, sys_out, fmt_out)
+        outs = [axTime3.convert_time(legacy_repr(val), sys_in, fmt_in, sys_out, fmt_out)
                 for val in vals.flatten()]
 
     if (six.PY3
