@@ -4,7 +4,6 @@ import sys
 
 from setuptools import Extension, setup
 from ska_helpers.setup_helper import duplicate_package_info
-from testr.setup_helper import cmdclass
 
 os_name = platform.system()
 if os_name == "Windows":
@@ -43,6 +42,7 @@ if "--version" in sys.argv[1:]:
     ext_modules = None
 else:
     from Cython.Build import cythonize
+
     ext_modules = cythonize(extensions, language_level="3")
 
 setup(
@@ -56,6 +56,4 @@ setup(
     packages=packages,
     package_dir=package_dir,
     ext_modules=ext_modules,
-    tests_require=["pytest"],
-    cmdclass=cmdclass,
 )
