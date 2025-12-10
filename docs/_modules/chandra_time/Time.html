@@ -4,11 +4,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>chandra_time.Time &#8212; chandra_time 4.3.0 documentation</title>
+    <title>chandra_time.Time &#8212; chandra_time 4.3.1 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
     <link rel="stylesheet" type="text/css" href="../../_static/bootstrap-astropy.css?v=f4f7060c" />
     
-    <script src="../../_static/documentation_options.js?v=a17b270f"></script>
+    <script src="../../_static/documentation_options.js?v=0503a316"></script>
     <script src="../../_static/doctools.js?v=9bcbadda"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="text/javascript" src="../../_static/sidebar.js"></script>
@@ -44,7 +44,7 @@
     <h3>Navigation</h3>
     <ul>
       <li>
-	<a href="../../index.html">chandra_time 4.3.0 documentation</a>
+	<a href="../../index.html">chandra_time 4.3.1 documentation</a>
 	 &#187;
       </li>
       <li><a href="../index.html" accesskey="U">Module code</a> &#187;</li>
@@ -666,12 +666,12 @@
         <span class="n">vals</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">char</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">vals</span><span class="p">,</span> <span class="s1">&#39;ascii&#39;</span><span class="p">)</span>
 
     <span class="c1"># If the input is already string-like then pass straight to convert_time.</span>
-    <span class="c1"># Otherwise convert to string with repr().</span>
+    <span class="c1"># Otherwise convert to string with str().</span>
     <span class="k">if</span> <span class="n">vals</span><span class="o">.</span><span class="n">dtype</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s1">&#39;U&#39;</span><span class="p">:</span>
         <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span>
+        <span class="n">outs</span> <span class="o">=</span> <span class="p">[</span><span class="n">axTime3</span><span class="o">.</span><span class="n">convert_time</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">val</span><span class="p">),</span> <span class="n">sys_in</span><span class="p">,</span> <span class="n">fmt_in</span><span class="p">,</span> <span class="n">sys_out</span><span class="p">,</span> <span class="n">fmt_out</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">vals</span><span class="o">.</span><span class="n">flatten</span><span class="p">()]</span>
 
     <span class="k">if</span> <span class="p">(</span><span class="n">six</span><span class="o">.</span><span class="n">PY3</span>
